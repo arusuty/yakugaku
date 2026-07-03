@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薬学 総合演習Ⅰ 過去問演習アプリ</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        .panel {
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f1f2f6;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn:hover:not(:disabled) {
+            background-color: #e1e2e6;
+        }
+        .btn.correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .btn.incorrect {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+        .explanation-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            display: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        .stat-val {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        .mode-select {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .nav-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+        }
+        .action-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+        }
+        .badge-correct { background-color: var(--success-color); }
+        .badge-incorrect { background-color: var(--error-color); }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>総合演習Ⅰ 過去問マスター</h1>
+    <div style="font-size: 12px; margin-top: 5px;">局方・生薬・生物 (2019-2023)</div>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('quiz')">問題演習</button>
+        <button class="tab-btn" onclick="switchTab('stats')">個人成績表</button>
+        <button class="tab-btn" onclick="switchTab('settings')">設定・選択</button>
+    </div>
+
+    <!-- QUIZ PANEL -->
+    <div id="quiz-panel" class="panel active">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #666;">
+                <span id="question-meta">年度・番号</span>
+                <span id="question-record">過去の戦績: -</span>
+            </div>
+            <div id="question-text" style="font-weight: bold; font-size: 16px; margin-bottom: 20px;">
+                問題文がここに読み込まれます。
+            </div>
+            <div id="options-container">
+                <!-- Options buttons go here -->
+            </div>
+            <div id="explanation" class="explanation-box">
+                <strong>【解答解説】</strong>
+                <p id="explanation-text" style="margin-top: 5px; font-size: 14px;"></p>
+            </div>
+            <div class="nav-actions">
+                <button id="prev-btn" class="action-btn" onclick="prevQuestion()" style="background-color: #7f8c8d;">戻る</button>
+                <button id="next-btn" class="action-btn" onclick="nextQuestion()">次の問題へ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div id="stats-panel" class="panel">
+        <div class="card">
+            <h2>あなたの学習進捗</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>総解答回数</div>
+                    <div id="stat-total-attempts" class="stat-val">0</div>
+                </div>
+                <div class="stat-card">
+                    <div>総合正答率</div>
+                    <div id="stat-overall-accuracy" class="stat-val">0%</div>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>弱点・間違えた問題リスト</h2>
+            <div id="weak-questions-list" style="max-height: 300px; overflow-y: auto;">
+                <!-- List of incorrect entries -->
+                <p style="color: #666; font-size: 14px; text-align: center; padding: 10px;">まだ間違えた記録はありません。素晴らしい！</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETTINGS PANEL -->
+    <div id="settings-panel" class="panel">
+        <div class="card">
+            <h2>出題モード設定</h2>
+            <div class="mode-select">
+                <label style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">対象年度を選択</label>
+                <select id="year-select" class="btn" style="text-align: center; background: white;" onchange="initQuizFlow()">
+                    <option value="all">全年度ミックス (2019〜2023)</option>
+                    <option value="2023">2023年度</option>
+                    <option value="2022">2022年度</option>
+                    <option value="2021">2021年度</option>
+                    <option value="2019">2019年度</option>
+                </select>
+                
+                <label style="font-weight: bold; font-size: 14px; margin-top: 10px; margin-bottom: 5px;">出題順序</label>
+                <select id="order-select" class="btn" style="text-align: center; background: white;" onchange="initQuizFlow()">
+                    <option value="sequential">番号順に解く</option>
+                    <option value="random">ランダムに出題</option>
+                </select>
+            </div>
+            <button class="action-btn" style="margin-top: 20px; background-color: var(--error-color);" onclick="clearAllData()">成績データを完全にリセットする</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Embedded Quiz Data Strategy
+    const quizData = [
+        {
+            id: "2023_q1", year: "2023", num: 1,
+            text: "日本薬局方の沿革・構成に関する記述のうち、正しいのはどれか。",
+            options: [
+                "1. 日本薬局方は、文部科学大臣が薬事・食品衛生審議会の意見を聴いて定める。",
+                "2. 日本薬局方は、原則として10年ごとに全面改正が行われる。",
+                "3. 日本薬局方は、通則、生薬総則、製剤総則、一般試験法及び医薬品各条等から構成される。",
+                "4. 日本薬局方に公式な英文版は存在しない。"
+            ],
+            answer: 2, // 0-indexed, meaning Option 3
+            explanation: "1：文部科学大臣ではなく厚生労働大臣が定めます。2：原則5年ごとに全面改正されます。3：正しい記載です。4：公式な英文版も発行されています。"
+        },
+        {
+            id: "2023_q2", year: "2023", num: 2,
+            text: "日本薬局方通則における温度の定義について、正しいのはどれか。",
+            options: [
+                "1. 標準温度は20℃とする。",
+                "2. 常温は10〜30℃とする。",
+                "3. 室温は1〜25℃とする。",
+                "4. 「直ちに」とは、前の操作を終了した後の次の操作を60分以内に開始することをいう。"
+            ],
+            answer: 0,
+            explanation: "1：標準温度は20℃で正しい。2：常温は15〜25℃。3：室温は1〜30℃。4：「直ちに」は30分以内を指します。"
+        },
+        {
+            id: "2023_q3", year: "2023", num: 3,
+            text: "日本薬局方通則に関する記述のうち、正しいのはどれか。",
+            options: [
+                "1. 陰性とは、基準値を超える変化が認められることをいう。",
+                "2. 物質名の前後に「 」（かっこ）を付けるのは、それが純品であることを意味する。",
+                "3. 減圧とは、別に規定がない限り0.1 kPa以下の圧力をいう。",
+                "4. サンプルの採取量において「約」とある場合は、記載された数値の±10%の範囲を指す。"
+            ],
+            answer: 3,
+            explanation: "1：陰性は変化が認められないか基準以下を指します。2：局方に規定されたものであることを意味します。3：減圧は2.0 kPa以下を指します。4：±10%の規定は正しいです。"
+        },
+        {
+            id: "2023_q4", year: "2023", num: 4,
+            text: "通則の規定において、「約1.5gを精密に量る」という指示に対して、天秤の感度を考慮した適切な表記はどれか。",
+            options: [
+                "1. 1.5g",
+                "2. 1.4985g",
+                "3. 1.50g",
+                "4. 1.500g"
+            ],
+            answer: 1,
+            explanation: "「精密に量る」とは、量るべき最小位の桁の一つ下の桁まで考慮して天秤で計測することです。1.5gという質量に対しては小数第4位まで精密に量る必要があります。"
+        },
+        {
+            id: "2023_q5", year: "2023", num: 5,
+            text: "日本薬局方における溶液の濃度表記「(1→10)」の定義として正しいのはどれか。",
+            options: [
+                "1. 固形薬品1gに対して溶媒10mLを加えること。",
+                "2. 固形薬品1gに対して溶媒9mLを加えること。",
+                "3. 固形薬品1gを溶媒に溶かして全量を10mLにすること。",
+                "4. 固形薬品1gを溶媒10gに溶解すること。"
+            ],
+            answer: 2,
+            explanation: "「1→10」のような表記は、固形薬品なら1g、液状薬品なら1mLを溶媒に溶かして、全量を10mLにすることを意味します。加える溶媒量ではない点に注意してください。"
+        },
+        {
+            id: "2023_q6", year: "2023", num: 6,
+            text: "日本薬局方の各条に記載されている項目のうち、原則として医薬品の適否の判定基準とはされないものはどれか。",
+            options: [
+                "1. 確認試験",
+                "2. 性状",
+                "3. 純度試験",
+                "4. 定量法"
+            ],
+            answer: 1,
+            explanation: "「性状」の項目は、色やにおい、味、結晶性などの目安を記載したものであり、原則として品質の適否（合格・不合格）の判定基準にはされません。"
+        }
+    ];
+
+    let activeQuestions = [];
+    let currentIdx = 0;
+    let hasAnswered = false;
+
+    // Initialize individual application storage structure
+    function getStorage() {
+        const data = localStorage.getItem('yakugaku_quiz_records');
+        return data ? JSON.parse(data) : {};
+    }
+
+    function saveRecord(qId, isCorrect) {
+        let records = getStorage();
+        if (!records[qId]) {
+            records[qId] = { attempts: 0, correct: 0 };
+        }
+        records[qId].attempts += 1;
+        if (isCorrect) records[qId].correct += 1;
+        localStorage.setItem('yakugaku_quiz_records', JSON.stringify(records));
+        updateStatsPanel();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(`${tabName}-panel`).classList.add('active');
+        
+        if (tabName === 'stats') updateStatsPanel();
+    }
+
+    function initQuizFlow() {
+        const yearSel = document.getElementById('year-select').value;
+        const orderSel = document.getElementById('order-select').value;
+        
+        // Filter
+        if (yearSel === 'all') {
+            activeQuestions = [...quizData];
+        } else {
+            activeQuestions = quizData.filter(q => q.year === yearSel);
+        }
+        
+        // Order
+        if (orderSel === 'random') {
+            activeQuestions.sort(() => Math.random() - 0.5);
+        } else {
+            activeQuestions.sort((a, b) => a.num - b.num);
+        }
+        
+        currentIdx = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (activeQuestions.length === 0) {
+            document.getElementById('question-text').innerHTML = "選択された年度の問題データがまだ追加されていません。";
+            document.getElementById('options-container').innerHTML = "";
+            document.getElementById('question-meta').innerText = "-";
+            document.getElementById('question-record').innerText = "-";
+            return;
+        }
+
+        hasAnswered = false;
+        document.getElementById('explanation').style.display = 'none';
+        
+        const q = activeQuestions[currentIdx];
+        document.getElementById('question-meta').innerText = `${q.year}年度 問${q.num}`;
+        document.getElementById('question-text').innerText = q.text;
+        
+        // Show previous record
+        const records = getStorage();
+        if (records[q.id]) {
+            const r = records[q.id];
+            document.getElementById('question-record').innerText = `過去の戦績: ${r.correct}勝 / ${r.attempts}回 (正答率 ${Math.round((r.correct/r.attempts)*100)}%)`;
+        } else {
+            document.getElementById('question-record').innerText = "過去の戦績: 未解答";
+        }
+
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = "";
+        
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx);
+            optionsContainer.appendChild(btn);
+        });
+
+        document.getElementById('prev-btn').disabled = currentIdx === 0;
+        document.getElementById('next-btn').innerText = (currentIdx === activeQuestions.length - 1) ? "最初の問題へ戻る" : "次の問題へ";
+    }
+
+    function checkAnswer(selectedIdx) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+        
+        const q = activeQuestions[currentIdx];
+        const isCorrect = (selectedIdx === q.answer);
+        
+        const buttons = document.getElementById('options-container').querySelectorAll('.btn');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            if (idx === q.answer) {
+                btn.classList.add('correct');
+            } else if (idx === selectedIdx) {
+                btn.classList.add('incorrect');
+            }
+        });
+        
+        // Save records to LocalStorage
+        saveRecord(q.id, isCorrect);
+        
+        document.getElementById('explanation-text').innerText = q.explanation;
+        document.getElementById('explanation').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentIdx < activeQuestions.length - 1) {
+            currentIdx++;
+        } else {
+            currentIdx = 0;
+        }
+        loadQuestion();
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            loadQuestion();
+        }
+    }
+
+    function updateStatsPanel() {
+        const records = getStorage();
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+        
+        const weakList = document.getElementById('weak-questions-list');
+        weakList.innerHTML = "";
+        
+        let hasWeak = false;
+
+        quizData.forEach(q => {
+            if (records[q.id]) {
+                const r = records[q.id];
+                totalAttempts += r.attempts;
+                totalCorrect += r.correct;
+                
+                // If incorrect at least once, or accuracy < 100%
+                if (r.correct < r.attempts) {
+                    hasWeak = true;
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `
+                        <span><strong>${q.year}年 問${q.num}</strong>: ${q.text.substring(0, 20)}...</span>
+                        <span class="badge badge-incorrect">${r.correct} / ${r.attempts} 正解</span>
+                    `;
+                    weakList.appendChild(item);
+                }
+            }
+        });
+
+        document.getElementById('stat-total-attempts').innerText = totalAttempts;
+        const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+        document.getElementById('stat-overall-accuracy').innerText = `${accuracy}%`;
+        
+        if (!hasWeak) {
+            weakList.innerHTML = `<p style="color: #666; font-size: 14px; text-align: center; padding: 10px;">間違えた問題はありません！</p>`;
+        }
+    }
+
+    function clearAllData() {
+        if (confirm("これまでの解答記録、正答率をすべてリセットしますか？")) {
+            localStorage.removeItem('yakugaku_quiz_records');
+            updateStatsPanel();
+            initQuizFlow();
+            alert("データをリセットしました。");
+        }
+    }
+
+    // Run on startup
+    initQuizFlow();
+</script>
+
+</body>
+</html>
