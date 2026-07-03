@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>薬学 総合演習Ⅰ 過去問マスター</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #3498db;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+        .tabs {
+            display: flex;
+            background: #fff;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            color: #666;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            color: var(--accent-color);
+            border-bottom: 3px solid var(--accent-color);
+            background-color: rgba(52, 152, 219, 0.05);
+        }
+        .panel { display: none; }
+        .panel.active { display: block; }
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-left: 4px solid var(--accent-color);
+            padding-left: 10px;
+        }
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f1f2f6;
+            border: 1px solid #dcdde1;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .btn.correct {
+            background-color: #d4edda !important;
+            border-color: #c3e6cb !important;
+            color: #155724;
+            font-weight: bold;
+        }
+        .btn.incorrect {
+            background-color: #f8d7da !important;
+            border-color: #f5c6cb !important;
+            color: #721c24;
+        }
+        .explanation-box {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #e8f4fd;
+            border-left: 4px solid var(--accent-color);
+            border-radius: 4px;
+            display: none;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+        .stat-val {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-align: center;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+        }
+        .badge {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            color: white;
+        }
+        .badge-incorrect { background-color: var(--error-color); }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>総合演習Ⅰ 過去問マスター</h1>
+    <div style="font-size: 12px; margin-top: 5px;">局方・生薬・生物 (Ver 1.1)</div>
+</header>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('quiz')">問題演習</button>
+        <button class="tab-btn" onclick="switchTab('stats')">個人成績表</button>
+        <button class="tab-btn" onclick="switchTab('settings')">出題設定</button>
+    </div>
+
+    <div id="quiz-panel" class="panel active">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #666;">
+                <span id="question-meta">年度・番号</span>
+                <span id="question-record">過去の戦績: -</span>
+            </div>
+            <div id="question-text" style="font-weight: bold; font-size: 16px; margin-bottom: 20px;">問題が読み込まれます</div>
+            <div id="options-container"></div>
+            <div id="explanation" class="explanation-box">
+                <strong>【解答解説】</strong>
+                <p id="explanation-text" style="margin-top: 5px; font-size: 14px;"></p>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="prev-btn" class="action-btn" onclick="prevQuestion()" style="background-color: #7f8c8d;">戻る</button>
+                <button id="next-btn" class="action-btn" onclick="nextQuestion()">次の問題へ</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="stats-panel" class="panel">
+        <div class="card">
+            <h2>学習進捗状況</h2>
+            <div class="stats-grid">
+                <div class="stat-card"><div>総解答回数</div><div id="stat-total-attempts" class="stat-val">0</div></div>
+                <div class="stat-card"><div>総合正答率</div><div id="stat-overall-accuracy" class="stat-val">0%</div></div>
+            </div>
+        </div>
+        <div class="card">
+            <h2>要復習リスト（間違えた問題）</h2>
+            <div id="weak-questions-list"></div>
+        </div>
+    </div>
+
+    <div id="settings-panel" class="panel">
+        <div class="card">
+            <h2>出題モード</h2>
+            <select id="year-select" class="btn" style="background: white;" onchange="initQuizFlow()">
+                <option value="all">全問題ミックス</option>
+            </select>
+            <select id="order-select" class="btn" style="background: white;" onchange="initQuizFlow()">
+                <option value="sequential">番号順に出題</option>
+                <option value="random">ランダムに出題</option>
+            </select>
+            <button class="action-btn" style="margin-top: 20px; background-color: var(--error-color); width:100%;" onclick="clearAllData()">データをすべてリセット</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 問1〜問35までのデータを完全格納
+    const quizData = [
+        { id: "2023_q1", year: "2023", num: 1, text: "日本薬局方の沿革・構成に関する記述のうち、正しいのはどれか。", options: ["1. 日本薬局方は、文部科学大臣が薬事・食品衛生審議会の意見を聴いて定める。", "2. 日本薬局方は、原則として10年ごとに全面改正が行われる。", "3. 日本薬局方は、通則、生薬総則、製剤総則、一般試験法及び医薬品各条等から構成される。", "4. 日本薬局方に公式な英文版は存在しない。"], answer: 2, explanation: "1：厚生労働大臣が定めます。2：原則5年ごとに全面改正されます。3：正しいです。4：英文版も存在します。" },
+        { id: "2023_q2", year: "2023", num: 2, text: "日本薬局方通則における温度の定義について、正しいのはどれか。", options: ["1. 標準温度は20℃とする。", "2. 常温は10〜30℃とする。", "3. 室温は1〜25℃とする。", "4. 「直ちに」とは、前の操作を終了した後の次の操作を60分以内に開始することをいう。"], answer: 0, explanation: "1：標準温度は20℃で正しい。2：常温は15〜25℃。3：室温は1〜30℃。4：「直ちに」は30分以内です。" },
+        { id: "2023_q3", year: "2023", num: 3, text: "日本薬局方通則に関する記述のうち、正しいのはどれか。", options: ["1. 陰性とは、基準値を超える変化が認められることをいう。", "2. 物質名の前後に「 」（かっこ）を付けるのは、それが純品であることを意味する。", "3. 減圧とは、別に規定がない限り0.1 kPa以下の圧力をいう。", "4. サンプルの採取量において「約」とある場合は、記載された数値の±10%の範囲を指す。"], answer: 3, explanation: "1：変化がないか基準以下を指します。2：局方に規定された医薬品であることを意味します。3：減圧は2.0 kPa以下。4：±10%は正しい。" },
+        { id: "2023_q4", year: "2023", num: 4, text: "通則の規定において、「約1.5gを精密に量る」という指示に対して適切な表記はどれか。", options: ["1. 1.5g", "2. 1.4985g", "3. 1.50g", "4. 1.500g"], answer: 1, explanation: "「精密に量る」とは、天秤の感度に応じて最小位のもう一つ下の桁まで考慮して量ることです。1.5gに対しては小数第4位まで測定されているものが適切です。" },
+        { id: "2023_q5", year: "2023", num: 5, text: "日本薬局方における溶液の濃度表記「(1→10)」の定義として正しいのはどれか。", options: ["1. 固形薬品1gに対して溶媒10mLを加えること。", "2. 固形薬品1gに対して溶媒9mLを加えること。", "3. 固形薬品1gを溶媒に溶かして全量を10mLにすること。", "4. 固形薬品1gを溶媒10gに溶解すること。"], answer: 2, explanation: "「1→10」は、固形1g（液体1mL）を溶かして、全体の量を10mLにすることを意味します。加える溶媒の量ではない点に注意。" },
+        { id: "2023_q6", year: "2023", num: 6, text: "日本薬局方の各条に記載されている項目のうち、原則として品質の適否の判定基準とはされないものはどれか。", options: ["1. 確認試験", "2. 性状", "3. 純度試験", "4. 定量法"], answer: 1, explanation: "「性状」は色やにおいなどの目安であり、原則として適否（合格・不合格）の判定基準にはされません。" },
+        { id: "2023_q7", year: "2023", num: 7, text: "紫外可視吸光度測定法において、層長1cm、試薬濃度1%（w/v）の溶液の吸光度を表す記号として正しいのはどれか。", options: ["1. A", "2. ε", "3. E(1%, 1cm)", "4. T"], answer: 2, explanation: "層長1cm、濃度1%における吸光度は「比吸光度」と呼ばれ、「E(1%, 1cm)」で表記されます。" },
+        { id: "2023_q8", year: "2023", num: 8, text: "紫外可視吸光度測定法において、紫外部（200〜400 nm）の測定に用いられる光源として正しいのはどれか。", options: ["1. タングステンランプ", "2. 重水素放電管", "3. 中空陰極ランプ", "4. ナトリウムランプ"], answer: 1, explanation: "紫外部（200〜400nm）には「重水素放電管」、可視部（400〜800nm）には「タングステンランプ」が用いられます。" },
+        { id: "2023_q9", year: "2023", num: 9, text: "純度試験法において、重金属試験法（第1法）の比較液を調製する際に用いられる標準液はどれか。", options: ["1. 鉄標準液", "2. 鉛標準液", "3. ヒ素標準液", "4. アンモニウム標準液"], answer: 1, explanation: "重金属試験法の比較対象には「鉛標準液」が用いられ、黒褐色の呈色度合いを比較します。" },
+        { id: "2023_q10", year: "2023", num: 10, text: "ヒ素試験法において、装置の吸収液として用いられ、ヒ化水素と反応して赤色の呈色を示す試薬はどれか。", options: ["1. ジエチルジチオカルバミド酸銀ピリジン試液", "2. 硫化ナトリウム試液", "3. 塩化第二鉄試液", "4. クンバ川抽出液"], answer: 0, explanation: "発生したヒ化水素を「ジエチルジチオカルバミド酸銀ピリジン試液」に吸収させ、赤色を呈させて測定します。" },
+        { id: "2023_q11", year: "2023", num: 11, text: "エンドトキシン試験法に関する記述のうち、正しいのはどれか。", options: ["1. カブトガニの血球抽出成分（ライセート試薬）がエンドトキシンによってゲル化する反応を利用する。", "2. 主にグラム陽性菌の細胞壁成分を測定する試験である。", "3. エンドトキシンは、100℃、30分間の加熱で完全に不活化される。", "4. 発熱物質試験法と完全に同じ操作・手順で行われる。"], answer: 0, explanation: "1：カブトガニ血球抽出成分（ライセート試薬）のゲル化を利用します。2：グラム陰性菌成分。3：250℃以上30分以上の加熱が必要。" },
+        { id: "2023_q12", year: "2023", num: 12, text: "発熱物質試験法において、試験に用いられる動物として正しいのはどれか。", options: ["1. 体重300g以上の健康なラット", "2. 体重1.5kg以上の健康なウサギ", "3. 体重20g以上の健康なマウス", "4. 体重2.0kg以上の健康なモルモット"], answer: 1, explanation: "体温変化に敏感な「体重1.5kg以上の健康なウサギ」が用いられます。" },
+        { id: "2023_q13", year: "2023", num: 13, text: "微生物学的試験法における「D値」の定義として正しいのはどれか。", options: ["1. 微生活の全細胞数が2倍になる時間", "2. 特定の滅菌条件下で微生物の生存数を1/10（90%減少）にするのに必要な時間・線量", "3. 微生物が完全に死滅する最短時間", "4. 温度が10℃上昇したときの死滅速度変化率"], answer: 1, explanation: "生存数を「1/10（90%減少）」にするために必要な時間、または照射線量を表します。" },
+        { id: "2023_q14", year: "2023", num: 14, text: "液体クロマトグラフィーにおいて固定相への保持の強さを表し、ピーク保持時間からデッドボリュームを引いて算出するパラメータはどれか。", options: ["1. 分離係数", "2. 保持比（容量比）", "3. 理論段数", "4. シンメトリー係数"], answer: 1, explanation: "保持比（k'）はカラム内での物質の保持強さを表す指標で、(tR - t0) / t0 で算出されます。" },
+        { id: "2023_q15", year: "2023", num: 15, text: "旋光度測定法において、別に規定がない限り測定に用いられる単色光の光源はどれか。", options: ["1. 水銀ランプ", "2. 重水素放電管", "3. ナトリウムスペクトルのD線", "4. タングステンランプ"], answer: 2, explanation: "旋光度測定の光源には「ナトリウムスペクトルのD線」を用いる規定となっています。" },
+        { id: "2023_q16", year: "2023", num: 16, text: "生薬の基原に関する記述のうち、正しいのはどれか。", options: ["1. カンゾウ（甘草）の基原植物はマメ科である。", "2. マオウ（麻黄）の基原植物はナス科である。", "3. ケイヒ（桂皮）の基原植物はバラ科である。", "4. シャクヤク（芍薬）の基原植物はセリ科である。"], answer: 0, explanation: "カンゾウはマメ科植物。マオウはマオウ科、ケイヒはクスノキ科、シャクヤクはボタン科です。" },
+        { id: "2023_q17", year: "2023", num: 17, text: "次の生薬のうち、薬用部位が「根茎」であるものはどれか。", options: ["1. ニンジン（人参）", "2. ショウキョウ（生姜）", "3. トウキ（当帰）", "4. ゲンチアナ"], answer: 1, explanation: "ショウキョウ（生姜）は「根茎」を薬用部位とします。その他は「根」を用います。" },
+        { id: "2023_q18", year: "2023", num: 18, text: "生薬の成分のうち、主要成分としてアルカロイドを含むものはどれか。", options: ["1. マオウ（麻黄）", "2. カンゾウ（甘草）", "3. ダイオウ（大黄）", "4. センナ"], answer: 0, explanation: "マオウは交感神経興奮作用をもつアルカロイド「エフェドリン」を含みます。" },
+        { id: "2023_q19", year: "2023", num: 19, text: "確認試験において、塩化第二鉄試液を加えたときに、フェノール性水酸基の存在により呈色を示す生薬はどれか。", options: ["1. ボタンピ", "2. キジツ", "3. チョウジ（丁子）", "4. ゲンノショウコ"], answer: 2, explanation: "チョウジの主要精油成分「オイゲノール」はフェノール性水酸基をもつため呈色します。" },
+        { id: "2023_q20", year: "2023", num: 20, text: "生薬総則において、生薬の虫害を防ぐための保存規定として正しいのはどれか。", options: ["1. 密封容器に保存する。", "2. 気密容器に保存し、別に規定がない限り適当な防虫剤を施すか完全に乾燥させる。", "3. 遮光した密閉容器に保存する。", "4. 冷所に保存する。"], answer: 1, explanation: "虫害を防ぐため、生薬は通例「気密容器」に保存し防虫措置を施します。" },
+        { id: "2023_q21", year: "2023", num: 21, text: "ヒトの細胞内において、主に「ATP（エネルギー）の産生」を担っている細胞小器官はどれか。", options: ["1. リソソーム", "2. ゴルジ体", "3. ミトコンドリア", "4. 小胞体"], answer: 2, explanation: "ミトコンドリアは酸素を利用してエネルギー（ATP）を産生する「細胞の発電所」です。" },
+        { id: "2023_q22", year: "2023", num: 22, text: "血液の成分に関する記述のうち、主に組織への酸素運搬を担う細胞成分はどれか。", options: ["1. 赤血球", "2. 白血球", "3. 血小板", "4. マクロファージ"], answer: 0, explanation: "赤血球はヘモグロビンを含み、酸素を全身の組織へ運ぶ役割を持ちます。" },
+        { id: "2023_q23", year: "2023", num: 23, text: "自律神経系において、交感神経が優位に働いたときに起こる身体の反応として正しいのはどれか。", options: ["1. 瞳孔の縮小", "2. 心拍数の増加", "3. 胃腸の運動促進", "4. 気管支の収縮"], answer: 1, explanation: "交感神経が興奮すると、心拍数増加、瞳孔散大、気管支拡張、消化管活動抑制が起こります。" },
+        { id: "2023_q24", year: "2023", num: 24, text: "胃から分泌され、ペプシノーゲンをペプシンへと活性化させる強い酸性をもつ物質はどれか。", options: ["1. 重炭酸イオン", "2. 胃酸（塩酸）", "3. 内因子", "4. ガストリン"], answer: 1, explanation: "壁細胞から分泌される胃酸（塩酸）の強酸環境によりペプシノーゲンが活性化されます。" },
+        { id: "2023_q25", year: "2023", num: 25, text: "免疫系において、抗体（免疫グロブリン）を直接産生・分泌する細胞はどれか。", options: ["1. 形質細胞", "2. 細胞障害性T細胞", "3. ヘルパーT細胞", "4. 自然キラー細胞"], answer: 0, explanation: "B細胞が抗原刺激によって分化した「形質細胞」が抗体を産生します。" },
+        { id: "2023_q26", year: "2023", num: 26, text: "強酸と強塩基の中和反応における「pH飛躍」の範囲判定に適した指示薬はどれか。", options: ["1. メチルオレンジとフェノールフタレインの両方が使用できる", "2. メチルオレンジのみ", "3. フェノールフタレインのみ", "4. どちらも使用できない"], answer: 0, explanation: "強酸×強塩基はpH4〜10と大きく変化するため、両方の変色域がカバーされます。" },
+        { id: "2023_q27", year: "2023", num: 27, text: "少量の酸や塩基を加えてもpHを一定に保つ作用（緩衝作用）をもつ溶液を何というか。", options: ["1. 飽和溶液", "2. 緩衝溶液", "3. コロイド溶液", "4. 理想溶液"], answer: 1, explanation: "弱酸とその塩などを混合した、pH変動に抵抗する溶液を「緩衝溶液」と呼びます。" },
+        { id: "2023_q28", year: "2023", num: 28, text: "DNAの二重らせん構造において、アデニン（A）と相補的な塩基対を形成する塩基はどれか。", options: ["1. グアニン", "2. シトシン", "3. チミン", "4. ウラシル"], answer: 2, explanation: "DNAではAはチミン(T)と、Gはシトシン(C)と対を作ります（RNAではAとUが対になります）。" },
+        { id: "2023_q29", year: "2023", num: 29, text: "DNAの塩基配列を写し取ってmRNA（メッセンジャーRNA）を合成するプロセスを何というか。", options: ["1. 複製", "2. 転写", "3. 翻訳", "4. 逆転写"], answer: 1, explanation: "DNAからRNAを合成するステップを「転写」と呼びます。" },
+        { id: "2023_q30", year: "2023", num: 30, text: "mRNA上のコドンを認識し、対応するアミノ酸をリボソームへと運搬するRNAはどれか。", options: ["1. tRNA", "2. rRNA", "3. snRNA", "4. miRNA"], answer: 0, explanation: "tRNA（転移RNA）がアミノ酸をリボソームへ運ぶクレーンの役割を担います。" },
+        { id: "2023_q31", year: "2023", num: 31, text: "RNA前駆体からイントロンが除去され、エキソンが結合されて成熟mRNAになる過程を何というか。", options: ["1. キャッピング", "2. ポリA付加", "3. スプライシング", "4. プロテオリシス"], answer: 2, explanation: "不要部分を切り貼りするこの修飾を「スプライシング」と呼びます。" },
+        { id: "2023_q32", year: "2023", num: 32, text: "酵素が基質と結合して反応を触媒する際、酵素の活性が最大となる最適な温度を何というか。", options: ["1. 限界温度", "2. 最適温度（至適温度）", "3. 転移温度", "4. 飽和温度"], answer: 1, explanation: "酵素の反応速度が最も活性化する温度を「最適温度（至適温度）」と言います。" },
+        { id: "2023_q33", year: "2023", num: 33, text: "酵素反応速度が最大反応速度（Vmax）のちょうど半分（1/2 Vmax）に達するときの基質濃度を表す定数はどれか。", options: ["1. Km（ミカエリス定数）", "2. kcat", "3. Ki", "4. Kd"], answer: 0, explanation: "Km（ミカエリス定数）の定義です。値が小さいほど親和性が高いことを示します。" },
+        { id: "2023_q34", year: "2023", num: 34, text: "血液を濾過して尿を生成し、体液のホメオスタシス（恒常性）を維持する主たる器官はどれか。", options: ["1. 肝臓", "2. 脾臓", "3. 腎臓", "4. 胆嚢"], answer: 2, explanation: "腎臓が老廃物の排泄、電解質・水分バランスの調整を担います。" },
+        { id: "2023_q35", year: "2023", num: 35, text: "体細胞分裂において、複製された染色体が細胞の赤道面に一列に並ぶ時期はどれか。", options: ["1. 前期", "2. 中期", "3. 後期", "4. 終期"], answer: 1, explanation: "染色体が中央（赤道面）に整列するのは「中期」の特徴です。" }
+    ];
+
+    let activeQuestions = [];
+    let currentIdx = 0;
+    let hasAnswered = false;
+
+    function getStorage() {
+        const data = localStorage.getItem('yakugaku_quiz_records_v11');
+        return data ? JSON.parse(data) : {};
+    }
+
+    function saveRecord(qId, isCorrect) {
+        let records = getStorage();
+        if (!records[qId]) records[qId] = { attempts: 0, correct: 0 };
+        records[qId].attempts += 1;
+        if (isCorrect) records[qId].correct += 1;
+        localStorage.setItem('yakugaku_quiz_records_v11', JSON.stringify(records));
+        updateStatsPanel();
+    }
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(`${tabName}-panel`).classList.add('active');
+        if (tabName === 'stats') updateStatsPanel();
+    }
+
+    function initQuizFlow() {
+        const orderSel = document.getElementById('order-select').value;
+        activeQuestions = [...quizData];
+        if (orderSel === 'random') activeQuestions.sort(() => Math.random() - 0.5);
+        else activeQuestions.sort((a, b) => a.num - b.num);
+        currentIdx = 0;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        hasAnswered = false;
+        document.getElementById('explanation').style.display = 'none';
+        const q = activeQuestions[currentIdx];
+        document.getElementById('question-meta').innerText = `${q.year}年度 問${q.num}`;
+        document.getElementById('question-text').innerText = q.text;
+        
+        const records = getStorage();
+        if (records[q.id]) {
+            const r = records[q.id];
+            document.getElementById('question-record').innerText = `過去の戦績: ${r.correct}勝 / ${r.attempts}回 (正答率 ${Math.round((r.correct/r.attempts)*100)}%)`;
+        } else {
+            document.getElementById('question-record').innerText = "過去の戦績: 未解答";
+        }
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn';
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx);
+            container.appendChild(btn);
+        });
+        document.getElementById('prev-btn').disabled = currentIdx === 0;
+    }
+
+    function checkAnswer(selectedIdx) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+        const q = activeQuestions[currentIdx];
+        const isCorrect = (selectedIdx === q.answer);
+        
+        const buttons = document.getElementById('options-container').querySelectorAll('.btn');
+        buttons.forEach((btn, idx) => {
+            btn.disabled = true;
+            if (idx === q.answer) btn.classList.add('correct');
+            else if (idx === selectedIdx) btn.classList.add('incorrect');
+        });
+        saveRecord(q.id, isCorrect);
+        document.getElementById('explanation-text').innerText = q.explanation;
+        document.getElementById('explanation').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        if (currentIdx < activeQuestions.length - 1) currentIdx++;
+        else currentIdx = 0;
+        loadQuestion();
+    }
+
+    function prevQuestion() {
+        if (currentIdx > 0) { currentIdx--; loadQuestion(); }
+    }
+
+    function updateStatsPanel() {
+        const records = getStorage();
+        let totalAttempts = 0, totalCorrect = 0;
+        const list = document.getElementById('weak-questions-list');
+        list.innerHTML = "";
+        let hasWeak = false;
+
+        quizData.forEach(q => {
+            if (records[q.id]) {
+                const r = records[q.id];
+                totalAttempts += r.attempts;
+                totalCorrect += r.correct;
+                if (r.correct < r.attempts) {
+                    hasWeak = true;
+                    const item = document.createElement('div');
+                    item.className = 'history-item';
+                    item.innerHTML = `<span><strong>${q.year}年 問${q.num}</strong>: ${q.text.substring(0,20)}...</span><span class="badge badge-incorrect">${r.correct}/${r.attempts}正解</span>`;
+                    list.appendChild(item);
+                }
+            }
+        });
+        document.getElementById('stat-total-attempts').innerText = totalAttempts;
+        const acc = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+        document.getElementById('stat-overall-accuracy').innerText = `${acc}%`;
+        if (!hasWeak) list.innerHTML = "<p style='color:#666;text-align:center;padding:10px;'>間違えた問題はありません！</p>";
+    }
+
+    function clearAllData() {
+        if (confirm("全ての成績をリセットしますか？")) {
+            localStorage.removeItem('yakugaku_quiz_records_v11');
+            updateStatsPanel();
+            initQuizFlow();
+        }
+    }
+    initQuizFlow();
+</script>
+</body>
+</html>
