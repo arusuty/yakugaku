@@ -4,93 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>薬学 総合演習Ⅰ 過去問マスター</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --accent-color: #3498db;
-            --success-color: #2ecc71;
-            --error-color: #e74c3c;
-            --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
-            --text-color: #333333;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); line-height: 1.6; padding-bottom: 60px; }
-        header { background-color: var(--primary-color); color: white; padding: 15px; text-align: center; }
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        .tabs { display: flex; background: #fff; margin-bottom: 20px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tab-btn { flex: 1; padding: 12px; text-align: center; background: none; border: none; font-size: 14px; font-weight: bold; color: #666; cursor: pointer; }
-        .tab-btn.active { color: var(--accent-color); border-bottom: 3px solid var(--accent-color); background-color: rgba(52, 152, 219, 0.05); }
-        .panel { display: none; }
-        .panel.active { display: block; }
-        .card { background: var(--card-bg); border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-        h2 { font-size: 18px; margin-bottom: 15px; color: var(--primary-color); border-left: 4px solid var(--accent-color); padding-left: 10px; }
-        .btn { display: inline-block; width: 100%; padding: 12px; margin: 8px 0; background-color: #f1f2f6; border: 1px solid #dcdde1; border-radius: 6px; text-align: left; font-size: 15px; cursor: pointer; }
-        .btn.correct { background-color: #d4edda !important; border-color: #c3e6cb !important; color: #155724; font-weight: bold; }
-        .btn.incorrect { background-color: #f8d7da !important; border-color: #f5c6cb !important; color: #721c24; }
-        .explanation-box { margin-top: 15px; padding: 15px; background-color: #e8f4fd; border-left: 4px solid var(--accent-color); border-radius: 4px; display: none; }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .stat-card { background: #fff; padding: 15px; border-radius: 6px; text-align: center; border: 1px solid #eee; }
-        .stat-val { font-size: 24px; font-weight: bold; color: var(--accent-color); }
-        .action-btn { flex: 1; padding: 10px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; text-align: center; }
-        .history-item { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .badge { padding: 2px 6px; border-radius: 4px; font-size: 11px; color: white; }
-        .badge-incorrect { background-color: var(--error-color); }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-16">
 
-<header>
-    <h1>総合演習Ⅰ 過去問マスター</h1>
-    <div style="font-size: 12px; margin-top: 5px;">局方・生薬・生物・衛生・薬理・薬剤・法規・実務 (Ver 1.2)</div>
+<header class="bg-gradient-to-r from-slate-800 to-slate-900 text-white shadow-md">
+    <div class="max-w-3xl mx-auto px-4 py-6 text-center">
+        <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">総合演習Ⅰ 過去問マスター</h1>
+        <p class="text-xs text-slate-400 mt-2 font-medium tracking-wide">
+            局方・生薬・生物・衛生・薬理・薬剤・法規・実務 (Ver 2.0)
+        </p>
+    </div>
 </header>
 
-<div class="container">
-    <div class="tabs">
-        <button id="t-quiz" class="tab-btn active" onclick="switchTab('quiz')">問題演習</button>
-        <button id="t-stats" class="tab-btn" onclick="switchTab('stats')">個人成績表</button>
-        <button id="t-settings" class="tab-btn" onclick="switchTab('settings')">出題設定</button>
+<div class="max-w-3xl w-full mx-auto px-4 mt-6 flex-grow">
+    <div class="flex bg-white rounded-xl shadow-sm border border-slate-100 p-1 mb-6">
+        <button id="t-quiz" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('quiz')">
+            問題演習
+        </button>
+        <button id="t-stats" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('stats')">
+            個人成績表
+        </button>
+        <button id="t-settings" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('settings')">
+            出題設定
+        </button>
     </div>
 
-    <div id="quiz-panel" class="panel active">
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 13px; color: #666;">
-                <span id="question-meta">年度・番号</span>
-                <span id="question-record">過去の戦績: -</span>
+    <div id="quiz-panel" class="panel hidden">
+        <div class="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-100">
+            <!-- Progress & Meta Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5 text-xs md:text-sm font-bold text-slate-500">
+                <div class="flex items-center gap-2">
+                    <span id="question-meta" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">年度・番号</span>
+                    <span id="mode-badge" class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full hidden">弱点補強モード中</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="question-counter">1 / 90問目</span>
+                    <span id="question-record" class="text-indigo-600">過去の戦績: -</span>
+                </div>
             </div>
-            <div id="question-text" style="font-weight: bold; font-size: 16px; margin-bottom: 20px;">問題が読み込まれます</div>
-            <div id="options-container"></div>
-            <div id="explanation" class="explanation-box">
-                <strong>【解答解説】</strong>
-                <p id="explanation-text" style="margin-top: 5px; font-size: 14px;"></p>
+
+            <!-- Question Text -->
+            <div id="question-text" class="text-base md:text-lg font-bold leading-relaxed text-slate-800 mb-6">
+                問題が読み込まれます
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-                <button id="prev-btn" class="action-btn" onclick="prevQuestion()" style="background-color: #7f8c8d;">戻る</button>
-                <button id="next-btn" class="action-btn" onclick="nextQuestion()">次の問題へ</button>
+
+            <!-- Options Area -->
+            <div id="options-container" class="space-y-3">
+                <!-- Dynamically generated buttons go here -->
+            </div>
+
+            <!-- Explanation Box -->
+            <div id="explanation" class="mt-6 p-5 bg-emerald-50/50 border border-emerald-100 rounded-xl hidden">
+                <h4 class="text-emerald-800 font-extrabold text-sm flex items-center gap-1.5 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    解答解説
+                </h4>
+                <p id="explanation-text" class="text-slate-700 text-sm md:text-base leading-relaxed pl-5"></p>
+            </div>
+
+            <!-- Footer Navigation Buttons -->
+            <div class="flex gap-4 mt-8 border-t border-slate-100 pt-5">
+                <button id="prev-btn" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all duration-150 shadow-sm text-sm" onclick="prevQuestion()">
+                    戻る
+                </button>
+                <button id="next-btn" class="flex-1 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition-all duration-150 shadow-sm text-sm" onclick="nextQuestion()">
+                    次の問題へ
+                </button>
             </div>
         </div>
     </div>
 
-    <div id="stats-panel" class="panel">
-        <div class="card">
-            <h2>学習進捗状況</h2>
-            <div class="stats-grid">
-                <div class="stat-card"><div>総解答回数</div><div id="stat-total-attempts" class="stat-val">0</div></div>
-                <div class="stat-card"><div>総合正答率</div><div id="stat-overall-accuracy" class="stat-val">0%</div></div>
+    <div id="stats-panel" class="panel hidden">
+        <!-- Progress Stat Grid -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">
+            <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>学習進捗状況
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50/50 rounded-xl p-4 text-center border border-slate-100">
+                    <div class="text-xs text-slate-400 font-bold mb-1">総解答回数</div>
+                    <div id="stat-total-attempts" class="text-2xl font-black text-slate-700">0</div>
+                </div>
+                <div class="bg-slate-50/50 rounded-xl p-4 text-center border border-slate-100">
+                    <div class="text-xs text-slate-400 font-bold mb-1">総合正答率</div>
+                    <div id="stat-overall-accuracy" class="text-2xl font-black text-indigo-600">0%</div>
+                </div>
             </div>
         </div>
-        <div class="card">
-            <h2>要復習リスト（間違えた問題）</h2>
-            <div id="weak-questions-list"></div>
+
+        <!-- Weak Questions List -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-rose-500 rounded-full"></span>要復習リスト（現在間違えている問題）
+            </h2>
+            <div id="weak-questions-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto pr-1">
+                <!-- Dynamically generated list items -->
+            </div>
         </div>
     </div>
 
-    <div id="settings-panel" class="panel">
-        <div class="card">
-            <h2>出題モード</h2>
-            <button class="btn" style="background: white; text-align: center;" onclick="toggleOrder()">出題順を変更する</button>
-            <div id="order-status" style="text-align: center; font-size: 14px; margin-bottom: 15px; color: #666;">現在の設定: 番号順に出題</div>
-            <button class="action-btn" style="margin-top: 20px; background-color: var(--error-color); width:100%;" onclick="clearAllData()">データをすべてリセット</button>
+    <div id="settings-panel" class="panel hidden">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+            <!-- 1. Year Scope Selection -->
+            <div>
+                <h2 class="text-base font-extrabold text-slate-800 mb-3 flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>① 出題範囲（年度）
+                </h2>
+                <select id="year-filter" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500" onchange="changeYearFilter(this.value)">
+                    <option value="all">全問題ミックス（全年度）</option>
+                    <!-- Dynamically populated -->
+                </select>
+            </div>
+
+            <!-- 2. Play Mode Selection -->
+            <div>
+                <h2 class="text-base font-extrabold text-slate-800 mb-3 flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>② 出題モード設定
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <button id="mode-normal" class="p-4 border-2 rounded-xl text-left transition-all duration-200" onclick="changePlayMode('normal')">
+                        <div class="font-black text-sm mb-1 text-slate-800">通常モード</div>
+                        <p class="text-xs text-slate-400">番号順にじっくり進めます。</p>
+                    </button>
+                    <button id="mode-random" class="p-4 border-2 rounded-xl text-left transition-all duration-200" onclick="changePlayMode('random')">
+                        <div class="font-black text-sm mb-1 text-slate-800">通常ランダム</div>
+                        <p class="text-xs text-slate-400">全体からランダムに出題します。</p>
+                    </button>
+                    <button id="mode-weak" class="p-4 border-2 rounded-xl text-left transition-all duration-200 relative" onclick="changePlayMode('weak')">
+                        <div class="font-black text-sm mb-1 text-slate-800 flex items-center gap-1.5">
+                            弱点補強モード
+                            <span class="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px]">自動除外</span>
+                        </div>
+                        <p class="text-xs text-slate-400">間違えた問題のみ、常にシャッフルで出題します。</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="border-t border-slate-100 pt-6">
+                <button class="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl transition-all duration-150 shadow-sm text-sm" onclick="clearAllData()">
+                    学習記録（個人成績）をすべてリセット
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -114,7 +177,7 @@
         { id: "2023_q15", year: "2023", num: 15, text: "旋光度測定法において、別に規定がない限り測定に用いられる単色光の光源はどれか。", options: ["1. 水銀ランプ", "2. 重水素放電管", "3. ナトリウムスペクトルのD線", "4. タングステンランプ"], answer: 2, explanation: "旋光度測定の光源には「ナトリウムスペクトルのD線」を用いる規定となっています。" },
         { id: "2023_q16", year: "2023", num: 16, text: "生薬の基原に関する記述のうち、正しいのはどれか。", options: ["1. カンゾウ（甘草）の基原植物はマメ科である。", "2. マオウ（麻黄）の基原植物はナス科である。", "3. ケイヒ（桂皮）の基原植物はバラ科である。", "4. シャクヤク（芍薬）の基原植物はセリ科である。"], answer: 0, explanation: "カンゾウはマメ科植物。マオウはマオウ科、ケイヒはクスノキ科、シャクヤクはボタン科です。" },
         { id: "2023_q17", year: "2023", num: 17, text: "次の生薬のうち、薬用部位が「根茎」であるものはどれか。", options: ["1. ニンジン（人参）", "2. ショウキョウ（生姜）", "3. トウキ（当帰）", "4. ゲンチアナ"], answer: 1, explanation: "ショウキョウ（生姜）は「根茎」を薬用部位とします。その他は「根」を用います。" },
-        { id: "2023_q18", year: "2023", num: 18, text: "生薬の成分のうち、主要成分としてアルカロイドを含むものはどれか。", options: ["1. マオウ（麻黄）", "2. カンゾウ（甘草）", "3. ダイオウ（大黄）", "4. センナ"], answer: 0, explanation: "マオウは交感神経興奮作用をもつアルカロイド「エフェドリン」を含みます。" },
+        { id: "2023_q18", year: "2023", num: 18, text: "生薬の成分のうち、主要成分としてアルカロイドを含むものはどれか。", options: ["1. マオウ（麻黄）", "2. カンゾウ（甘草）", "3. ダイオウ（大黄）", "4. センナ"], answer: 0, explanation: "マオウは交感神経興興奮作用をもつアルカロイド「エフェドリン」を含みます。" },
         { id: "2023_q19", year: "2023", num: 19, text: "確認試験において、塩化第二鉄試液を加えたときに、フェノール性水酸基の存在により呈色を示す生薬はどれか。", options: ["1. ボタンピ", "2. キジツ", "3. チョウジ（丁子）", "4. ゲンノショウコ"], answer: 2, explanation: "チョウジの主要精油成分「オイゲノール」はフェノール性水酸基をもつため呈色します。" },
         { id: "2023_q20", year: "2023", num: 20, text: "生薬総則において、生薬の虫害を防ぐための保存規定として正しいのはどれか。", options: ["1. 密封容器に保存する。", "2. 気密容器に保存し、別に規定がない限り適当な防虫剤を施すか完全に乾燥させる。", "3. 遮光した密閉容器に保存する。", "4. 冷所に保存する。"], answer: 1, explanation: "虫害を防ぐため、生薬は通例「気密容器」に保存し防虫措置を施します。" },
         { id: "2023_q21", year: "2023", num: 21, text: "ヒトの細胞内において、主に「ATP（エネルギー）の産生」を担っている細胞小器官はどれか。", options: ["1. リソソーム", "2. ゴルジ体", "3. ミトコンドリア", "4. 小胞体"], answer: 2, explanation: "ミトコンドリアは酸素を利用してエネルギー（ATP）を産生する「細胞の発電所」です。" },
@@ -140,9 +203,9 @@
         { id: "2023_q41", year: "2023", num: 41, text: "細胞質内で行われ、1分子のグルコースが嫌気的に分解されて2分子のピルビン酸（または乳酸）になり、ネットで2分子のATPを産生する代謝経路はどれか。", options: ["1. クエン酸回路（TCA回路）", "2. 解糖系", "3. 電子伝達系", "4. ペントースリン酸経路"], answer: 1, explanation: "グルコース（糖）を分解してエネルギーを取り出す最初のステップは、細胞質基質で行われる「解糖系」です。酸素を必要としない（嫌気的）代謝経路であることも重要なポイントです。" },
         { id: "2023_q42", year: "2023", num: 42, text: "ミトコンドリアのマトリクスで行われ、解糖系から生じたアセチルCoAが結合して回転し、NADHやFADH2を高効率で産生する主要なエネルギー代謝回路はどれか。", options: ["1. グリコーゲン合成経路", "2. カルビン回路", "3. クエン酸回路（TCA回路）", "4. 尿素回路"], answer: 2, explanation: "アセチルCoAがオキサロ酢酸と結合してクエン酸になることから始まるこの回路は、「クエン酸回路（TCA回路、クレブス回路）」と呼ばれます。ミトコンドリア内で働き、大量の電子伝達体（NADHなど）を生み出します。" },
         { id: "2023_q43", year: "2023", num: 43, text: "ミトコンドリアの内膜に存在する高分子複合体において、NADHなどの電子が移動するエネルギーを利用してプロトン（H+）の濃度勾配を形成し、莫大なATPを産生するシステムはどれか。", options: ["1. 解糖系", "2. 電子伝達系", "3. 糖新生経路", "4. 脂肪酸β酸化"], answer: 1, explanation: "ミトコンドリア内膜で行われる「電子伝達系」は、送られてきた電子を利用して膜間腔に水素イオン（プロトン）を汲み出し、その濃度勾配が元に戻る勢い（ATP合成酵素）を使って大量のATPを合成します。" },
-        { id: "2023_q44", year: "2023", num: 44, text: "飢餓時や糖質不足時に、肝臓においてピルビン酸や乳酸、アミノ酸（アラニンなど）、グリセロールなどの「糖質以外の物質」からグルコースを新たにつくり出す代謝経路はどれか。", options: ["1. 糖新生", "2. グリコーゲン分解", "3. クエン酸回路", "4. 脂肪酸合成"], answer: 0, explanation: "乳酸やアミノ酸など、ノンシュガーの材料からグルコース（血糖）を逆合成する経路を「糖新生」と呼びます。主に肝臓（一部腎臓）で行われ、血糖値の維持に貢献します。" },
+        { id: "2023_q44", year: "2023", num: 44, text: "飢餓時や糖質不足時に、肝臓においてピルビン酸や乳酸、アミノ酸（アラニンなど）、グリセロールなどの「糖質以外の物質」からグルコースを新たをつくり出す代謝経路はどれか。", options: ["1. 糖新生", "2. グリコーゲン分解", "3. クエン酸回路", "4. 脂肪酸合成"], answer: 0, explanation: "乳酸やアミノ酸など、ノンシュガーの材料からグルコース（血糖）を逆合成する経路を「糖新生」と呼びます。主に肝臓（一部腎臓）で行われ、血糖値の維持に貢献します。" },
         { id: "2023_q45", year: "2023", num: 45, text: "脂質の代謝において、脂肪酸がミトコンドリア内で炭素2個ずつ（アセチルCoAの単位）に次々と切断され、酸化されてエネルギーを生み出すプロセスを何というか。", options: ["1. α酸化", "2. β酸化", "3. ω酸化", "4. 糖新生"], answer: 1, explanation: "脂肪酸のカルボキシ基側から数えて2番目の炭素（β位）が酸化されて切断されていくため、「脂肪酸のβ酸化」と呼びます。これにより生じた大量のアセチルCoAがクエン酸回路へ送られ、莫大なエネルギー源となります。" },
-        { id: "2023_q46", year: "2023", num: 46, text: "脂溶性ビタミンのうち、視覚の正常維持（夜盲症の予防）や皮膚・粘膜の上皮細胞の分化に関与するものはどれか。", options: ["1. ビタミンA", "2. ビタミンD", "3. ビタミンE", "4. ビタミンK"], answer: 0, explanation: "ビタミンA（レチノール等）は、網膜 of 光受容体であるロドプシンの構成成分であり、不足すると暗い場所で目が見えなくなる「夜盲症」を引き起こします。" },
+        { id: "2023_q46", year: "2023", num: 46, text: "脂溶性ビタミンのうち、視覚の正常維持（夜盲症の予防）や皮膚・粘膜の上皮細胞の分化に関与するものはどれか。", options: ["1. ビタミンA", "2. ビタミンD", "3. ビタミンE", "4. ビタミンK"], answer: 0, explanation: "ビタミンA（レチノール等）は、網膜の光受容体であるロドプシンの構成成分であり、不足すると暗い場所で目が見えなくなる「夜盲症」を引き起こします。" },
         { id: "2023_q47", year: "2023", num: 47, text: "肝臓や腎臓で代謝されて活性型となり、小腸からのカルシウムの吸収を促進して骨の恒常性を維持する脂溶性ビタミンはどれか。", options: ["1. ビタミンA", "2. ビタミンD", "3. ビタミンE", "4. ビタミンK"], answer: 1, explanation: "ビタミンDは、皮膚での紫外線合成や食事から摂取された後、肝臓と腎臓で水酸化されて「活性型ビタミンD」となり、小腸や腎臓でカルシウムの吸収を強力に高めます。欠乏するとくる病や骨軟化症の原因になります。" },
         { id: "2023_q48", year: "2023", num: 48, text: "水溶性ビタミンのうち、欠乏することでコラーゲン合成が障害され、毛細血管の脆弱化による出血（壊血病）を引き起こすものはどれか。", options: ["1. ビタミンB1", "2. ビタミンB12", "3. ビタミンC", "4. 葉酸"], answer: 2, explanation: "ビタミンC（アスコルビン酸）は、コラーゲンを合成する際のヒドロキシ化酵素の補酵素として必須です。欠乏すると組織の結合が緩み、全身から出血する「壊血病」になります。" },
         { id: "2023_q49", year: "2023", num: 49, text: "日本の水道水質基準において、水道水の安全性を担保し、かつ病原生物による汚染を防ぐために「蛇口（給水栓）での残留濃度」が規定されている消毒試薬はどれか。", options: ["1. 遊離残留塩素", "2. オゾン", "3. 二酸化塩素", "4. クロラミン"], answer: 0, explanation: "水道法により、蛇口から出る水には「遊離残留塩素として 0.1 mg/L 以上（結合残留塩素の場合は 0.4 mg/L 以上）」が含まれているよう、塩素消毒を行うことが義務付けられています。" },
@@ -166,11 +229,11 @@
         { id: "2023_q67", year: "2023", num: 67, text: "交感神経系の受容体のうち、主に心筋に存在し、刺激されることで心拍数増加や心収縮力増強（心機能亢進）を引き起こすものはどれか。", options: ["1. アドレナリンα1受容体", "2. アドレナリンβ1受容体", "3. アドレナリンβ2受容体", "4. ムスカリンM2受容体"], answer: 1, explanation: "心臓に主に分布するのは「アドレナリンβ1受容体」です。これを刺激すると心機能が亢進します。ちなみにβ2受容体は主に気管支平滑筋（刺激で弛緩）、α1受容体は血管平滑筋（刺激で収縮）に分布します。" },
         { id: "2023_q68", year: "2023", num: 68, text: "高血圧症の治療薬である「アムロジピン」の薬理作用（メカニズム）として、正しいのはどれか。", options: ["1. 血管平滑筋のL型Ca2+チャネルを遮断し、血管を拡張させる。", "2. アンジオテンシンⅡ受容体を遮断し、血管を拡張させる。", "3. β1受容体を遮断し、心拍数を減少させる。", "4. ループ利尿薬として、尿量を増加させる。"], answer: 0, explanation: "アムロジピンは「カルシウム（Ca）拮抗薬」に分類される代表的な降圧薬です。血管平滑筋にあるL型Ca2+チャネルをブロックすることで、カルシウムの流入を防ぎ、血管を広げて血圧を下げます。" },
         { id: "2023_q69", year: "2023", num: 69, text: "脂質異常症の治療薬である「アトルバスタチン」が特異的に阻害する、コレステロール生合成経路の律速酵素はどれか。", options: ["1. シクロオキシゲナーゼ（COX）", "2. HMG-CoA還元酵素", "3. アンジオテンシン変換酵素（ACE）", "4. モノアミン酸化酵素（MAO）"], answer: 1, explanation: "スタチン系医薬品（アトルバスタチンなど）は、肝臓でのコレステロール合成のスピードを決める「HMG-CoA還元酵素」を強力に阻害します。これにより、血液中の悪玉コレステロール（LDL-C）を低下させます。" },
-        { id: "2023_q70", year: "2023", num: 70, text: "解熱鎮痛薬である「アスピリン」や「イブプロフェン」などの非ステロイド性抗炎症薬（NSAIDs）が阻害する、プロスタグランジン合成の鍵となる酵素はどれか。", options: ["1. ホスホリパーゼA2", "2. シクロオキシゲナーゼ（COX）", "3. リポキシゲナーゼ", "4. トロンボキサン合成酵素"], answer: 1, explanation: "NSAIDsは「シクロオキシゲナーゼ（COX）」を阻害することで、痛みや発熱、炎症の元になるプロスタグランジン（PG）の産生を抑えます。副作用として胃粘膜を保護するPGも減るため、胃荒れが起きやすくなります。" },
+        { id: "2023_q70", year: "2023", num: 70, text: "解熱鎮痛薬である「アスピリン」や「イブプロフェン」などの非ステロイド性抗炎症薬（NSAIDs）が阻害する、プロスタグランジン合成 of 鍵となる酵素はどれか。", options: ["1. ホスホリパーゼA2", "2. シクロオキシゲナーゼ（COX）", "3. リポキシゲナーゼ", "4. トロンボキサン合成酵素"], answer: 1, explanation: "NSAIDsは「シクロオキシゲナーゼ（COX）」を阻害することで、痛みや発熱、炎症の元になるプロスタグランジン（PG）の産生を抑えます。副作用として胃粘膜を保護するPGも減るため、胃荒れが起きやすくなります。" },
         { id: "2023_q71", year: "2023", num: 71, text: "医薬品が体内に吸収された後、全身循環（血流）に達する前に、肝臓や小腸粘膜などを通過する際に代謝・分解されてしまう現象を何というか。", options: ["1. 初回通過効果（ファーストパス効果）", "2. 腸肝循環", "3. バイオアベイラビリティ", "4. 腎排泄"], answer: 0, explanation: "口から飲んだ薬（経口投与）が最初に直面するトラップが「初回通過効果」です。小腸から吸収された薬は門脈を通って必ず肝臓を通過するため、ここで一部が壊されてしまいます。これを回避するために注射剤や坐剤、吸入剤などがあります。" },
         { id: "2023_q72", year: "2023", num: 72, text: "投与された医薬品の全量（100%）のうち、どれだけの割合が分解されずに全身循環（血液中）に到達したかを示す指標を何というか。", options: ["1. クリアランス（CL）", "2. 生物学的利用能（バイオアベイラビリティ）", "3. 分布容積（Vd）", "4. 半減期（t1/2）"], answer: 1, explanation: "「バイオアベイラビリティ（F）」は、薬の全身への届きやすさを示す指標です。静脈内注射した場合は初回通過効果を受けないため100%（F=1）となります。経口薬の場合は、この値がどれくらい高いかが重要になります。" },
         { id: "2023_q73", year: "2023", num: 73, text: "薬物が血中から組織（筋肉や脂肪など）へどれだけ薄まりやすく、広く行き渡っているかを表す、仮想的な容積の指標はどれか。", options: ["1. 全身クリアランス", "2. 消失半減期", "3. 分布容積", "4. 血中濃度曲線下面積（AUC）"], answer: 2, explanation: "「分布容積（Vd）」は、体内にある薬の総量を血中濃度で割った値です。この値が非常に大きい薬は、血液中よりも脂肪組織や筋肉などの組織に強く移行している（血中にはあまり残っていない）ことを意味します。" },
-        { id: "2023_q74", year: "2023", num: 74, text: "血液中の薬物が代謝や排泄によって元の濃度の「半分（50%）」に減少するまでにかかる時間を何というか。", options: ["1. 消失半減期（t1/2）", "2. 平均滞留時間（MRT）", "3. 最高血中濃度到達時間（Tmax）", "4. 飽和時間"], answer: 0, explanation: "「消失半減期（t1/2）」は、薬が体から抜けるスピードの目安です。一般に、薬の投与を完全にやめてから半減期の約4〜5倍の時間が経過すると、体内の薬はほぼ完全に（95%以上）消失したとみなされます。" },
+        { id: "2023_q74", year: "2023", num: 74, text: "血液中の薬物が代謝や排泄によって元の濃度の「半分（50%）」に減少するまでにTODOにかかる時間を何というか。", options: ["1. 消失半減期（t1/2）", "2. 平均滞留時間（MRT）", "3. 最高血中濃度到達時間（Tmax）", "4. 飽和時間"], answer: 0, explanation: "「消失半減期（t1/2）」は、薬が体から抜けるスピードの目安です。一般に、薬の投与を完全にやめてから半減期の約4〜5倍の時間が経過すると、体内の薬はほぼ完全に（95%以上）消失したとみなされます。" },
         { id: "2023_q75", year: "2023", num: 75, text: "医薬品の主な代謝反応のうち、肝細胞の滑面小胞体に多く存在する「チトクロームP450（CYP）」などが関与する、酸化・還元・加水分解などの反応を何反応というか。", options: ["1. 第Ⅰ相反応", "2. 第Ⅱ相反応", "3. 抱合反応", "4. グルクロン酸抱合"], answer: 0, explanation: "肝臓での薬物代謝は2段階あります。構造を変化させて親水性を少し高める（酸化など）のが「第Ⅰ相反応（主役はCYP）」です。その後、さらにグルクロン酸などを結合させて水に溶けやすくし、尿として捨てやすくするのを「第Ⅱ相反応（抱合反応）」と呼びます。" },
         { id: "2023_q76", year: "2023", num: 76, text: "日本薬局方における「錠剤」の定義や特徴に関する記述のうち、正しいのはどれか。", options: ["1. 錠剤はすべて、口腔内で速やかに溶解又は崩壊させて服用しなければならない。", "2. 医薬品を一定の形状に成形した固形の製剤であり、最も広く利用されている経口投与の剤形である。", "3. 錠剤にコーティングを施すことは、日本薬局方により禁止されている。", "4. 錠剤はすべて、胃の中では絶対に溶けずに腸に届いてから溶けるように作られている。"], answer: 1, explanation: "2：錠剤は固形の経口製剤の代表格です。1：口腔内崩壊錠（OD錠）など一部を除き、普通の錠剤は水で飲み込みます。3：味を隠したり光から守るための糖衣やフィルムコーティングは認められています。4：腸溶錠など特殊な加工を施したもの以外は、通常胃で崩壊します。" },
         { id: "2023_q77", year: "2023", num: 77, text: "製剤において、薬物を胃液（酸性）では溶解させず、腸液（中性〜弱アルカリ性）に到達してから速やかに放出・吸収させる目的で施される特殊なコーティング錠を何というか。", options: ["1. 口腔内崩壊錠", "2. 腸溶錠（腸溶性製剤）", "3. 徐放錠（徐放性製剤）", "4. 発泡錠"], answer: 1, explanation: "胃酸によって効果が落ちてしまう薬や、胃壁を激しく刺激してしまう薬は、表面に酸で溶けない膜を張った「腸溶錠（ちょうようじょう）」に仕上げます。噛み砕いて飲むとこの機能が破壊されるため、割らずに飲む必要があります。" },
@@ -189,15 +252,24 @@
         { id: "2023_q90", year: "2023", num: 90, text: "病院や薬局において、医療事故（薬の間違いや調剤ミスなど）を防ぐため、結果として患者に被害は及ばなかったものの、一歩間違えれば重大な事故に繋がりかねなかった「ヒヤリとした、ハッとした」事例の報告書を何というか。", options: ["1. インシデントレポート（ヒヤリハット報告書）", "2. アクシデントレポート", "3. 副作用報告書", "4. 処方箋監査簿"], answer: 0, explanation: "事故を未然に防ぐための宝の山となるのが「インシデントレポート（ヒヤリハット報告）」です。これを集めて調剤室の配置やルールを見直すことが、医療安全（調剤過誤防止）の最も重要な取り組みとなります。" }
     ];
 
-    let isRandom = false;
+    let playMode = 'normal'; // 'normal' (順次), 'random' (通常ランダム), 'weak' (弱点補強)
+    let yearFilter = 'all';  // 'all' or specific year string like '2023'
     let activeQuestions = [];
     let currentIdx = 0;
     let hasAnswered = false;
 
     function getStorage() {
         try {
-            const data = localStorage.getItem('yakugaku_quiz_records_v12');
-            return data ? JSON.parse(data) : {};
+            const data = localStorage.getItem('yakugaku_quiz_records_v13');
+            const parsed = data ? JSON.parse(data) : {};
+            
+            // 互換性チェック: 古いレコードに「lastIncorrect」が無い場合は補完
+            for (let id in parsed) {
+                if (parsed[id].lastIncorrect === undefined) {
+                    parsed[id].lastIncorrect = (parsed[id].correct < parsed[id].attempts);
+                }
+            }
+            return parsed;
         } catch (e) {
             return {};
         }
@@ -205,140 +277,320 @@
 
     function saveRecord(qId, isCorrect) {
         let records = getStorage();
-        if (!records[qId]) records[qId] = { attempts: 0, correct: 0 };
+        if (!records[qId]) {
+            records[qId] = { attempts: 0, correct: 0, lastIncorrect: false };
+        }
         records[qId].attempts += 1;
-        if (isCorrect) records[qId].correct += 1;
+        
+        if (isCorrect) {
+            records[qId].correct += 1;
+            records[qId].lastIncorrect = false; // 正解したので弱点からクリア！
+        } else {
+            records[qId].lastIncorrect = true;  // 間違えたので弱点としてマーク！
+        }
+
         try {
-            localStorage.setItem('yakugaku_quiz_records_v12', JSON.stringify(records));
+            localStorage.setItem('yakugaku_quiz_records_v13', JSON.stringify(records));
         } catch (e) {}
         updateStatsPanel();
     }
 
     function switchTab(tabName) {
-        document.getElementById('quiz-panel').classList.remove('active');
-        document.getElementById('stats-panel').classList.remove('active');
-        document.getElementById('settings-panel').classList.remove('active');
-        document.getElementById('t-quiz').classList.remove('active');
-        document.getElementById('t-stats').classList.remove('active');
-        document.getElementById('t-settings').classList.remove('active');
+        document.getElementById('quiz-panel').classList.add('hidden');
+        document.getElementById('stats-panel').classList.add('hidden');
+        document.getElementById('settings-panel').classList.add('hidden');
+        
+        document.getElementById('t-quiz').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
+        document.getElementById('t-stats').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
+        document.getElementById('t-settings').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
 
-        document.getElementById(tabName + '-panel').classList.add('active');
-        document.getElementById('t-' + tabName).classList.add('active');
-        if (tabName === 'stats') updateStatsPanel();
+        document.getElementById(tabName + '-panel').classList.remove('hidden');
+        document.getElementById('t-' + tabName).className = "flex-1 py-3 text-sm font-bold rounded-lg text-indigo-600 bg-white shadow-sm border border-slate-100 transition-all duration-200";
+        
+        if (tabName === 'stats') {
+            updateStatsPanel();
+        }
     }
 
     function initQuizFlow() {
-        activeQuestions = [];
-        for(let i=0; i<quizData.length; i++) {
-            activeQuestions.push(quizData[i]);
+        const records = getStorage();
+        
+        // 1. 出題範囲 (年度) で絞り込む
+        let filtered = quizData;
+        if (yearFilter !== 'all') {
+            filtered = quizData.filter(q => q.year === yearFilter);
         }
-        if (isRandom) {
-            activeQuestions.sort(function() { return Math.random() - 0.5; });
+
+        // 2. 出題モードによる分類
+        if (playMode === 'weak') {
+            // 弱点補強モード：直近が不正解のものだけ抽出
+            activeQuestions = filtered.filter(q => {
+                const r = records[q.id];
+                return r && r.lastIncorrect;
+            });
+            // 常に完全ランダム（シャッフル）
+            activeQuestions.sort(() => Math.random() - 0.5);
+            
+            document.getElementById('mode-badge').classList.remove('hidden');
+        } else if (playMode === 'random') {
+            // 通常ランダム
+            activeQuestions = [...filtered];
+            activeQuestions.sort(() => Math.random() - 0.5);
+            document.getElementById('mode-badge').classList.add('hidden');
         } else {
-            activeQuestions.sort(function(a, b) { return a.num - b.num; });
+            // 通常順次
+            activeQuestions = [...filtered];
+            activeQuestions.sort((a, b) => {
+                if (a.year !== b.year) return b.year.localeCompare(a.year); // 最新年度順
+                return a.num - b.num; // 問題番号順
+            });
+            document.getElementById('mode-badge').classList.add('hidden');
         }
+
         currentIdx = 0;
         loadQuestion();
     }
 
     function loadQuestion() {
         hasAnswered = false;
-        document.getElementById('explanation').style.display = 'none';
-        const q = activeQuestions[currentIdx];
-        document.getElementById('question-meta').innerText = q.year + "年度 問" + q.num;
-        document.getElementById('question-text').innerText = q.text;
+        document.getElementById('explanation').classList.add('hidden');
         
+        // 対象問題がない場合の表示
+        if (activeQuestions.length === 0) {
+            document.getElementById('question-meta').innerText = "対象なし";
+            document.getElementById('question-counter').innerText = "0 / 0問";
+            document.getElementById('question-record').innerText = "戦績: -";
+            
+            if (playMode === 'weak') {
+                document.getElementById('question-text').innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-emerald-600 text-lg font-black mb-2">🎉 素晴らしい！弱点問題はありません</p>
+                        <p class="text-slate-400 text-xs font-normal">通常モードで演習を行い、間違えた問題が出るとここに自動で蓄積されます。</p>
+                        <button class="mt-5 px-6 py-2.5 bg-slate-800 text-white rounded-xl text-xs font-bold" onclick="switchTab('settings')">出題設定を変更する</button>
+                    </div>`;
+            } else {
+                document.getElementById('question-text').innerText = "該当する問題が存在しません。出題範囲を変更してください。";
+            }
+            document.getElementById('options-container').innerHTML = "";
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
+            return;
+        }
+
+        document.getElementById('prev-btn').disabled = (currentIdx === 0);
+        document.getElementById('next-btn').disabled = false;
+
+        const q = activeQuestions[currentIdx];
+        
+        // メタデータ & カウンター
+        document.getElementById('question-meta').innerText = `${q.year}年 問${q.num}`;
+        
+        if (playMode === 'weak') {
+            document.getElementById('question-counter').innerText = `残り弱点: ${activeQuestions.length - currentIdx}問`;
+        } else {
+            document.getElementById('question-counter').innerText = `${currentIdx + 1} / ${activeQuestions.length}問目`;
+        }
+        
+        // 過去の戦績
         const records = getStorage();
         if (records[q.id]) {
             const r = records[q.id];
-            document.getElementById('question-record').innerText = "過去の戦績: " + r.correct + "勝 / " + r.attempts + "回 (正答率 " + Math.round((r.correct/r.attempts)*100) + "%)";
+            const rate = r.attempts > 0 ? Math.round((r.correct / r.attempts) * 100) : 0;
+            document.getElementById('question-record').innerText = `過去の戦績: ${r.correct}勝 / ${r.attempts}回 (${rate}%)`;
         } else {
             document.getElementById('question-record').innerText = "過去の戦績: 未解答";
         }
 
+        // 本文
+        document.getElementById('question-text').innerText = q.text;
+
+        // 選択肢
         const container = document.getElementById('options-container');
         container.innerHTML = "";
-        for(let idx=0; idx<q.options.length; idx++) {
+        
+        q.options.forEach((opt, idx) => {
             const btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.innerText = q.options[idx];
-            btn.onclick = (function(v) { return function() { checkAnswer(v); }; })(idx);
+            btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/20 active:scale-[0.99] font-semibold text-slate-700 text-sm transition-all duration-150";
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx);
             container.appendChild(btn);
-        }
-        document.getElementById('prev-btn').disabled = (currentIdx === 0);
+        });
     }
 
     function checkAnswer(selectedIdx) {
         if (hasAnswered) return;
         hasAnswered = true;
+        
         const q = activeQuestions[currentIdx];
         const isCorrect = (selectedIdx === q.answer);
         
-        const buttons = document.getElementById('options-container').getElementsByTagName('button');
-        for(let idx=0; idx<buttons.length; idx++) {
-            buttons[idx].disabled = true;
-            if (idx === q.answer) buttons[idx].classList.add('correct');
-            else if (idx === selectedIdx) buttons[idx].classList.add('incorrect');
-        }
+        // 記録を保存
         saveRecord(q.id, isCorrect);
+
+        const buttons = document.getElementById('options-container').getElementsByTagName('button');
+        
+        for (let idx = 0; idx < buttons.length; idx++) {
+            buttons[idx].disabled = true;
+            if (idx === q.answer) {
+                // 正解のボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-sm shadow-sm";
+            } else if (idx === selectedIdx) {
+                // 自分が選択して間違えたボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-800 font-bold text-sm shadow-sm";
+            } else {
+                // その他のボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 text-slate-400 text-sm opacity-60";
+            }
+        }
+
+        // 解説の展開
         document.getElementById('explanation-text').innerText = q.explanation;
-        document.getElementById('explanation').style.display = 'block';
+        document.getElementById('explanation').classList.remove('hidden');
     }
 
     function nextQuestion() {
-        if (currentIdx < activeQuestions.length - 1) currentIdx++;
-        else currentIdx = 0;
+        if (activeQuestions.length === 0) return;
+        
+        if (playMode === 'weak' && hasAnswered) {
+            // 弱点補強モードで「正解」した場合、現在の問題をその場でアクティブリストから除外して詰め直す
+            const q = activeQuestions[currentIdx];
+            const records = getStorage();
+            if (records[q.id] && !records[q.id].lastIncorrect) {
+                // 正解した問題なのでリストから削除
+                activeQuestions.splice(currentIdx, 1);
+                // 削除したため、インデックスはそのまま進めずに次のロードへ
+                if (currentIdx >= activeQuestions.length) {
+                    currentIdx = 0;
+                }
+                loadQuestion();
+                return;
+            }
+        }
+
+        if (currentIdx < activeQuestions.length - 1) {
+            currentIdx++;
+        } else {
+            currentIdx = 0; // ループ
+        }
         loadQuestion();
     }
 
     function prevQuestion() {
-        if (currentIdx > 0) { currentIdx--; loadQuestion(); }
+        if (currentIdx > 0) {
+            currentIdx--;
+            loadQuestion();
+        }
     }
 
-    function toggleOrder() {
-        isRandom = !isRandom;
-        document.getElementById('order-status').innerText = isRandom ? "現在の設定: ランダムに出題" : "現在の設定: 番号順に出題";
+    function changePlayMode(mode) {
+        playMode = mode;
+        
+        document.getElementById('mode-normal').className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-slate-200 hover:border-indigo-200";
+        document.getElementById('mode-random').className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-slate-200 hover:border-indigo-200";
+        document.getElementById('mode-weak').className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-slate-200 hover:border-indigo-200";
+        
+        document.getElementById('mode-' + mode).className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-indigo-600 bg-indigo-50/10 ring-1 ring-indigo-600";
+        
         initQuizFlow();
+    }
+
+    function changeYearFilter(year) {
+        yearFilter = year;
+        initQuizFlow();
+    }
+
+    // 動的にデータベースから年度（重複なし）を取得してセレクトボックスを生成する
+    function populateYearFilter() {
+        const select = document.getElementById('year-filter');
+        const years = [...new Set(quizData.map(q => q.year))].sort((a, b) => b - a); // 降順
+        
+        years.forEach(yr => {
+            const opt = document.createElement('option');
+            opt.value = yr;
+            opt.innerText = yr + "年度（必須問題）";
+            select.appendChild(opt);
+        });
     }
 
     function updateStatsPanel() {
         const records = getStorage();
-        let totalAttempts = 0, totalCorrect = 0;
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+        
         const list = document.getElementById('weak-questions-list');
         list.innerHTML = "";
         let hasWeak = false;
 
-        for(let i=0; i<quizData.length; i++) {
-            const q = quizData[i];
+        quizData.forEach(q => {
             if (records[q.id]) {
                 const r = records[q.id];
                 totalAttempts += r.attempts;
                 totalCorrect += r.correct;
-                if (r.correct < r.attempts) {
+                
+                // 現在「直近不正解」マークがついているものを弱点として表示
+                if (r.lastIncorrect) {
                     hasWeak = true;
                     const item = document.createElement('div');
-                    item.className = 'history-item';
-                    item.innerHTML = "<span><strong>" + q.year + "年 問" + q.num + "</strong>: " + q.text.substring(0,20) + "...</span><span class='badge badge-incorrect'>" + r.correct + "/" + r.attempts + "正解</span>";
+                    item.className = "py-4 flex items-start justify-between gap-4 text-xs md:text-sm";
+                    item.innerHTML = `
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded text-[10px]">${q.year}年 問${q.num}</span>
+                                <span class="text-slate-400 font-bold">${r.correct}勝 / ${r.attempts}敗</span>
+                            </div>
+                            <p class="text-slate-600 font-semibold line-clamp-2">${q.text}</p>
+                        </div>
+                        <button class="flex-shrink-0 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3 py-1.5 rounded-lg transition-all text-[11px]" onclick="startSpecificQuestion('${q.id}')">
+                            解く
+                        </button>
+                    `;
                     list.appendChild(item);
                 }
             }
+        });
+
+        // 弱点から直接遷移して1問特訓する機能
+        window.startSpecificQuestion = function(qId) {
+            const q = quizData.find(item => item.id === qId);
+            if (q) {
+                playMode = 'normal'; // 一旦通常にして該当の1問のみの仮想リストを作る
+                activeQuestions = [q];
+                currentIdx = 0;
+                switchTab('quiz');
+                loadQuestion();
+            }
         }
+
+        // 各種バッジの件数更新など
         document.getElementById('stat-total-attempts').innerText = totalAttempts;
-        const acc = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
-        document.getElementById('stat-overall-accuracy').innerText = acc + "%";
-        if (!hasWeak) list.innerHTML = "<p style='color:#666;text-align:center;padding:10px;'>間違えた問題はありません！</p>";
+        const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+        document.getElementById('stat-overall-accuracy').innerText = accuracy + "%";
+
+        if (!hasWeak) {
+            list.innerHTML = `
+                <div class="text-center py-8">
+                    <p class="text-slate-400 text-sm font-semibold">現在、間違えている問題（弱点）はありません！</p>
+                </div>`;
+        }
     }
 
     function clearAllData() {
-        if (confirm("全ての成績をリセットしますか？")) {
+        if (confirm("全ての学習データ、これまでの解答記録、弱点リストを完全にリセットします。よろしいですか？")) {
             try {
-                localStorage.removeItem('yakugaku_quiz_records_v12');
+                localStorage.removeItem('yakugaku_quiz_records_v13');
             } catch (e) {}
             updateStatsPanel();
+            changePlayMode('normal');
             initQuizFlow();
+            switchTab('quiz');
         }
     }
-    initQuizFlow();
+
+    window.onload = function() {
+        populateYearFilter();
+        changePlayMode('normal'); // 通常モードで開始
+        switchTab('quiz');        // 最初に問題演習タブを開く
+    }
 </script>
 </body>
 </html>
