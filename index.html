@@ -207,6 +207,62 @@
                 </button>
             </div>
         </div>
+
+        <div id="view-guide" class="hidden space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
+                <h3 class="text-base font-bold text-indigo-900 flex items-center">
+                    <span class="mr-2">🎯</span> 4つの演習モードの特徴
+                </h3>
+                <div class="space-y-3 text-xs text-slate-600 leading-relaxed">
+                    <div class="border-l-4 border-indigo-500 pl-3">
+                        <p class="font-bold text-slate-800">1. 全問順番モード</p>
+                        <p>選択した年度の問題を、問1から番号順にじっくり解いていく基本のモードです。</p>
+                    </div>
+                    <div class="border-l-4 border-indigo-500 pl-3">
+                        <p class="font-bold text-slate-800">2. 全問シャッフルモード</p>
+                        <p>問題番号の並び順による「場所の記憶」をなくすため、ランダムな順序で出題します。実力試しに最適です。</p>
+                    </div>
+                    <div class="border-l-4 border-indigo-500 pl-3">
+                        <p class="font-bold text-slate-800">3. 15問抜粋モード</p>
+                        <p>対象の問題からランダムに15問だけを厳選してミニテスト化します。通学中やスキマ時間のスピード演習に便利です。</p>
+                    </div>
+                    <div class="border-l-4 border-indigo-500 pl-3">
+                        <p class="font-bold text-slate-800 flex items-center">4. 間違えた問題限定モード <span class="text-rose-500 ml-1">⚠️</span></p>
+                        <p>過去の演習で「間違えマーク」がついた苦手問題だけを集中的にやり直せる、試験前の総復習特化モードです。</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
+                <h3 class="text-base font-bold text-indigo-900 flex items-center">
+                    <span class="mr-2">💡</span> 効率的な復習のしかた
+                </h3>
+                <div class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
+                    <p>
+                        演習中に解答を選ぶと、即座に◯✕の判定が行われ、画面下に**解説ボックス**が開きます。
+                    </p>
+                    <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
+                        <p class="font-semibold text-slate-700 flex items-center">
+                            <span class="bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded text-[10px] mr-1.5">⚠️ マーク</span>
+                            間違えた問題には、自動で「間違えマーク」が付与されます（正解した場合は自動で外れます）。
+                        </p>
+                        <p class="font-semibold text-slate-700 flex items-center">
+                            <span class="bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px] mr-1.5">⭐ 気いるボタン</span>
+                            正解・不正解に関わらず、「あとでもう一度確認したい」「重要だ」と思った問題は、右上にある「気になる」ボタンを押してブックマークに登録できます。
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
+                <h3 class="text-base font-bold text-indigo-900 flex items-center">
+                    <span class="mr-2">📚</span> アコーディオン問題一覧の活用
+                </h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    「問題一覧」タブでは、全過去問がコンパクトに折りたたまれて並んでいます。タップして展開すると、クイズを実行しなくても**問題文・画像・正解の選択肢・解説**を一撃でブラウズできます。電車内などで参考書代わりに読み進めたい時に非常に強力です。
+                </p>
+            </div>
+        </div>
     </main>
 
     <nav class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-50 shadow-lg">
@@ -223,11 +279,14 @@
                 <span class="text-lg">⚙️</span>
                 <span class="text-[10px]">設定・報告</span>
             </button>
+            <button onclick="switchTab('guide')" id="nav-guide" class="flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5">
+                <span class="text-lg">❓</span>
+                <span class="text-[10px]">使い方</span>
+            </button>
         </div>
     </nav>
 
     <script>
-        // ⚙️ GitHub情報設定
         const GITHUB_CONFIG = {
             username: 'arusuty', 
             repository: 'yakugaku',    
@@ -236,13 +295,11 @@
 
         let masterQuestions = [];
 
-        // アプリケーション状態変数
         let selectedYear = 'MIX';
         let selectedMode = 'all';
         let currentQuestions = [];
         let currentIdx = 0;
 
-        // localStorage連動データ
         let bookmarks = JSON.parse(localStorage.getItem('qb_bookmarks')) || [];
         let incorrectIds = JSON.parse(localStorage.getItem('qb_incorrect_ids')) || [];
         let historyLog = JSON.parse(localStorage.getItem('qb_history_log')) || {};
@@ -250,7 +307,6 @@
         const jsonUrl = "./questions.json"; 
         const baseImageUrl = "./"; 
 
-        // 起動時に同期処理
         window.addEventListener('DOMContentLoaded', () => {
             loadQuestionsData();
         });
@@ -286,17 +342,19 @@
             updateGlobalStatsDisplay();
         }
 
-        // タブ切り替えロジック
+        // タブ切り替えロジック (5つの画面制御に対応)
         function switchTab(target) {
             if (masterQuestions.length === 0) return;
             document.getElementById('view-setup').classList.add('hidden');
             document.getElementById('view-exercise').classList.add('hidden');
             document.getElementById('view-browse').classList.add('hidden');
             document.getElementById('view-settings').classList.add('hidden');
+            document.getElementById('view-guide').classList.add('hidden');
 
             document.getElementById('nav-setup').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
             document.getElementById('nav-browse').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
             document.getElementById('nav-settings').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
+            document.getElementById('nav-guide').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
 
             if (target === 'setup') {
                 document.getElementById('view-setup').classList.remove('hidden');
@@ -309,10 +367,12 @@
             } else if (target === 'settings') {
                 document.getElementById('view-settings').classList.remove('hidden');
                 document.getElementById('nav-settings').className = "flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5";
+            } else if (target === 'guide') {
+                document.getElementById('view-guide').classList.remove('hidden');
+                document.getElementById('nav-guide').className = "flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5";
             }
         }
 
-        // 年度選択変更
         function selectYear(year) {
             selectedYear = year;
             document.querySelectorAll('.year-btn').forEach(btn => {
@@ -325,7 +385,6 @@
             calculateTargetCount();
         }
 
-        // モード選択変更
         function selectMode(mode) {
             selectedMode = mode;
             document.querySelectorAll('.mode-btn').forEach(btn => {
@@ -543,7 +602,6 @@
             }
         }
 
-        // ブックマークトグル
         function toggleBookmarkCurrent() {
             if (currentQuestions.length === 0 || !currentQuestions[currentIdx]) return;
             const qId = currentQuestions[currentIdx].id;
@@ -571,7 +629,6 @@
             renderCurrentQuestion();
         }
 
-        // ③ 新アコーディオン対応問題一覧（100%文字化けしない安全結合処理）
         function filterBrowseList() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filterType = document.getElementById('search-filter-type').value;
@@ -605,12 +662,10 @@
                 const details = document.createElement('details');
                 details.className = "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden group transition-all duration-200";
                 
-                // バッジ文字列の結合
                 let badgeHtml = '<span class="bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2 py-0.5 rounded-md font-mono">' + q.year + '年 問' + q.num + '</span>';
                 if (isBmk) badgeHtml += '<span class="text-xs text-amber-500 ml-1">⭐</span>';
                 if (isInc) badgeHtml += '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-1 rounded border border-rose-100 ml-1">⚠️</span>';
                 
-                // 選択肢HTMLの安全結合
                 let optionsHtml = '<div class="space-y-1.5 mt-2">';
                 q.options.forEach((opt, oIdx) => {
                     const isAnswer = (oIdx === q.answer);
@@ -624,7 +679,6 @@
                 const targetImageName = q.image ? q.image : (q.year + " Q" + q.num + ".png");
                 const explanationContent = q.explanation ? q.explanation : '解説はありません。';
 
-                // メインアコーディオン構造のレンダリング
                 details.innerHTML = 
                     '<summary class="list-none flex items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50/80 transition select-none">' +
                         '<div class="flex items-center space-x-3">' +
@@ -660,7 +714,6 @@
                         '</div>' +
                     '</div>';
                 
-                // 画像フォールバックバインド
                 const imgBox = details.querySelector('.browse-img-box');
                 const actualImg = details.querySelector('.browse-actual-img');
                 if(actualImg) {
