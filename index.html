@@ -269,7 +269,7 @@
                     <span class="mr-2">📢</span> 開発者からのお知らせ掲示板
                 </h3>
                 <div id="dynamic-news-container" class="space-y-3">
-                    <p class="text-xs text-amber-700 italic">現在、最新のお知らせを読み込んでいます...</p>
+                    <p class="text-xs text-amber-700 italic">新着のお知らせはありません。</p>
                 </div>
             </div>
 
@@ -350,7 +350,6 @@
             branch: 'main'                         
         };
 
-        // 🔒 正しいハッシュ値に完全差し替えしました！
         const ADMIN_HASH = "6814b77f1b74d41fa752174313f89bf9cb4daef7515b81a0709ee09977826315";
 
         let masterQuestions = [];
@@ -374,6 +373,7 @@
         });
 
         async function loadAllSystemData() {
+            // 1. 問題データのロード
             try {
                 const response = await fetch(jsonUrl);
                 if (response.ok) masterQuestions = await response.json();
@@ -385,27 +385,34 @@
                 } catch(e) {}
             }
 
+            // 2. お知らせデータのロード (★エラーが起きても絶対にアプリを止めないように防御壁を追加)
             try {
                 const response = await fetch(newsUrl);
-                if (response.ok) masterNews = await response.json();
+                if (response.ok) {
+                    masterNews = await response.json();
+                } else {
+                    masterNews = [];
+                }
             } catch (err) {
                 const fallbackUrl = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/news.json";
                 try {
                     const response = await fetch(fallbackUrl);
-                    masterNews = await response.json();
-                } catch(e) {}
+                    if (response.ok) masterNews = await response.json();
+                } catch(e) {
+                    masterNews = []; // エラー時は空配列にして次に進める
+                }
             }
 
-            if (masterQuestions.length === 0) {
+            // 問題データさえあれば絶対にアプリを起動する
+            if (masterQuestions && masterQuestions.length > 0) {
+                renderNewsBoard();
+                initApp();
+            } else {
                 document.getElementById('view-loading').innerHTML = 
                     '<div class="p-4 text-rose-600 font-bold text-sm bg-white rounded-xl shadow-sm">' +
-                        '❌ 過去問データの読み込みに失敗しました。' +
+                        '❌ 過去問データの読み込みに失敗しました。ファイル名や配置を確認してください。' +
                     '</div>';
-                return;
             }
-
-            renderNewsBoard();
-            initApp();
         }
 
         function initApp() {
