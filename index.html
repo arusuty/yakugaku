@@ -35,7 +35,7 @@
         
         <div id="view-loading" class="bg-white rounded-2xl shadow-sm p-8 border border-slate-100 text-center space-y-3">
             <div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
-            <p class="text-sm font-medium text-slate-600">GitHubから過去問データ（questions.json）を同期しています...</p>
+            <p class="text-sm font-medium text-slate-600">GitHubからシステムデータを読み込んでいます...</p>
         </div>
 
         <div id="view-setup" class="hidden space-y-6">
@@ -197,6 +197,34 @@
                 </button>
             </div>
 
+            <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200 space-y-3">
+                <h4 class="text-sm font-bold text-slate-800 flex items-center">🔑 開発者専用 お知らせ管理システム</h4>
+                <div id="admin-login-area" class="space-y-2">
+                    <input type="password" id="admin-pw-input" placeholder="管理者用パスワードを入力..." class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500 font-mono"/>
+                    <button onclick="checkAdminPassword()" class="bg-indigo-600 text-white font-bold text-xs px-3 py-2 rounded-xl hover:bg-indigo-700 transition">ログイン</button>
+                </div>
+                
+                <div id="admin-panel-area" class="hidden space-y-3 pt-2 border-t border-slate-200">
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[11px] text-emerald-800 font-semibold">
+                        🔓 管理者認証に成功しました。
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1">お知らせのタイトル</label>
+                        <input type="text" id="news-title-input" placeholder="例: 2023年度の過去問を新規追加！" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"/>
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-500 mb-1">お知らせの詳細内容</label>
+                        <textarea id="news-body-input" rows="4" placeholder="告知したい文章を入力してください。" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+                    <button onclick="generateNewsJSONCode()" class="w-full bg-emerald-600 text-white font-bold text-xs py-2.5 rounded-xl hover:bg-emerald-700 transition">💾 保存用JSONデータを生成する</button>
+                    
+                    <div id="news-output-box" class="hidden space-y-1">
+                        <label class="block text-[10px] font-bold text-rose-600">⚠️ 下の枠内の中身を全コピーして、GitHubの「news.json」に上書き貼り付けしてください：</label>
+                        <textarea id="news-json-output" rows="5" class="w-full bg-slate-900 text-emerald-400 font-mono text-[10px] p-2 rounded-xl focus:outline-none" readonly onclick="this.select()"></textarea>
+                    </div>
+                </div>
+            </div>
+
             <div class="bg-rose-50 rounded-2xl p-5 border border-rose-100 space-y-2">
                 <h4 class="text-sm font-bold text-rose-800">⚠️ データの初期化</h4>
                 <p class="text-[11px] text-rose-600 leading-relaxed">
@@ -209,6 +237,16 @@
         </div>
 
         <div id="view-guide" class="hidden space-y-4">
+            
+            <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3 shadow-sm">
+                <h3 class="text-base font-bold text-amber-900 flex items-center">
+                    <span class="mr-2">📢</span> 開発者からのお知らせ掲示板
+                </h3>
+                <div id="dynamic-news-container" class="space-y-3">
+                    <p class="text-xs text-amber-700 italic">現在、最新のお知らせを読み込んでいます...</p>
+                </div>
+            </div>
+
             <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
                 <h3 class="text-base font-bold text-indigo-900 flex items-center">
                     <span class="mr-2">🎯</span> 4つの演習モードの特徴
@@ -220,11 +258,11 @@
                     </div>
                     <div class="border-l-4 border-indigo-500 pl-3">
                         <p class="font-bold text-slate-800">2. 全問シャッフルモード</p>
-                        <p>問題番号の並び順による「場所の記憶」をなくすため、ランダムな順序で出題します。実力試しに最適です。</p>
+                        <p>問題番号の並び順による「場所の記憶」をなくすため、ランダムな順序で出題します。</p>
                     </div>
                     <div class="border-l-4 border-indigo-500 pl-3">
                         <p class="font-bold text-slate-800">3. 15問抜粋モード</p>
-                        <p>対象の問題からランダムに15問だけを厳選してミニテスト化します。通学中やスキマ時間のスピード演習に便利です。</p>
+                        <p>対象の問題からランダムに15問だけをミニテスト化します。スキマ時間のスピード演習に便利です。</p>
                     </div>
                     <div class="border-l-4 border-indigo-500 pl-3">
                         <p class="font-bold text-slate-800 flex items-center">4. 間違えた問題限定モード <span class="text-rose-500 ml-1">⚠️</span></p>
@@ -238,29 +276,18 @@
                     <span class="mr-2">💡</span> 効率的な復習のしかた
                 </h3>
                 <div class="space-y-2.5 text-xs text-slate-600 leading-relaxed">
-                    <p>
-                        演習中に解答を選ぶと、即座に◯✕の判定が行われ、画面下に**解説ボックス**が開きます。
-                    </p>
+                    <p>演習中に解答を選ぶと、即座に◯✕の判定が行われ、画面下に解説ボックスが開きます。</p>
                     <div class="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-2">
                         <p class="font-semibold text-slate-700 flex items-center">
                             <span class="bg-rose-100 text-rose-700 font-bold px-1.5 py-0.5 rounded text-[10px] mr-1.5">⚠️ マーク</span>
-                            間違えた問題には、自動で「間違えマーク」が付与されます（正解した場合は自動で外れます）。
+                            間違えた問題には自動で「間違えマーク」が付きます（正解すると自動で外れます）。
                         </p>
                         <p class="font-semibold text-slate-700 flex items-center">
-                            <span class="bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px] mr-1.5">⭐ 気いるボタン</span>
-                            正解・不正解に関わらず、「あとでもう一度確認したい」「重要だ」と思った問題は、右上にある「気になる」ボタンを押してブックマークに登録できます。
+                            <span class="bg-amber-100 text-amber-700 font-bold px-1.5 py-0.5 rounded text-[10px] mr-1.5">⭐ 気になる</span>
+                            「あとでもう一度確認したい」と思った問題は、右上にあるボタンでブックマークに登録できます。
                         </p>
                     </div>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
-                <h3 class="text-base font-bold text-indigo-900 flex items-center">
-                    <span class="mr-2">📚</span> アコーディオン問題一覧の活用
-                </h3>
-                <p class="text-xs text-slate-600 leading-relaxed">
-                    「問題一覧」タブでは、全過去問がコンパクトに折りたたまれて並んでいます。タップして展開すると、クイズを実行しなくても**問題文・画像・正解の選択肢・解説**を一撃でブラウズできます。電車内などで参考書代わりに読み進めたい時に非常に強力です。
-                </p>
             </div>
         </div>
     </main>
@@ -293,7 +320,10 @@
             branch: 'main'                         
         };
 
+        const ADMIN_HASH = "8c6976e5b5410415b00c313a17e082f4d6d7ee76551b9b1d5fbc646271a25be1";
+
         let masterQuestions = [];
+        let masterNews = [];
 
         let selectedYear = 'MIX';
         let selectedMode = 'all';
@@ -305,33 +335,46 @@
         let historyLog = JSON.parse(localStorage.getItem('qb_history_log')) || {};
 
         const jsonUrl = "./questions.json"; 
+        const newsUrl = "./news.json"; 
         const baseImageUrl = "./"; 
 
         window.addEventListener('DOMContentLoaded', () => {
-            loadQuestionsData();
+            loadAllSystemData();
         });
 
-        async function loadQuestionsData() {
+        async function loadAllSystemData() {
             try {
                 const response = await fetch(jsonUrl);
-                if (!response.ok) throw new Error("Fetch Error");
-                masterQuestions = await response.json();
-                initApp();
+                if (response.ok) masterQuestions = await response.json();
             } catch (err) {
                 const fallbackUrl = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/questions.json";
                 try {
                     const response = await fetch(fallbackUrl);
                     masterQuestions = await response.json();
-                    initApp();
-                } catch(e) {
-                    document.getElementById('view-loading').innerHTML = `
-                        <div class="p-4 text-rose-600 font-bold text-sm bg-white rounded-xl shadow-sm">
-                            ❌ 過去問データ（questions.json）を読み込めませんでした。<br>
-                            <span class="text-xs text-slate-400 font-normal">リポジトリ直下にquestions.jsonがあるかご確認ください。</span>
-                        </div>
-                    `;
-                }
+                } catch(e) {}
             }
+
+            try {
+                const response = await fetch(newsUrl);
+                if (response.ok) masterNews = await response.json();
+            } catch (err) {
+                const fallbackUrl = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/news.json";
+                try {
+                    const response = await fetch(fallbackUrl);
+                    masterNews = await response.json();
+                } catch(e) {}
+            }
+
+            if (masterQuestions.length === 0) {
+                document.getElementById('view-loading').innerHTML = 
+                    '<div class="p-4 text-rose-600 font-bold text-sm bg-white rounded-xl shadow-sm">' +
+                        '❌ 過去問データの読み込みに失敗しました。' +
+                    '</div>';
+                return;
+            }
+
+            renderNewsBoard();
+            initApp();
         }
 
         function initApp() {
@@ -342,7 +385,67 @@
             updateGlobalStatsDisplay();
         }
 
-        // タブ切り替えロジック (5つの画面制御に対応)
+        function renderNewsBoard() {
+            const container = document.getElementById('dynamic-news-container');
+            if (!masterNews || masterNews.length === 0) {
+                container.innerHTML = '<p class="text-xs text-amber-700 font-medium">現在、新着のお知らせはありません。</p>';
+                return;
+            }
+            
+            let html = '';
+            masterNews.forEach(item => {
+                html += '<div class="bg-white rounded-xl p-3 shadow-inner border border-amber-100 space-y-1">' +
+                            '<div class="flex items-center justify-between text-[11px] font-bold text-amber-900">' +
+                                '<span>✨ ' + item.title + '</span>' +
+                                '<span class="font-mono text-slate-400 font-normal">' + item.date + '</span>' +
+                            '</div>' +
+                            '<p class="text-xs text-slate-600 leading-relaxed whitespace-pre-wrap pt-1 border-t border-slate-50">' + item.body + '</p>' +
+                        '</div>';
+            });
+            container.innerHTML = html;
+        }
+
+        async function checkAdminPassword() {
+            const input = document.getElementById('admin-pw-input').value;
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+            if (hashHex === ADMIN_HASH) {
+                document.getElementById('admin-login-area').classList.add('hidden');
+                document.getElementById('admin-panel-area').classList.remove('hidden');
+            } else {
+                alert('パスワードが違います。');
+            }
+        }
+
+        function generateNewsJSONCode() {
+            const title = document.getElementById('news-title-input').value.trim();
+            const body = document.getElementById('news-body-input').value.trim();
+
+            if (!title || !body) {
+                alert('タイトルと内容を入力してください。');
+                return;
+            }
+
+            const now = new Date();
+            const dateStr = now.getFullYear() + "/" + (now.getMonth() + 1).toString().padStart(2, '0') + "/" + now.getDate().toString().padStart(2, '0');
+
+            const newItem = {
+                title: title,
+                body: body,
+                date: dateStr
+            };
+
+            const updatedNews = [newItem, ...masterNews];
+
+            document.getElementById('news-json-output').value = JSON.stringify(updatedNews, null, 2);
+            document.getElementById('news-output-box').classList.remove('hidden');
+            alert('貼り付け用のJSONデータを出力しました！下の黒い枠内をコピーしてください。');
+        }
+
         function switchTab(target) {
             if (masterQuestions.length === 0) return;
             document.getElementById('view-setup').classList.add('hidden');
