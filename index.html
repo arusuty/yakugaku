@@ -9,7 +9,842 @@ Gemini
 過去問解析と解答解説作成
 有機化合物の構造決定プロセス
 有機構造解析スペクトル解析入門
-東京薬科大学 薬学部過去問 解答解説
+東京薬科大学 薬学部過去問 解答解説<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <title>どこでも過去問演習アプリ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap');
+        body {
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-select {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-16">
+
+    <!-- ヘッダー -->
+    <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <span class="text-xl">✍️</span>
+                <h1 class="text-lg font-bold tracking-tight">どこでも過去問演習</h1>
+            </div>
+            <div class="text-xs bg-indigo-800 px-2 py-1 rounded text-indigo-200 font-mono" id="global-stats-summary">
+                進捗: --%
+            </div>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ領域 -->
+    <main class="flex-1 max-w-3xl w-full mx-auto p-4">
+        
+        <!-- 初期ローディング -->
+        <div id="view-loading" class="bg-white rounded-2xl shadow-sm p-8 border border-slate-100 text-center space-y-3">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
+            <p class="text-sm font-medium text-slate-600">GitHubから最新の過去問データを読み込んでいます...</p>
+        </div>
+
+        <!-- ① モード選択画面 (セッティングビュー) -->
+        <div id="view-setup" class="hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+                <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center">
+                    <span class="mr-2 text-indigo-600">🎯</span> 演習の条件を設定する
+                </h2>
+                
+                <!-- 年度選択 -->
+                <div class="mb-5">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">対象とする年度</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" onclick="selectYear('2025')" id="btn-year-2025" class="year-btn py-2.5 text-center text-sm rounded-xl border font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50">2025年</button>
+                        <button type="button" onclick="selectYear('2022')" id="btn-year-2022" class="year-btn py-2.5 text-center text-sm rounded-xl border font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50">2022年</button>
+                        <button type="button" onclick="selectYear('2021')" id="btn-year-2021" class="year-btn py-2.5 text-center text-sm rounded-xl border font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50">2021年</button>
+                        <button type="button" onclick="selectYear('MIX')" id="btn-year-MIX" class="year-btn py-2.5 text-center text-sm rounded-xl border font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50">MIX</button>
+                    </div>
+                </div>
+
+                <!-- 演習モード選択 -->
+                <div class="mb-6">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">演習モード</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button type="button" onclick="selectMode('all')" id="btn-mode-all" class="mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <span class="font-bold">全問順番</span>
+                            <span class="text-[11px] text-slate-400 font-normal mt-0.5">選択年度を番号順に全て解く</span>
+                        </button>
+                        <button type="button" onclick="selectMode('shuffle')" id="btn-mode-shuffle" class="mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <span class="font-bold">全問シャッフル</span>
+                            <span class="text-[11px] text-slate-400 font-normal mt-0.5">ランダムな順序で全て解く</span>
+                        </button>
+                        <button type="button" onclick="selectMode('random15')" id="btn-mode-random15" class="mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <span class="font-bold">15問抜粋</span>
+                            <span class="text-[11px] text-slate-400 font-normal mt-0.5">ランダムに15問を厳選して出題</span>
+                        </button>
+                        <button type="button" onclick="selectMode('incorrect')" id="btn-mode-incorrect" class="mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                            <span class="font-bold flex items-center text-rose-600">間違えた問題限定 ⚠️</span>
+                            <span class="text-[11px] text-slate-400 font-normal mt-0.5" id="incorrect-count-label">間違えマークがついた問題のみ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- スタートボタン -->
+                <button onclick="startExercise()" class="w-full bg-indigo-600 text-white font-bold text-center py-3.5 rounded-xl shadow-md hover:bg-indigo-700 active:scale-[0.99] transition flex items-center justify-center space-x-2">
+                    <span>🚀 演習を開始する</span>
+                    <span id="selected-target-count" class="text-xs bg-indigo-500 px-2 py-0.5 rounded-full text-indigo-100 font-normal">0問</span>
+                </button>
+            </div>
+
+            <!-- 分析・状況パネル -->
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
+                <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center">
+                    <span class="mr-2 text-emerald-500">📊</span> 現在の進捗度・年度別正答率
+                </h3>
+                <div class="space-y-3" id="stats-bars-container">
+                    <!-- JSで動的に構築 -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ② 演習実行画面 (クイズビュー) -->
+        <div id="view-exercise" class="hidden space-y-4">
+            <!-- 進捗バーと上部操作 -->
+            <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl shadow-sm border border-slate-100">
+                <button onclick="exitExercise()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center font-medium">
+                    👈 中断して戻る
+                </button>
+                <div class="text-xs font-bold text-slate-600 font-mono" id="exercise-progress-text">
+                    0 / 0 問
+                </div>
+                <button onclick="toggleBookmarkCurrent()" id="btn-bookmark" class="text-sm px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-medium transition flex items-center space-x-1">
+                    <span id="bookmark-star">⭐</span> <span id="bookmark-txt">気になる</span>
+                </button>
+            </div>
+
+            <!-- 問題カード -->
+            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span id="badge-year" class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-1 rounded-lg">----年</span>
+                        <span id="badge-num" class="bg-slate-100 text-slate-700 text-xs font-bold px-2.5 py-1 rounded-lg">問 --</span>
+                    </div>
+                    <div id="badge-incorrect-status" class="hidden bg-rose-50 text-rose-600 text-xs font-bold px-2 py-0.5 rounded border border-rose-100">
+                        ⚠️ 過去にミス
+                    </div>
+                </div>
+
+                <!-- 問題文 -->
+                <p id="question-text" class="text-base font-medium leading-relaxed text-slate-900 pt-1">
+                    問題文がここに表示されます。
+                </p>
+
+                <!-- 画像表示領域 -->
+                <div id="question-image-box" class="hidden bg-slate-50 border border-slate-100 rounded-xl p-2 text-center max-w-full overflow-hidden">
+                    <img id="question-image" src="" alt="問題画像" class="max-h-64 mx-auto rounded object-contain"/>
+                    <p class="text-[10px] text-slate-400 mt-1 font-mono" id="question-image-filename"></p>
+                </div>
+
+                <!-- 選択肢群 -->
+                <div id="options-container" class="space-y-2 pt-2">
+                    <!-- JSでボタンを生成 -->
+                </div>
+            </div>
+
+            <!-- 解説・判定カード (初期非表示) -->
+            <div id="explanation-box" class="hidden bg-white rounded-2xl shadow-sm p-5 border-2 space-y-3 transition-all">
+                <div class="flex items-center space-x-2">
+                    <span id="judgement-icon" class="text-2xl"></span>
+                    <h4 id="judgement-title" class="text-base font-bold"></h4>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3 text-sm text-slate-700 leading-relaxed border border-slate-100">
+                    <p class="font-bold text-xs text-indigo-900 mb-1">💡 解説・解法のポイント:</p>
+                    <div id="explanation-text">解説データはありません。</div>
+                </div>
+                
+                <div class="flex items-center space-x-2 pt-2">
+                    <button id="btn-toggle-incorrect-mark" onclick="toggleIncorrectMarkCurrent()" class="flex-1 py-3 text-xs font-bold rounded-xl border transition flex items-center justify-center space-x-1">
+                        <span>⚠️ 間違えマークをトグル</span>
+                    </button>
+                    <button onclick="nextQuestion()" class="flex-1 bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition text-center text-sm shadow-sm">
+                        次の問題へ ➔
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ③ 検索・一覧・閲覧ビュー -->
+        <div id="view-browse" class="hidden space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm p-4 border border-slate-100 space-y-3">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="search-input" oninput="filterBrowseList()" placeholder="キーワードや問題番号で検索..." class="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-medium"/>
+                    <select id="search-filter-type" onchange="filterBrowseList()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                        <option value="all">全問題を表示</option>
+                        <option value="bookmark">⭐ ブックマークのみ</option>
+                        <option value="incorrect">⚠️ 間違えマークのみ</option>
+                        <option value="2025">2025年のみ</option>
+                        <option value="2022">2022年のみ</option>
+                        <option value="2021">2021年のみ</option>
+                    </select>
+                </div>
+                <div class="text-xs text-slate-400 font-medium font-mono" id="browse-count-label">
+                    該当: 0問
+                </div>
+            </div>
+
+            <!-- 一覧表示リスト -->
+            <div id="browse-list-container" class="space-y-2">
+                <!-- 動的に挿入 -->
+            </div>
+        </div>
+
+        <!-- ④ 設定・お問い合わせビュー -->
+        <div id="view-settings" class="hidden space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-4">
+                <h3 class="text-base font-bold text-slate-900 flex items-center">
+                    <span class="mr-2">📬</span> フィードバック・不具合報告
+                </h3>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    サイトの使い方に関する質問、問題や解説のミス、要望などを開発者（<code class="text-indigo-600">zekisi085@gmail.com</code>）に直接メール送信できます。
+                </p>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-500">報告の種類</label>
+                    <select id="feedback-type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-medium">
+                        <option value="問題・解説のミス報告">❌ 問題・解答・解説のミス報告</option>
+                        <option value="システムバグ報告">🐜 システムのバグ・不具合報告</option>
+                        <option value="使い方の質問">❓ サイトの使い方・質問</option>
+                        <option value="その他・要望">✨ その他・要望</option>
+                    </select>
+                </div>
+                <div class="space-y-2">
+                    <label class="block text-xs font-bold text-slate-500">詳しい内容</label>
+                    <textarea id="feedback-body" rows="4" placeholder="何年の何問目か、どのような不具合かなどをご自由にご記入ください。" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:border-indigo-500 font-medium"></textarea>
+                </div>
+                <button onclick="sendFeedbackEmail()" class="w-full bg-indigo-600 text-white font-bold text-sm py-3 rounded-xl hover:bg-indigo-700 transition flex items-center justify-center space-x-2 shadow-sm">
+                    <span>✉️ メーラーを起動して送信</span>
+                </button>
+            </div>
+
+            <!-- データリセット -->
+            <div class="bg-rose-50 rounded-2xl p-5 border border-rose-100 space-y-2">
+                <h4 class="text-sm font-bold text-rose-800">⚠️ データの初期化</h4>
+                <p class="text-[11px] text-rose-600 leading-relaxed">
+                    これまでの学習履歴、正答率、間違えマーク、ブックマークをすべて消去して初期状態に戻します。
+                </p>
+                <button onclick="resetAllData()" class="bg-rose-600 text-white font-bold text-xs px-3 py-2 rounded-lg hover:bg-rose-700 transition">
+                    すべてのデータを完全にリセット
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- フッターナビゲーション -->
+    <nav class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-50 shadow-lg">
+        <div class="max-w-3xl mx-auto flex items-center justify-around no-select">
+            <button onclick="switchTab('setup')" id="nav-setup" class="flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5">
+                <span class="text-lg">🎯</span>
+                <span class="text-[10px]">演習設定</span>
+            </button>
+            <button onclick="switchTab('browse')" id="nav-browse" class="flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5">
+                <span class="text-lg">📚</span>
+                <span class="text-[10px]">問題一覧</span>
+            </button>
+            <button onclick="switchTab('settings')" id="nav-settings" class="flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5">
+                <span class="text-lg">⚙️</span>
+                <span class="text-[10px]">設定・報告</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JavaScript 処理層 -->
+    <script>
+        // ⚙️ GitHub連携設定（ここでリポジトリ情報を指定します。CORS問題が起きない「GitHub Pages」環境下、または正しい相対パス読み込みに対応しています）
+        const GITHUB_CONFIG = {
+            username: 'arusuty', 
+            repository: 'yakugaku',    
+            branch: 'main'                         
+        };
+
+        // HTML自身には問題データを1問も入れず、システム特化に！
+        let masterQuestions = [];
+
+        // アプリケーション状態変数
+        let selectedYear = 'MIX';
+        let selectedMode = 'all';
+        let currentQuestions = [];
+        let currentIdx = 0;
+
+        // localStorage連動データ
+        let bookmarks = JSON.parse(localStorage.getItem('qb_bookmarks')) || [];
+        let incorrectIds = JSON.parse(localStorage.getItem('qb_incorrect_ids')) || [];
+        let historyLog = JSON.parse(localStorage.getItem('qb_history_log')) || {};
+
+        // 読み込み先URLベース（GitHub Pagesの同階層、またはリポジトリ内Rawデータから自動取得）
+        // 同一リポジトリ内（GitHub Pages）で動かす場合、相対パス「./questions.json」で読むのがCORS制限を受けず最も確実です。
+        const jsonUrl = "./questions.json"; 
+        const baseImageUrl = "./"; // 画像も同じ階層の相対パスから直接引っ張るためアクシデントがありません
+
+        // 初期起動時にJSONファイルを非同期フェッチ取得
+        window.addEventListener('DOMContentLoaded', () => {
+            loadQuestionsData();
+        });
+
+        async function loadQuestionsData() {
+            try {
+                // 同じGitHub内からquestions.jsonをフェッチ
+                const response = await fetch(jsonUrl);
+                if (!response.ok) {
+                    // もしローカル検証などでエラーが出た場合は予備としてRaw配信URLも試す
+                    throw new Error("Local Fetch Failed");
+                }
+                masterQuestions = await response.json();
+                initApp();
+            } catch (err) {
+                // 予備のRawURLフォールバック（GitHub Pages外からアクセスされた場合用）
+                const fallbackUrl = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/questions.json";
+                try {
+                    const response = await fetch(fallbackUrl);
+                    masterQuestions = await response.json();
+                    initApp();
+                } catch(e) {
+                    document.getElementById('view-loading').innerHTML = `
+                        <div class="p-4 text-rose-600 font-bold text-sm">
+                            ❌ 過去問データ（questions.json）を読み込めませんでした。
+                            <p class="text-xs text-slate-500 font-normal mt-2">index.htmlと同じ場所にquestions.jsonがアップロードされているか確認してください。</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        function initApp() {
+            document.getElementById('view-loading').classList.add('hidden');
+            document.getElementById('view-setup').classList.remove('hidden');
+            selectYear('MIX');
+            selectMode('all');
+            updateGlobalStatsDisplay();
+        }
+
+        // タブ切り替えロジック
+        function switchTab(target) {
+            if (masterQuestions.length === 0) return;
+            document.getElementById('view-setup').classList.add('hidden');
+            document.getElementById('view-exercise').classList.add('hidden');
+            document.getElementById('view-browse').classList.add('hidden');
+            document.getElementById('view-settings').classList.add('hidden');
+
+            document.getElementById('nav-setup').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
+            document.getElementById('nav-browse').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
+            document.getElementById('nav-settings').className = "flex-1 py-2 text-center text-slate-400 font-medium flex flex-col items-center space-y-0.5";
+
+            if (target === 'setup') {
+                document.getElementById('view-setup').classList.remove('hidden');
+                document.getElementById('nav-setup').className = "flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5";
+                updateGlobalStatsDisplay();
+            } else if (target === 'browse') {
+                document.getElementById('view-browse').classList.remove('hidden');
+                document.getElementById('nav-browse').className = "flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5";
+                filterBrowseList();
+            } else if (target === 'settings') {
+                document.getElementById('view-settings').classList.remove('hidden');
+                document.getElementById('nav-settings').className = "flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5";
+            }
+        }
+
+        // 年度選択変更
+        function selectYear(year) {
+            selectedYear = year;
+            document.querySelectorAll('.year-btn').forEach(btn => {
+                btn.className = "year-btn py-2.5 text-center text-sm rounded-xl border font-medium transition bg-white border-slate-200 text-slate-700 hover:bg-slate-50";
+            });
+            const activeBtn = document.getElementById("btn-year-" + year);
+            if (activeBtn) {
+                activeBtn.className = "year-btn py-2.5 text-center text-sm rounded-xl border font-bold transition bg-indigo-50 border-indigo-600 text-indigo-700";
+            }
+            calculateTargetCount();
+        }
+
+        // モード選択変更
+        function selectMode(mode) {
+            selectedMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.className = "mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-white border-slate-200 text-slate-700 hover:bg-slate-50";
+            });
+            const activeBtn = document.getElementById("btn-mode-" + mode);
+            if (activeBtn) {
+                activeBtn.className = "mode-btn p-3 text-left text-sm rounded-xl border transition flex flex-col bg-indigo-50 border-indigo-600 text-indigo-700";
+            }
+            calculateTargetCount();
+        }
+
+        // 条件に合う問題数をリアルタイム計算
+        function getFilteredPool() {
+            let pool = masterQuestions;
+            if (selectedYear !== 'MIX') {
+                pool = pool.filter(q => q.year === selectedYear);
+            }
+            if (selectedMode === 'incorrect') {
+                pool = pool.filter(q => incorrectIds.includes(q.id));
+            }
+            return pool;
+        }
+
+        function calculateTargetCount() {
+            const pool = getFilteredPool();
+            let count = pool.length;
+            if (selectedMode === 'random15' && count > 15) {
+                count = 15;
+            }
+            document.getElementById('selected-target-count').innerText = count + "問";
+            document.getElementById('incorrect-count-label').innerText = "間違えマークがついた問題のみ（現在:" + masterQuestions.filter(q=>incorrectIds.includes(q.id)).length + "問）";
+        }
+
+        // 統計表示の更新
+        function updateGlobalStatsDisplay() {
+            const years = ['2025', '2022', '2021'];
+            let totalSolved = 0;
+            let totalCorrect = 0;
+            let html = '';
+            
+            years.forEach(yr => {
+                const yrQs = masterQuestions.filter(q => q.year === yr);
+                const yrIds = yrQs.map(q => q.id);
+                let solvedCount = 0;
+                let correctCount = 0;
+                
+                yrIds.forEach(id => {
+                    if (historyLog[id]) {
+                        solvedCount++;
+                        if (historyLog[id].lastStatus === 'correct') {
+                            correctCount++;
+                        }
+                    }
+                });
+                
+                totalSolved += solvedCount;
+                totalCorrect += correctCount;
+                
+                const rate = solvedCount > 0 ? Math.round((correctCount / solvedCount) * 100) : 0;
+                const progressRate = yrQs.length > 0 ? Math.round((solvedCount / yrQs.length) * 100) : 0;
+                
+                html += '<div class="space-y-1">' +
+                            '<div class="flex justify-between text-xs font-medium text-slate-600">' +
+                                '<span class="font-bold text-slate-800">' + yr + '年過去問</span>' +
+                                '<span>進捗: ' + solvedCount + '/' + yrQs.length + '問 (' + progressRate + '%) | 正答率: <span class="font-bold text-indigo-600">' + rate + '%</span></span>' +
+                            '</div>' +
+                            '<div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden flex">' +
+                                '<div class="bg-indigo-500 h-full" style="width: ' + progressRate + '%"></div>' +
+                            '</div>' +
+                        '</div>';
+            });
+            
+            const totalRate = masterQuestions.length > 0 ? Math.round((Object.keys(historyLog).length / masterQuestions.length) * 100) : 0;
+            document.getElementById('global-stats-summary').innerText = "総実施率: " + totalRate + "%";
+            document.getElementById('stats-bars-container').innerHTML = html;
+        }
+
+        // 配列シャッフル関数
+        function shuffle(array) {
+            const arr = [...array];
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // 演習開始
+        function startExercise() {
+            let pool = getFilteredPool();
+            if (pool.length === 0) {
+                alert('該当する問題がありません。条件を変更してください。');
+                return;
+            }
+
+            if (selectedMode === 'shuffle') {
+                pool = shuffle(pool);
+            } else if (selectedMode === 'random15') {
+                pool = shuffle(pool).slice(0, 15);
+            } else {
+                pool.sort((a, b) => {
+                    if (a.year !== b.year) return b.year - a.year;
+                    return a.num - b.num;
+                });
+            }
+
+            currentQuestions = pool;
+            currentIdx = 0;
+
+            document.getElementById('view-setup').classList.add('hidden');
+            document.getElementById('view-exercise').classList.remove('hidden');
+            renderCurrentQuestion();
+        }
+
+        function exitExercise() {
+            if (confirm('演習を中断して戻りますか？')) {
+                switchTab('setup');
+            }
+        }
+
+        // 現在の問題を描画
+        function renderCurrentQuestion() {
+            if (currentIdx >= currentQuestions.length) {
+                alert('すべての問題が終了しました！お疲れ様でした。');
+                switchTab('setup');
+                return;
+            }
+
+            const q = currentQuestions[currentIdx];
+            
+            document.getElementById('exercise-progress-text').innerText = (currentIdx + 1) + " / " + currentQuestions.length + " 問";
+            document.getElementById('badge-year').innerText = q.year + "年";
+            document.getElementById('badge-num').innerText = "問 " + q.num;
+            
+            if (incorrectIds.includes(q.id)) {
+                document.getElementById('badge-incorrect-status').classList.remove('hidden');
+            } else {
+                document.getElementById('badge-incorrect-status').classList.add('hidden');
+            }
+
+            updateBookmarkButtonState(q.id);
+            document.getElementById('question-text').innerText = q.text;
+
+            // 画像のパス参照
+            const imgBox = document.getElementById('question-image-box');
+            const imgElem = document.getElementById('question-image');
+            const imgFilename = document.getElementById('question-image-filename');
+            
+            const targetImageName = q.image ? q.image : (q.year + " Q" + q.num + ".png");
+            
+            // 同一リポジトリ内（GitHub Pages）の相対参照URL
+            imgElem.src = baseImageUrl + encodeURIComponent(targetImageName);
+            imgFilename.innerText = targetImageName;
+            
+            imgBox.classList.remove('hidden');
+            imgElem.onerror = () => {
+                // もし同一階層で見つからない場合はRawフォールバックも試みる
+                imgElem.src = `https://raw.githubusercontent.com/${GITHUB_CONFIG.username}/${GITHUB_CONFIG.repository}/${GITHUB_CONFIG.branch}/${encodeURIComponent(targetImageName)}`;
+                imgElem.onerror = () => {
+                    imgBox.classList.add('hidden'); // それでも無ければ綺麗に隠す
+                }
+            };
+
+            // 選択肢の構築
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+            
+            q.options.forEach((optText, idx) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = "w-full text-left p-3.5 text-sm font-medium bg-slate-50 border border-slate-200 rounded-xl hover:bg-indigo-50 hover:border-indigo-300 transition flex items-start space-x-3 option-row-btn";
+                btn.innerHTML = '<span class="flex-shrink-0 w-6 h-6 rounded-full bg-white border border-slate-300 flex items-center justify-center font-bold text-xs text-slate-500 font-mono">' + (idx + 1) + '</span>' +
+                                '<span class="pt-0.5 leading-relaxed">' + optText + '</span>';
+                btn.onclick = () => checkAnswer(idx);
+                optContainer.appendChild(btn);
+            });
+
+            document.getElementById('explanation-box').classList.add('hidden');
+        }
+
+        function checkAnswer(selectedIdx) {
+            const q = currentQuestions[currentIdx];
+            const isCorrect = (selectedIdx === q.answer);
+            
+            document.querySelectorAll('.option-row-btn').forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === q.answer) {
+                    btn.className = "w-full text-left p-3.5 text-sm font-bold bg-emerald-50 border-2 border-emerald-500 rounded-xl flex items-start space-x-3 text-emerald-950";
+                } else if (idx === selectedIdx) {
+                    btn.className = "w-full text-left p-3.5 text-sm font-medium bg-rose-50 border-2 border-rose-400 rounded-xl flex items-start space-x-3 text-rose-950";
+                } else {
+                    btn.className = "w-full text-left p-3.5 text-sm font-medium bg-slate-100 border border-slate-200 rounded-xl flex items-start space-x-3 opacity-60 text-slate-400";
+                }
+            });
+
+            if (!historyLog[q.id]) {
+                historyLog[q.id] = { correctCount: 0, totalCount: 0, lastStatus: '' };
+            }
+            historyLog[q.id].totalCount++;
+            
+            if (isCorrect) {
+                historyLog[q.id].correctCount++;
+                historyLog[q.id].lastStatus = 'correct';
+                incorrectIds = incorrectIds.filter(id => id !== q.id);
+            } else {
+                historyLog[q.id].lastStatus = 'incorrect';
+                if (!incorrectIds.includes(q.id)) {
+                    incorrectIds.push(q.id);
+                }
+            }
+            
+            localStorage.setItem('qb_history_log', JSON.stringify(historyLog));
+            localStorage.setItem('qb_incorrect_ids', JSON.stringify(incorrectIds));
+
+            const expBox = document.getElementById('explanation-box');
+            const judgeIcon = document.getElementById('judgement-icon');
+            const judgeTitle = document.getElementById('judgement-title');
+            const expText = document.getElementById('explanation-text');
+
+            expBox.classList.remove('hidden');
+            if (isCorrect) {
+                expBox.className = "bg-white rounded-2xl shadow-sm p-5 border-2 border-emerald-500 space-y-3 transition-all";
+                judgeIcon.innerText = '⭕';
+                judgeTitle.innerText = '正解です！';
+                judgeTitle.className = "text-base font-bold text-emerald-600";
+            } else {
+                expBox.className = "bg-white rounded-2xl shadow-sm p-5 border-2 border-rose-400 space-y-3 transition-all";
+                judgeIcon.innerText = '❌';
+                judgeTitle.innerText = "不正解（正解は選択肢 " + (q.answer + 1) + "）";
+                judgeTitle.className = "text-base font-bold text-rose-600";
+            }
+
+            expText.innerText = q.explanation ? q.explanation : "この問題には解説がまだ登録されていません。教科書やノートを確認しましょう。";
+            updateIncorrectMarkButtonState(q.id);
+        }
+
+        function toggleIncorrectMarkCurrent() {
+            const q = currentQuestions[currentIdx];
+            if (incorrectIds.includes(q.id)) {
+                incorrectIds = incorrectIds.filter(id => id !== q.id);
+            } else {
+                incorrectIds.push(q.id);
+            }
+            localStorage.setItem('qb_incorrect_ids', JSON.stringify(incorrectIds));
+            updateIncorrectMarkButtonState(q.id);
+        }
+
+        function updateIncorrectMarkButtonState(qId) {
+            const btn = document.getElementById('btn-toggle-incorrect-mark');
+            if (incorrectIds.includes(qId)) {
+                btn.className = "flex-1 py-3 text-xs font-bold rounded-xl border border-rose-200 bg-rose-50 text-rose-700 transition flex items-center justify-center space-x-1";
+                btn.innerHTML = "<span>⚠️ 間違えマークあり (限定モード対象)</span>";
+            } else {
+                btn.className = "flex-1 py-3 text-xs font-bold rounded-xl border border-slate-200 bg-white text-slate-600 transition flex items-center justify-center space-x-1";
+                btn.innerHTML = "<span>📁 間違えマークをつける</span>";
+            }
+        }
+
+        function toggleBookmarkCurrent() {
+            if (currentQuestions.length === 0 || !currentQuestions[currentIdx]) return;
+            const qId = currentQuestions[currentIdx].id;
+            
+            if (bookmarks.includes(qId)) {
+                bookmarks = bookmarks.filter(id => id !== qId);
+            } else {
+                bookmarks.push(qId);
+            }
+            localStorage.setItem('qb_bookmarks', JSON.stringify(bookmarks));
+            updateBookmarkButtonState(qId);
+        }
+
+        function updateBookmarkButtonState(qId) {
+            const star = document.getElementById('bookmark-star');
+            const txt = document.getElementById('bookmark-txt');
+            const btn = document.getElementById('btn-bookmark');
+            if (bookmarks.includes(qId)) {
+                star.innerText = '⭐';
+                txt.innerText = '気になる済';
+                btn.className = "text-sm px-2.5 py-1 rounded-lg border border-amber-300 bg-amber-50 text-amber-700 font-bold transition flex items-center space-x-1";
+            } else {
+                star.innerText = '☆';
+                txt.innerText = '気になる';
+                btn.className = "text-sm px-2.5 py-1 rounded-lg border border-slate-200 bg-white text-slate-600 font-medium transition flex items-center space-x-1";
+            }
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            renderCurrentQuestion();
+        }
+
+        // ③ 新しい超親切な「アコーディオン折りたたみ式」問題一覧＆検索表示ロジック
+        function filterBrowseList() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const filterType = document.getElementById('search-filter-type').value;
+            
+            let filtered = masterQuestions;
+
+            if (filterType === 'bookmark') {
+                filtered = filtered.filter(q => bookmarks.includes(q.id));
+            } else if (filterType === 'incorrect') {
+                filtered = filtered.filter(q => incorrectIds.includes(q.id));
+            } else if (['2025', '2022', '2021'].includes(filterType)) {
+                filtered = filtered.filter(q => q.year === filterType);
+            }
+
+            if (query !== '') {
+                filtered = filtered.filter(q => {
+                    return q.text.toLowerCase().includes(query) || 
+                           ("問" + q.num).includes(query) || 
+                           ("" + q.num) === query ||
+                           (q.explanation && q.explanation.toLowerCase().includes(query));
+                });
+            }
+
+            document.getElementById('browse-count-label').innerText = "該当: " + filtered.length + "問";
+
+            const container = document.getElementById('browse-list-container');
+            container.innerHTML = '';
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-xs text-slate-400 font-medium">条件に一致する問題がありません</div>';
+                return;
+            }
+
+            // アルファベット・年度・問題番号の順にソートして並べる
+            filtered.sort((a,b) => {
+                if (a.year !== b.year) return b.year - a.year;
+                return a.num - b.num;
+            });
+
+            filtered.forEach(q => {
+                const isBmk = bookmarks.includes(q.id);
+                const isInc = incorrectIds.includes(q.id);
+                
+                // アコーディオン要素（details / summary）で構築
+                const details = document.createElement('details');
+                details.className = "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden group transition-all duration-200";
+                
+                let badgeHtml = '<span class="bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2 py-0.5 rounded-md font-mono">' + q.year + '年 問' + q.num + '</span>';
+                if (isBmk) badgeHtml += '<span class="text-xs text-amber-500 ml-1">⭐</span>';
+                if (isInc) badgeHtml += '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-1 rounded border border-rose-100 ml-1">⚠️</span>';
+                
+                // 選択肢を1つのリストに整形
+                let optionsHtml = '<div class="space-y-1.5 mt-2">';
+                q.options.forEach((opt, oIdx) => {
+                    const isAnswer = (oIdx === q.answer);
+                    optionsHtml += '<div class="text-xs flex items-start space-x-2 p-2 rounded-lg ' + (isAnswer ? 'bg-emerald-50 border border-emerald-200 font-bold text-emerald-900' : 'bg-slate-50 text-slate-700') + '">' +
+                                        '<span class="font-mono bg-white border border-slate-300 w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 text-[10px] text-slate-500">' + (oIdx + 1) + '</span>' +
+                                        '<span class="pt-0.5">' + opt + '</span>' +
+                                   '</div>';
+                });
+                optionsHtml += '</div>';
+
+                // 画像表示（一覧閲覧用）
+                const targetImageName = q.image ? q.image : (q.year + " Q" + q.num + ".png");
+                let imgHtml = '<div class="my-3 hidden browse-img-box bg-slate-100 p-1.5 rounded-lg border border-slate-200 max-w-xs text-center mx-auto">' +
+                                '<img src="' + baseImageUrl + encodeURIComponent(targetImageName) + '" class="max-h-32 mx-auto object-contain rounded" onerror="this.parentElement.style.display='none'"/>' +
+                                '<span class="text-[9px] text-slate-400 block mt-1 font-mono">' + targetImageName + '</span>' +
+                              '</div>';
+
+                details.innerHTML = `
+                    <summary class="list-none flex items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50/80 transition select-none">
+                        <div class="flex items-center space-x-3">
+                            ${badgeHtml}
+                            <span class="text-xs font-medium text-slate-700 truncate max-w-[160px] sm:max-w-md">${q.text}</span>
+                        </div>
+                        <span class="text-xs text-slate-400 font-bold transition-transform group-open:rotate-180 ml-2">▼</span>
+                    </summary>
+                    <div class="p-4 border-t border-slate-100 bg-slate-50/30 space-y-3">
+                        <!-- 問題本文（全表示） -->
+                        <div class="text-xs font-semibold text-slate-900 leading-relaxed bg-white border border-slate-100 rounded-xl p-3 shadow-inner">
+                            ${q.text}
+                        </div>
+                        
+                        <!-- 画像エリア -->
+                        ${imgHtml}
+
+                        <!-- 選択肢と正解マーカー -->
+                        ${optionsHtml}
+
+                        <!-- 解説エリア -->
+                        <div class="mt-3 bg-white rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 shadow-sm">
+                            <div class="font-bold text-emerald-600 flex items-center">
+                                <span class="mr-1">✅</span> 正解: 選択肢 ${q.answer + 1}
+                            </div>
+                            <div class="text-slate-500 leading-relaxed border-t border-slate-50 pt-1.5">
+                                <span class="font-bold text-[10px] text-slate-400 block uppercase mb-0.5">解説・ポイント:</span>
+                                ${q.explanation ? q.explanation : '解説は登録されていません。'}
+                            </div>
+                        </div>
+
+                        <!-- クイック操作ボタン -->
+                        <div class="flex items-center space-x-2 pt-1">
+                            <button onclick="toggleBookmarkBrowse('${q.id}', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition">
+                                ${isBmk ? '★ ブックマーク解除' : '⭐ 気になる登録'}
+                            </button>
+                            <button onclick="toggleIncorrectBrowse('${q.id}', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition">
+                                ${isInc ? '❌ 間違え解除' : '⚠️ 間違えマーク'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // 画像表示ボックスの制御
+                const imgBox = details.querySelector('.browse-img-box');
+                if (imgBox) {
+                    imgBox.classList.remove('hidden');
+                }
+
+                container.appendChild(details);
+            });
+        }
+
+        function toggleBookmarkBrowse(qId, event) {
+            event.stopPropagation(); // アコーディオンが閉じるのを防止
+            if (bookmarks.includes(qId)) {
+                bookmarks = bookmarks.filter(id => id !== qId);
+            } else {
+                bookmarks.push(qId);
+            }
+            localStorage.setItem('qb_bookmarks', JSON.stringify(bookmarks));
+            filterBrowseList();
+        }
+
+        function toggleIncorrectBrowse(qId, event) {
+            event.stopPropagation(); // アコーディオンが閉じるのを防止
+            if (incorrectIds.includes(qId)) {
+                incorrectIds = incorrectIds.filter(id => id !== qId);
+            } else {
+                incorrectIds.push(qId);
+            }
+            localStorage.setItem('qb_incorrect_ids', JSON.stringify(incorrectIds));
+            filterBrowseList();
+        }
+
+        // ④ お問い合わせ処理
+        function sendFeedbackEmail() {
+            const type = document.getElementById('feedback-type').value;
+            const bodyText = document.getElementById('feedback-body').value.trim();
+            
+            if (bodyText === '') {
+                alert('内容を入力してください。');
+                return;
+            }
+
+            const email = "zekisi085@gmail.com";
+            const subject = encodeURIComponent(`【どこでも過去問アプリ】${type}`);
+            
+            let metaInfo = "\n\n--------------------------\n" +
+                           "【送信元アプリ環境情報】\n" +
+                           "・お使いのブラウザUA: " + navigator.userAgent + "\n" +
+                           "・登録済ブックマーク数: " + bookmarks.length + "\n" +
+                           "・間違えマーク問題数: " + incorrectIds.length + "\n" +
+                           "--------------------------";
+
+            const mailtoUrl = "mailto:" + email + "?subject=" + subject + "&body=" + encodeURIComponent(bodyText + metaInfo);
+            window.location.href = mailtoUrl;
+        }
+
+        function resetAllData() {
+            if (confirm('本当にすべての学習データ（進捗、間違えマーク、気になるマーク）を完全に削除しますか？この操作は戻せません。')) {
+                localStorage.clear();
+                bookmarks = [];
+                incorrectIds = [];
+                historyLog = {};
+                selectYear('MIX');
+                selectMode('all');
+                updateGlobalStatsDisplay();
+                alert('すべてのデータをリセットしました。');
+            }
+        }
+    </script>
+</body>
+</html>
 OW2 FPS改善のための設定ガイド
 問12構造決定の最終確認と次問へ
 チミジル酸シンターゼが触媒する生化学反応を示したうえで、5-FUの薬理作用を説明した画像を作成して欲しい
