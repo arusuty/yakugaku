@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>薬学 総合演習Ⅰ 過去問マスター</title>
-    <script src="https://cdn.tailwindcss.com\"></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, \"Helvetica Neue\", Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
     </style>
 </head>
@@ -18,605 +19,750 @@
     <div class="max-w-3xl mx-auto px-4 py-6 text-center">
         <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight">総合演習Ⅰ 過去問マスター</h1>
         <p class="text-xs text-slate-400 mt-2 font-medium tracking-wide">
-            局方・生薬・生物・衛生・薬理・薬剤・法規・実務 (Ver 6.0)
+            局方・生薬・生物・衛生・薬理・薬剤・法規・実務 (Ver 5.0)
         </p>
     </div>
 </header>
 
-<main class="flex-grow max-w-3xl w-full mx-auto px-4 py-6">
-    <div id="quiz-panel" class="panel space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-            <div class="flex justify-between items-center mb-4">
-                <span id="question-meta" class="text-xs font-bold tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full">LOADING...</span>
-                <span id="question-progress" class="text-xs font-semibold text-slate-400">0 / 0</span>
+<div class="max-w-3xl w-full mx-auto px-4 mt-6 flex-grow">
+    <!-- Tab Navigation -->
+    <div class="flex bg-white rounded-xl shadow-sm border border-slate-100 p-1 mb-6">
+        <button id="t-quiz" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('quiz')">
+            問題演習
+        </button>
+        <button id="t-stats" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('stats')">
+            個人成績表
+        </button>
+        <button id="t-settings" class="flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200" onclick="switchTab('settings')">
+            出題設定
+        </button>
+    </div>
+
+    <!-- Quiz Panel -->
+    <div id="quiz-panel" class="panel hidden">
+        <div class="bg-white rounded-2xl p-5 md:p-8 shadow-sm border border-slate-100">
+            <!-- Progress & Meta Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-4 mb-5 text-xs md:text-sm font-bold text-slate-500">
+                <div class="flex items-center gap-2">
+                    <span id="question-meta" class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">年度・番号</span>
+                    <span id="mode-badge" class="bg-amber-50 text-amber-700 px-3 py-1 rounded-full hidden">モード中</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <span id="question-counter">1 / 90問目</span>
+                    <span id="question-record" class="text-indigo-600">過去の戦績: -</span>
+                </div>
             </div>
-            <div id="question-text" class="text-base md:text-lg font-bold text-slate-800 leading-relaxed mb-6 whitespace-pre-wrap">
-                問題を読み込んでいます...
+
+            <!-- Question Text -->
+            <div id="question-text" class="text-base md:text-lg font-bold leading-relaxed text-slate-800 mb-6">
+                問題が読み込まれます
             </div>
+
+            <!-- Options Area -->
             <div id="options-container" class="space-y-3">
-                </div>
-        </div>
-
-        <div id="explanation-container" class="hidden bg-white rounded-2xl shadow-sm p-6 border border-slate-100 space-y-4">
-            <div class="flex items-center gap-2">
-                <div id="result-badge" class="font-black px-4 py-1.5 rounded-xl text-sm tracking-wide"></div>
-                <div id="correct-answer-display" class="text-sm font-bold text-slate-600"></div>
-            </div>
-            <div class="border-t border-slate-100 pt-4">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">解説</h4>
-                <p id="explanation-text" class="text-sm md:text-base text-slate-600 leading-relaxed whitespace-pre-wrap"></p>
-            </div>
-            <button onclick="nextQuestion()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 px-4 rounded-xl transition duration-200 shadow-sm text-sm tracking-wide mt-2">
-                次の問題へ
-            </button>
-        </div>
-    </div>
-
-    <div id="stats-panel" class="panel hidden space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-            <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-                <span class="w-1 h-5 bg-indigo-600 rounded-full"></span>総合進捗・正答率
-            </h3>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="bg-slate-50 rounded-xl p-4 text-center">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">総解答回数</p>
-                    <p id="stat-total-attempts" class="text-2xl font-black text-slate-800">0</p>
-                </div>
-                <div class="bg-slate-50 rounded-xl p-4 text-center">
-                    <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">総合正答率</p>
-                    <p id="stat-overall-accuracy" class="text-2xl font-black text-slate-800">0%</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
-            <h3 class="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
-                <span class="w-1 h-5 bg-rose-500 rounded-full"></span>要復習リスト（弱点補強）
-            </h3>
-            <p class="text-xs text-slate-400 mb-4">直近で間違えた問題がここに自動蓄積されます。右側のボタンからピンポイントで特訓可能です。</p>
-            <div id="weak-questions-list" class="space-y-3 max-h-96 overflow-y-auto pr-1">
-                </div>
-        </div>
-    </div>
-
-    <div id="settings-panel" class="panel hidden space-y-6">
-        <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 space-y-6">
-            <div>
-                <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <span class="w-1 h-5 bg-indigo-600 rounded-full"></span>1. 出題対象の年度
-                </h3>
-                <div class="flex flex-wrap gap-3">
-                    <label class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-xl cursor-pointer border border-slate-200 transition text-sm font-semibold">
-                        <input type="checkbox" name="setting-year" value="2019" checked onchange="initQuizFlow()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"> 2019年
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-xl cursor-pointer border border-slate-200 transition text-sm font-semibold">
-                        <input type="checkbox" name="setting-year" value="2021" checked onchange="initQuizFlow()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"> 2021年
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-xl cursor-pointer border border-slate-200 transition text-sm font-semibold">
-                        <input type="checkbox" name="setting-year" value="2022" checked onchange="initQuizFlow()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"> 2022年
-                    </label>
-                    <label class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 px-4 py-2.5 rounded-xl cursor-pointer border border-slate-200 transition text-sm font-semibold">
-                        <input type="checkbox" name="setting-year" value="2023" checked onchange="initQuizFlow()" class="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"> 2023年
-                    </label>
-                </div>
+                <!-- Dynamically generated buttons -->
             </div>
 
-            <div>
-                <h3 class="text-lg font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <span class="w-1 h-5 bg-indigo-600 rounded-full"></span>2. 出題モード
-                </h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <button id="mode-btn-normal" onclick="changePlayMode('normal')" class="flex flex-col text-left p-4 rounded-xl border-2 transition duration-150">
-                        <span class="font-bold text-sm">通常モード</span>
-                        <span class="text-xs text-slate-400 mt-1">選択した年度の問題を番号順にすべて解きます。</span>
-                    </button>
-                    <button id="mode-btn-random" onclick="changePlayMode('random')" class="flex flex-col text-left p-4 rounded-xl border-2 transition duration-150">
-                        <span class="font-bold text-sm">ランダム全問</span>
-                        <span class="text-xs text-slate-400 mt-1">選択した年度の問題をシャッフルしてすべて解きます。</span>
-                    </button>
-                    <button id="mode-btn-quick" onclick="changePlayMode('quick')" class="flex flex-col text-left p-4 rounded-xl border-2 transition duration-150">
-                        <span class="font-bold text-sm">15問クイックテスト</span>
-                        <span class="text-xs text-slate-400 mt-1">対象問題からランダムで15問だけ抽出し、ミニテストを行います。</span>
-                    </button>
-                    <button id="mode-btn-weak" onclick="changePlayMode('weak')" class="flex flex-col text-left p-4 rounded-xl border-2 transition duration-150">
-                        <span class="font-bold text-sm">弱点補強モード</span>
-                        <span class="text-xs text-slate-400 mt-1">要復習リスト（現在間違えている問題）からのみ出題します。</span>
-                    </button>
-                </div>
+            <!-- Explanation Box -->
+            <div id="explanation" class="mt-6 p-5 bg-emerald-50/50 border border-emerald-100 rounded-xl hidden">
+                <h4 class="text-emerald-800 font-extrabold text-sm flex items-center gap-1.5 mb-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    解答解説
+                </h4>
+                <p id="explanation-text" class="text-slate-700 text-sm md:text-base leading-relaxed pl-5"></p>
             </div>
 
-            <div class="border-t border-slate-100 pt-6">
-                <h3 class="text-sm font-bold text-rose-600 mb-2 uppercase tracking-wider">Danger Zone</h3>
-                <button onclick="clearAllData()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold py-2.5 px-4 rounded-xl transition text-xs tracking-wide">
-                    すべての解答データ・弱点リストをリセットする
+            <!-- Footer Navigation Buttons -->
+            <div class="flex gap-4 mt-8 border-t border-slate-100 pt-5">
+                <button id="prev-btn" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-all duration-150 shadow-sm text-sm" onclick="prevQuestion()">
+                    戻る
+                </button>
+                <button id="next-btn" class="flex-1 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl font-bold transition-all duration-150 shadow-sm text-sm" onclick="nextQuestion()">
+                    次の問題へ
                 </button>
             </div>
         </div>
     </div>
-</main>
 
-<nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
-    <div class="max-w-3xl mx-auto flex justify-around">
-        <button id="nav-quiz" onclick="switchTab('quiz')" class="flex flex-col items-center justify-center py-3 w-full text-slate-400 hover:text-slate-600 transition">
-            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-            <span class="text-[10px] font-bold tracking-wider">問題演習</span>
-        </button>
-        <button id="nav-stats" onclick="switchTab('stats')" class="flex flex-col items-center justify-center py-3 w-full text-slate-400 hover:text-slate-600 transition">
-            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-            <span class="text-[10px] font-bold tracking-wider">個人成績</span>
-        </button>
-        <button id="nav-settings" onclick="switchTab('settings')" class="flex flex-col items-center justify-center py-3 w-full text-slate-400 hover:text-slate-600 transition">
-            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-            <span class="text-[10px] font-bold tracking-wider">出題設定</span>
-        </button>
+    <!-- Stats Panel -->
+    <div id="stats-panel" class="panel hidden">
+        <!-- Progress Stat Grid -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 mb-6">
+            <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>学習進捗状況 (全年度統合)
+            </h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-slate-50/50 rounded-xl p-4 text-center border border-slate-100">
+                    <div class="text-xs text-slate-400 font-bold mb-1">総解答回数</div>
+                    <div id="stat-total-attempts" class="text-2xl font-black text-slate-700">0</div>
+                </div>
+                <div class="bg-slate-50/50 rounded-xl p-4 text-center border border-slate-100">
+                    <div class="text-xs text-slate-400 font-bold mb-1">総合正答率</div>
+                    <div id="stat-overall-accuracy" class="text-2xl font-black text-indigo-600">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weak Questions List -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
+            <h2 class="text-base font-extrabold text-slate-800 mb-4 flex items-center gap-2">
+                <span class="w-1.5 h-5 bg-rose-500 rounded-full"></span>要復習リスト（現在間違えている問題）
+            </h2>
+            <div id="weak-questions-list" class="divide-y divide-slate-100 max-h-[400px] overflow-y-auto pr-1">
+                <!-- Dynamically generated list items -->
+            </div>
+        </div>
     </div>
-</nav>
+
+    <!-- Settings Panel -->
+    <div id="settings-panel" class="panel hidden">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 space-y-6">
+            <!-- 1. Year Scope Selection -->
+            <div>
+                <h2 class="text-base font-extrabold text-slate-800 mb-1 flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>① 出題範囲（年度）
+                </h2>
+                <p class="text-[11px] text-slate-400 mb-3">通常・ランダムモード時のみ有効です。弱点補強と15問クイックでは無効化されます。</p>
+                <select id="year-filter" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed" onchange="changeYearFilter(this.value)">
+                    <option value="2023" selected>2023年度 (90問)</option>
+                    <option value="2022">2022年度 (90問)</option>
+                    <option value="2021">2021年度 (90問)</option>
+                </select>
+                <p id="year-filter-note" class="text-xs text-indigo-600 font-bold mt-2"></p>
+            </div>
+
+            <!-- 2. Play Mode Selection -->
+            <div>
+                <h2 class="text-base font-extrabold text-slate-800 mb-3 flex items-center gap-2">
+                    <span class="w-1.5 h-5 bg-indigo-600 rounded-full"></span>② 出題モード設定
+                </h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <button id="mode-normal" class="p-4 border-2 rounded-xl text-left transition-all duration-200" onclick="changePlayMode('normal')">
+                        <div class="font-black text-sm mb-1 text-slate-800">通常モード</div>
+                        <p class="text-xs text-slate-400">選択年度を番号順に進めます。</p>
+                    </button>
+                    <button id="mode-random" class="p-4 border-2 rounded-xl text-left transition-all duration-200" onclick="changePlayMode('random')">
+                        <div class="font-black text-sm mb-1 text-slate-800">全問ランダム</div>
+                        <p class="text-xs text-slate-400">選択年度をシャッフルして出題。</p>
+                    </button>
+                    <button id="mode-short" class="p-4 border-2 rounded-xl text-left transition-all duration-200" onclick="changePlayMode('short_random')">
+                        <div class="font-black text-sm mb-1 text-slate-800 flex items-center gap-1.5">
+                            15問クイック演習
+                            <span class="bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded text-[10px]">全年度ミックス</span>
+                        </div>
+                        <p class="text-xs text-slate-400">全年度から15問をランダム出題。</p>
+                    </button>
+                    <button id="mode-weak" class="p-4 border-2 rounded-xl text-left transition-all duration-200 relative" onclick="changePlayMode('weak')">
+                        <div class="font-black text-sm mb-1 text-slate-800 flex items-center gap-1.5">
+                            弱点補強モード
+                            <span class="bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded text-[10px]">自動消滅</span>
+                        </div>
+                        <p class="text-xs text-slate-400">全年度の誤答問題をシャッフル出題。</p>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="border-t border-slate-100 pt-6">
+                <button class="w-full py-3.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-xl transition-all duration-150 shadow-sm text-sm" onclick="clearAllData()">
+                    学習記録（個人成績）をすべてリセット
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-    // ==========================================
-    // 過去問マスターデータ (2019, 2021, 2022, 2023)
-    // ==========================================
     const quizData = [
-        // --- 2019年度 総合演習Ⅰ（追加分） ---
-        {
-            id: "2019_q1",
-            year: "2019",
-            num: 1,
-            text: "【正誤問題】冷所は、別に規定するもののほか4℃以下の場所とする。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。日本薬局方（日局）通則において、「冷所」とは別に規定するもののほか、1〜15℃の場所を指します。4℃以下ではありません。"
-        },
-        {
-            id: "2019_q2",
-            year: "2019",
-            num: 2,
-            text: "【正誤問題】医薬品の試験操作において、「直ちに」とあるのは、通例、前の操作の終了から30分以内に次の操作を開始することを意味する。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。日局通則において、「直ちに」とあるのは、通例、前の操作の終了から「30秒以内」に次の操作を開始することを意味します。30分以内ではありません。"
-        },
-        {
-            id: "2019_q3",
-            year: "2019",
-            num: 3,
-            text: "【正誤問題】日本薬局方の医薬品名の次に ( ) で分子式又は組成式をつけたものは、化学的純物質を意味する。",
-            options: ["1. 正", "2. 誤"],
-            answer: 0,
-            explanation: "正しい。日局通則の規定通り、医薬品名の次に（）で分子式または組成式を記載しているものは、それが化学的純物質であることを示しています。"
-        },
-        {
-            id: "2019_q4",
-            year: "2019",
-            num: 4,
-            text: "【正誤問題】性状の項に記載されている融点は、適否の判定基準にならない。",
-            options: ["1. 正", "2. 誤"],
-            answer: 0,
-            explanation: "正しい。日局において「性状」の項に記載されている融点、沸点、溶解度などの記述は、原則として参考値であり、医薬品の適否の絶対的な判定基準にはなりません。"
-        },
-        {
-            id: "2019_q5",
-            year: "2019",
-            num: 5,
-            text: "【正誤問題】単位 ppm は日本薬局方では質量百万分率を示す。",
-            options: ["1. 正", "2. 誤"],
-            answer: 0,
-            explanation: "正しい。日局通則において、ppm（parts per million）は「質量百万分率」を示すと明確に規定されています。"
-        },
-        {
-            id: "2019_q6",
-            year: "2019",
-            num: 6,
-            text: "【正誤問題】気密容器の規定がある場合には、密閉容器を用いることができる。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。容器の密閉性の厳しさは【密封容器 ＞ 気密容器 ＞ 密閉容器】の順です。そのため、気密容器の規定がある場合に、それより密閉性の低い「密閉容器」で代用することはできません。"
-        },
-        {
-            id: "2019_q7",
-            year: "2019",
-            num: 7,
-            text: "【正誤問題】確認試験は、医薬品又は医薬品中に含有されている主成分などを、その特性に基づいて調べるために必要な試験である。",
-            options: ["1. 正", "2. 誤"],
-            answer: 0,
-            explanation: "正しい。日局一般試験法における「確認試験」の定義そのものです。医薬品またはその主成分を、その化学的・物理的特性に基づいて識別・確認するために行われます。"
-        },
-        {
-            id: "2019_q8",
-            year: "2019",
-            num: 8,
-            text: "【正誤問題】放射線照射滅菌法で通常用いられる放射線源は、60Coなどのベータ線である。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。放射線照射滅菌法において、コバルト60（60Co）などの放射性同位元素から得られるのは「ガンマ線（γ線）」です。ベータ線ではありません。"
-        },
-        {
-            id: "2019_q9",
-            year: "2019",
-            num: 9,
-            text: "【正誤問題】無菌操作とは、最終滅菌法を適用して無菌医薬品を製造するために行う操作のことをいう。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。無菌操作法は、「最終滅菌法（加熱など）が適用できない」熱に不安定な医薬品などを製造するために、あらかじめ滅菌された原材料や器具を用い、無菌化された環境下で調製・充填を行う操作を指します。"
-        },
-        {
-            id: "2019_q10",
-            year: "2019",
-            num: 10,
-            text: "【正誤問題】高周波滅菌法は、熱に不安定な物質に適した滅菌法である。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。高周波滅菌法は、高周波を照射することで物質内部の分子を振動させ、その「摩擦熱（加熱）」によって微生物を死滅させる方法です。加熱を伴うため、熱に不安定な物質には適していません。"
-        },
-        {
-            id: "2019_q11",
-            year: "2019",
-            num: 11,
-            text: "【正誤問題】エンドトキシン試験は、エンドトキシンがカブトガニの血球抽出成分より調製されたライセート試薬を溶解させる反応に基づく。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。エンドトキシン試験法は、エンドトキシンがカブトガニの血球抽出成分（ライセート試薬）の凝固酵素系を活性化させ、「ゲル化」または「凝集」を誘発する反応に基づきます。「溶解」させるわけではありません。"
-        },
-        {
-            id: "2019_q12",
-            year: "2019",
-            num: 12,
-            text: "【正誤問題】0.05gを正確に量る場合、適切なはかりを用いて 0.045~0.054gを量る。",
-            options: ["1. 正", "2. 誤"],
-            answer: 1,
-            explanation: "誤り。日局通則において「正確に量る」とは、記載された桁数の1つ下の位まで考慮し、例えば 0.05g を正確に量る場合は「0.045〜0.055g」の範囲内で量ることを意味します。問題文の「0.054g」という範囲指定は誤りです。"
-        },
-        {
-            id: "2019_q61",
-            year: "2019",
-            num: 61,
-            text: "ヒトの細胞でパルミチン酸 (C16:0) が酸化を受けるのはどこか。",
-            options: ["1. 核", "2. ゴルジ体", "3. 細胞質", "4. 小胞体", "5. ミトコンドリア"],
-            answer: 4,
-            explanation: "正解は 5。パルミチン酸などの長鎖脂肪酸が酸化されてアセチルCoAを生じる「β酸化」の主要な代謝経路は、細胞内の【ミトコンドリア】のマトリックスに存在します。"
-        },
-        {
-            id: "2019_q62",
-            year: "2019",
-            num: 62,
-            text: "原核生物はどれか。",
-            options: ["1. 赤痢アメーバ", "2. インフルエンザウイルス", "3. 皮膚糸状菌", "4. 黄色ブドウ球菌", "5. マラリア原虫"],
-            answer: 3,
-            explanation: "正解は 4。細菌（バクテリア）である【黄色ブドウ球菌】は核膜を持たない原核生物です。赤痢アメーバやマラリア原虫は単細胞の真核生物（原生生物）、皮膚糸状菌は真菌（真核生物）です。"
-        },
-        {
-            id: "2019_q63",
-            year: "2019",
-            num: 63,
-            text: "n-3系脂肪酸はどれか。",
-            options: ["1. アラキドン酸", "2. オレイン酸", "3. リノール酸", "4. α-リノレン酸", "5. γ-リノレン酸"],
-            answer: 3,
-            explanation: "正解は 4。【α-リノレン酸】はメチル末端（n末端）から数えて3番目の炭素に最初の二重結合を持つn-3系（ω-3系）不飽和脂肪酸です。"
-        },
-        {
-            id: "2019_q64",
-            year: "2019",
-            num: 64,
-            text: "真核細胞でのmRNAのプロセシングによる成熟過程において、イントロンの除去に関わるのはどれか。",
-            options: ["1. オートファゴソーム", "2. スプライソソーム", "3. ヌクレオソーム", "4. プロテアソーム", "5. リソソーム"],
-            answer: 1,
-            explanation: "正解は 2。転写されたばかりのmRNA前駆体から不要な配列（イントロン）を切り捨て、必要な配列（エキソン）を繋ぎ合わせる「スプライシング」を行う巨大なRNA-タンパク質複合体を【スプライソソーム】と呼びます。"
-        },
-        {
-            id: "2019_q65",
-            year: "2019",
-            num: 65,
-            text: "翻訳過程において、リボソームへアミノ酸を運ぶ役割を担うRNAはどれか。",
-            options: ["1. mRNA (メッセンジャーRNA)", "2. miRNA (マイクロRNA)", "3. rRNA (リボソームRNA)", "4. tRNA (トランスファーRNA)", "5. siRNA (低分子干渉RNA)"],
-            answer: 3,
-            explanation: "正解は 4。【tRNA（トランスファーRNA / 転移RNA）】は、自身のアンチコドンに対応する特定のアミノ酸と結合し、タンパク質合成の場であるリボソームへとそのアミノ酸を運搬する役割を担います。"
-        },
-        {
-            id: "2019_q66",
-            year: "2019",
-            num: 66,
-            text: "セロトニンの生合成の前駆体はどれか。",
-            options: ["1. アラキドン酸", "2. コリン", "3. L-チロシン", "4. L-トリプトファン", "5. L-ヒスチジン"],
-            answer: 3,
-            explanation: "正解は 4。神経伝伝達物質であるセロトニン（5-ヒドロキシトリプタミン）は、必須アミノ酸である【L-トリプトファン】から水酸化および脱炭酸反応を経て生合成されます。"
-        },
+        // ==========================================
+        // 2023年度 必須問題 (問1〜問90)
+        // ==========================================
+        { id: "2023_q1", year: "2023", num: 1, text: "日本薬局方の沿革・構成に関する記述のうち、正しいのはどれか。", options: ["1. 日本薬局方は、文部科学大臣が薬事・食品衛生審議会の意見を聴いて定める。", "2. 日本薬局方は、原則として10年ごとに全面改正が行われる。", "3. 日本薬局方は、通則、生薬総則、製剤総則、一般試験法及び医薬品各条等から構成される。", "4. 日本薬局方に公式な英文版は存在しない。"], answer: 2, explanation: "1：厚生労働大臣が定めます。2：原則5年ごとに全面改正されます。3：正しいです。4：英文版も存在します。" },
+        { id: "2023_q2", year: "2023", num: 2, text: "日本薬局方通則における温度の定義について、正しいのはどれか。", options: ["1. 標準温度は20℃とする。", "2. 常温は10〜30℃とする。", "3. 室温は1〜25℃とする。", "4. 「直ちに」とは、前の操作を終了した後の次の操作を60分以内に開始することをいう。"], answer: 0, explanation: "1：標準温度は20℃で正しい。2：常温は15〜25℃。3：室温は1〜30℃。4：「直ちに」は30秒以内です。" },
+        { id: "2023_q3", year: "2023", num: 3, text: "日本薬局方通則に関する記述のうち、正しいのはどれか。", options: ["1. 陰性とは、基準値を超える変化が認められることをいう。", "2. 物質名の前後に「 」（かっこ）を付けるのは、それが純品であることを意味する。", "3. 減圧とは、別に規定がない限り0.1 kPa以下の圧力をいう。", "4. サンプルの採取量において「約」とある場合は、記載された数値の±10%の範囲を指す。"], answer: 3, explanation: "1：変化がないか基準以下を指します。2：局方に規定された医薬品であることを意味します。3：減圧は2.0 kPa以下。4：±10%は正しい。" },
+        { id: "2023_q4", year: "2023", num: 4, text: "通則の規定において、「約1.5gを精密に量る」という指示に対して適切な表記はどれか。", options: ["1. 1.5g", "2. 1.4985g", "3. 1.50g", "4. 1.500g"], answer: 1, explanation: "「精密に量る」とは、天秤の感度に応じて最小位のもう一つ下の桁まで考慮して量ることです。1.5gに対しては小数第4位まで測定されているものが適切です。" },
+        { id: "2023_q5", year: "2023", num: 5, text: "日本薬局方における溶液の濃度表記「(1→10)」の定義として正しいのはどれか。", options: ["1. 固形薬品1gに対して溶媒10mLを加えること。", "2. 固形薬品1gに対して溶媒9mLを加えること。", "3. 固形薬品1gを溶媒に溶かして全量を10mLにすること。", "4. 固形薬品1gを溶媒10gに溶解すること。"], answer: 2, explanation: "「1→10」は、固形1g（液体1mL）を溶かして、全体の量を10mLにすることを意味します。加える溶媒の量ではない点に注意。" },
+        { id: "2023_q6", year: "2023", num: 6, text: "日本薬局方の各条に記載されている項目のうち、原則として品質の適否の判定基準とはされないものはどれか。", options: ["1. 確認試験", "2. 性状", "3. 純度試験", "4. 定量法"], answer: 1, explanation: "「性状」は色やにおいなどの目安であり、原則として適否（合格・不合格）の判定基準にはされません。" },
+        { id: "2023_q7", year: "2023", num: 7, text: "紫外可視吸光度測定法において、層長1cm、試薬濃度1%（w/v）の溶液の吸光度を表す記号として正しいのはどれか。", options: ["1. A", "2. ε", "3. E(1%, 1cm)", "4. T"], answer: 2, explanation: "層長1cm、濃度1%における吸光度は「比吸光度」と呼ばれ、「E(1%, 1cm)」で表記されます。" },
+        { id: "2023_q8", year: "2023", num: 8, text: "紫外可視吸光度測定法において、紫外部（200〜400 nm）の測定に用いられる光源として正しいのはどれか。", options: ["1. タングステンランプ", "2. 重水素放電管", "3. 中空陰極ランプ", "4. ナトリウムランプ"], answer: 1, explanation: "紫外部（200〜400nm）には「重水素放電管」、可視部（400〜800nm）には「タングステンランプ」が用いられます。" },
+        { id: "2023_q9", year: "2023", num: 9, text: "純度試験法において、重金属試験法（第1法）の比較液を調製する際に用いられる標準液はどれか。", options: ["1. 鉄標準液", "2. 鉛標準液", "3. ヒ素標準液", "4. アンモニウム標準液"], answer: 1, explanation: "重金属試験法の比較対象には「鉛標準液」が用いられ、黒褐色の呈色度合いを比較します。" },
+        { id: "2023_q10", year: "2023", num: 10, text: "ヒ素試験法において、装置の吸収液として用いられ、ヒ化水素と反応して赤色の呈色を示す試薬はどれか。", options: ["1. ジエチルジチオカルバミド酸銀ピリジン試液", "2. 硫化ナトリウム試液", "3. 塩化第二鉄試液", "4. クンバ川抽出液"], answer: 0, explanation: "発生したヒ化水素を「ジエチルジチオカルバミド酸銀ピリジン試液」に吸収させ、赤色を呈させて測定します。" },
+        { id: "2023_q11", year: "2023", num: 11, text: "エンドトキシン試験法に関する記述のうち、正しいのはどれか。", options: ["1. カブトガニの血球抽出成分（ライセート試薬）がエンドトキシンによってゲル化する反応を利用する。", "2. 主にグラム陽性菌の細胞壁成分を測定する試験である。", "3. エンドトキシンは、100℃、30分間の加熱で完全に不活化される。", "4. 発熱物質試験法と完全に同じ操作・手順で行われる。"], answer: 0, explanation: "1：カブトガニ血球抽出成分（ライセート試薬）のゲル化を利用します。2：グラム陰性菌成分。3：250℃以上30分以上の加熱が必要。" },
+        { id: "2023_q12", year: "2023", num: 12, text: "発熱物質試験法において、試験に用いられる動物として正しいのはどれか。", options: ["1. 体重300g以上の健康なラット", "2. 体重1.5kg以上の健康なウサギ", "3. 体重20g以上の健康なマウス", "4. 体重2.0kg以上の健康なモルモット"], answer: 1, explanation: "体温変化に敏感な「体重1.5kg以上の健康なウサギ」が用いられます。" },
+        { id: "2023_q13", year: "2023", num: 13, text: "微生物学的試験法における「D値」の定義として正しいのはどれか。", options: ["1. 物質の全細胞数が2倍になる時間", "2. 特定の滅菌条件下で微生物の生存数を1/10（90%減少）にするのに必要な時間・線量", "3. 微生物が完全に死滅する最短時間", "4. 温度が10℃上昇したときの死滅速度変化率"], answer: 1, explanation: "生存数を「1/10（90%減少）」にするために必要な時間、または照射線量を表します。" },
+        { id: "2023_q14", year: "2023", num: 14, text: "液体クロマトグラフィーにおいて固定相への保持の強さを表し、ピーク保持時間からデッドボリュームを引いて算出するパラメータはどれか。", options: ["1. 分離係数", "2. 保持比（容量比）", "3. 理論段数", "4. シンメトリー係数"], answer: 1, explanation: "保持比（k'）はカラム内での物質の保持強さを表す指標で、(tR - t0) / t0 で算出されます。" },
+        { id: "2023_q15", year: "2023", num: 15, text: "旋光度測定法において、別に規定がない限り測定に用いられる単色光の光源はどれか。", options: ["1. 水銀ランプ", "2. 重水素放電管", "3. ナトリウムスペクトルのD線", "4. タングステンランプ"], answer: 2, explanation: "旋光度測定の光源には「ナトリウムスペクトルのD線」を用いる規定となっています。" },
+        { id: "2023_q16", year: "2023", num: 16, text: "生薬の基原に関する記述のうち、正しいのはどれか。", options: ["1. カンゾウ（甘草）の基原植物はマメ科である。", "2. マオウ（麻黄）の基原植物はナス科である。", "3. ケイヒ（桂皮）の基原植物はバラ科である。", "4. シャクヤク（芍薬）の基原植物はセリ科である。"], answer: 0, explanation: "カンゾウはマメ科植物。マオウはマオウ科、ケイヒはクスノキ科、シャクヤクはボタン科です。" },
+        { id: "2023_q17", year: "2023", num: 17, text: "次の生薬のうち、薬用部位が「根茎」であるものはどれか。", options: ["1. ニンジン（人参）", "2. ショウキョウ（生姜）", "3. トウキ（当帰）", "4. ゲンチアナ"], answer: 1, explanation: "ショウキョウ（生姜）は「根茎」を薬用部位とします。その他は「根」を用います。" },
+        { id: "2023_q18", year: "2023", num: 18, text: "生薬の成分のうち、主要成分としてアルカロイドを含むものはどれか。", options: ["1. マオウ（麻黄）", "2. カンゾウ（甘草）", "3. ダイオウ（大黄）", "4. センナ"], answer: 0, explanation: "マオウは交感神経刺激作用をもつアルカロイド「エフェドリン」を含みます。" },
+        { id: "2023_q19", year: "2023", num: 19, text: "確認試験において、塩化第二鉄試液を加えたときに、フェノール性水酸基の存在により呈色を示す生薬はどれか。", options: ["1. ボタンピ", "2. キジツ", "3. チョウジ（丁子）", "4. ゲンノショウコ"], answer: 2, explanation: "チョウジの主要精油成分「オイゲノール」はフェノール性水酸基をもつため呈色します。" },
+        { id: "2023_q20", year: "2023", num: 20, text: "生薬総則において、生薬の虫害を防ぐための保存規定として正しいのはどれか。", options: ["1. 密封容器に保存する。", "2. 気密容器に保存し、別に規定がない限り適当な防虫剤を施すか完全に乾燥させる。", "3. 遮光した密閉容器に保存する。", "4. 冷所に保存する。"], answer: 1, explanation: "虫害を防ぐため、生薬は通例「気密容器」に保存し防虫措置を施します。" },
+        { id: "2023_q21", year: "2023", num: 21, text: "ヒトの細胞内において、主に「ATP（エネルギー）の産生」を担っている細胞小器官はどれか。", options: ["1. リソソーム", "2. ゴルジ体", "3. ミトコンドリア", "4. 小胞体"], answer: 2, explanation: "ミトコンドリアは酸素を利用してエネルギー（ATP）を産生する「細胞の発電所」です。" },
+        { id: "2023_q22", year: "2023", num: 22, text: "血液の成分に関する記述のうち、主に組織への酸素運搬を担う細胞成分はどれか。", options: ["1. 赤血球", "2. 白血球", "3. 血小板", "4. マクロファージ"], answer: 0, explanation: "赤血球はヘモグロビンを含み、酸素を全身の組織へ運ぶ役割を持ちます。" },
+        { id: "2023_q23", year: "2023", num: 23, text: "自律神経系において、交感神経が優位に働いたときに起こる身体の反応として正しいのはどれか。", options: ["1. 瞳孔の縮小", "2. 心拍数の増加", "3. 胃腸の運動促進", "4. 気管支の収縮"], answer: 1, explanation: "交感神経が興奮すると、心拍数増加、瞳孔散大、気管支拡張、消化管活動抑制が起こります。" },
+        { id: "2023_q24", year: "2023", num: 24, text: "胃から分泌され、ペプシノーゲンをペプシンへと活性化させる強い酸性をもつ物質はどれか。", options: ["1. 重炭酸イオン", "2. 胃酸（塩酸）", "3. 内因子", "4. ガストリン"], answer: 1, explanation: "壁細胞から分泌される胃酸（塩酸）の強酸環境によりペプシノーゲンが活性化されます。" },
+        { id: "2023_q25", year: "2023", num: 25, text: "免疫系において、抗体（免疫グロブリン）を直接産生・分泌する細胞はどれか。", options: ["1. 形質細胞", "2. 細胞障害性T細胞", "3. ヘルパーT細胞", "4. 自然キラー細胞"], answer: 0, explanation: "B細胞が抗原刺激によって分化した「形質細胞」が抗体を産生します。" },
+        { id: "2023_q26", year: "2023", num: 26, text: "強酸と強塩基の中和反応における「pH飛躍」の範囲判定に適した指示薬はどれか。", options: ["1. メチルオレンジとフェノールフタレインの両方が使用できる", "2. メチルオレンジのみ", "3. フェノールフタレインのみ", "4. どちらも使用できない"], answer: 0, explanation: "強酸×強塩基はpH4〜10と大きく変化するため、両方の変色域がカバーされます。" },
+        { id: "2023_q27", year: "2023", num: 27, text: "少量の酸や塩基を加えてもpHを一定に保つ作用（緩衝作用）をもつ溶液を何というか。", options: ["1. 飽和溶液", "2. 緩衝溶液", "3. コロイド溶液", "4. 理想溶液"], answer: 1, explanation: "弱酸とその塩などを混合した、pH変動に抵抗する溶液を「緩衝溶液」と呼びます。" },
+        { id: "2023_q28", year: "2023", num: 28, text: "DNAの二重らせん構造において、アデニン（A）と相補的な塩基対を形成する塩基はどれか。", options: ["1. グアニン", "2. シトシン", "3. チミン", "4. ウラシル"], answer: 2, explanation: "DNAではAはチミン(T)と、Gはシトシン(C)と対を作ります（RNAではAとUが対になります）。" },
+        { id: "2023_q29", year: "2023", num: 29, text: "DNAの塩基配列を写し取ってmRNA（メッセンジャーRNA）を合成するプロセスを何というか。", options: ["1. 複製", "2. 転写", "3. 翻訳", "4. 逆転写"], answer: 1, explanation: "DNAからRNAを合成するステップを「転写」と呼びます。" },
+        { id: "2023_q30", year: "2023", num: 30, text: "mRNA上のコドンを認識し、対応するアミノ酸をリボソームへと運搬するRNAはどれか。", options: ["1. tRNA", "2. rRNA", "3. snRNA", "4. miRNA"], answer: 0, explanation: "tRNA（転移RNA）がアミノ酸をリボソームへ運ぶクレーンの役割を担います。" },
+        { id: "2023_q31", year: "2023", num: 31, text: "RNA前駆体からイントロンが除去され、エキソンが結合されて成熟mRNAになる過程を何というか。", options: ["1. キャッピング", "2. ポリA付加", "3. スプライシング", "4. プロテオリシス"], answer: 2, explanation: "不要部分を切り貼りするこの修飾を「スプライシング」と呼びます。" },
+        { id: "2023_q32", year: "2023", num: 32, text: "酵素が基質と結合して反応を触媒する際、酵素の活性が最大となる最適な温度を何というか。", options: ["1. 限界温度", "2. 最適温度（至適温度）", "3. 転移温度", "4. 飽和温度"], answer: 1, explanation: "酵素の反応速度が最も活性化する温度を「最適温度（至適温度）」と言います。" },
+        { id: "2023_q33", year: "2023", num: 33, text: "酵素反応速度が最大反応速度（Vmax）のちょうど半分（1/2 Vmax）に達するときの基質濃度を表す定数はどれか。", options: ["1. Km（ミカエリス定数）", "2. kcat", "3. Ki", "4. Kd"], answer: 0, explanation: "Km（ミカエリス定数）の定義です。値が小さいほど親和性が高いことを示します。" },
+        { id: "2023_q34", year: "2023", num: 34, text: "血液を濾過して尿を生成し、体液のホメオスタシス（恒常性）を維持する主たる器官はどれか。", options: ["1. 肝臓", "2. 脾臓", "3. 腎臓", "4. 胆嚢"], answer: 2, explanation: "腎臓が老廃物の排泄、電解質・水分バランスの調整を担います。" },
+        { id: "2023_q35", year: "2023", num: 35, text: "体細胞分裂において、複製された染色体が細胞の赤道面に一列に並ぶ時期はどれか。", options: ["1. 前期", "2. 中期", "3. 後期", "4. 終期"], answer: 1, explanation: "染色体が中央（赤道面）に整列するのは「中期」の特徴です。" },
+        { id: "2023_q36", year: "2023", num: 36, text: "細菌とウイルスの構造および特徴に関する記述のうち、正しいのはどれか。", options: ["1. ウイルスは人工の培地（寒天培地など）で自己増殖することができる。", "2. 細菌は細胞壁を持つが、ウイルスは細胞壁を持たない。", "3. ウイルスは常にDNAとRNAの両方の核酸を同時に保有している。", "4. 細菌の増殖は、すべて宿主細胞内でのみ行われる（独立して増殖できない）。"], answer: 1, explanation: "2：細菌は細胞壁（ペプチドグリカンなど）を持ちますが、ウイルスは細胞構造を持たず、カプシドなどに核酸が包まれているだけなので細胞壁はありません。1・4：ウイルスは生きた宿主細胞内でのみ増殖でき、人工培地では増殖できません。3：ウイルスはDNAかRNAのどちらか一方のみを持ちます。" },
+        { id: "2023_q37", year: "2023", num: 37, text: "ヒトの血清中に最も多く存在し、胎盤を通過して胎児に移行（受動免疫）することができる免疫グロブリン（抗体）のクラスはどれか。", options: ["1. IgA", "2. IgE", "3. IgG", "4. IgM"], answer: 2, explanation: "IgGは血清中に最も多く含まれる抗体であり、免疫グロブリンの中で唯一「胎盤を通過できる」という強い特徴を持ちます。" },
+        { id: "2023_q38", year: "2023", num: 38, text: "免疫グロブリンのクラスのうち、主に唾液や母乳、腸管分泌液などの「分泌液」中に二量体として存在し、局所免疫（粘膜防御）を担うものはどれか。", options: ["1. IgA", "2. IgD", "3. IgE", "4. IgM"], answer: 0, explanation: "IgA（分泌型IgA）は、分泌液中に多く含まれ、粘膜面での病原体の侵入を防ぐ「最前線の防御壁」として機能します。" },
+        { id: "2023_q39", year: "2023", num: 39, text: "クームス（Coombs）分類（アレルギーのⅠ〜Ⅳ型分類）において、IgE抗体が肥満細胞（マスト細胞）に結合し、ヒスタミンなどが遊離することで起こる「即時型アレルギー」はどれか。", options: ["1. Ⅰ型アレルギー", "2. Ⅱ型アレルギー", "3. Ⅲ型アレルギー", "4. Ⅳ型アレルギー"], answer: 0, explanation: "花粉症、気管支喘息、アナフィラキシーショックなどは「Ⅰ型アレルギー（即時型）」に分類されます。抗原がマスト細胞上のIgEに結合することでヒスタミン等が放出されます。" },
+        { id: "2023_q40", year: "2023", num: 40, text: "アレルギーの分類において、抗体ではなく「感作T細胞（細胞性免疫）」が関与し、抗原接触から24〜48時間後に症状がピークに達する「遅延型アレルギー」はどれか。", options: ["1. Ⅰ型アレルギー", "2. Ⅱ型アレルギー", "3. Ⅲ型アレルギー", "4. Ⅳ型アレルギー"], answer: 3, explanation: "Ⅳ型アレルギーは「遅延型（細胞性免疫型）」と呼ばれ、抗体ではなくT細胞が主役となります。ツベルクリン反応やかぶれがこれに該当します。" },
+        { id: "2023_q41", year: "2023", num: 41, text: "細胞質内で行われ、1分子のグルコースが嫌気的に分解されて2分子のピルビン酸（または乳酸）になり、ネットで2分子のATPを産生する代謝経路はどれか。", options: ["1. クエン酸回路（TCA回路）", "2. 解糖系", "3. 電子伝達系", "4. ペントースリン酸経路"], answer: 1, explanation: "グルコース（糖）を分解してエネルギーを取り出す最初のステップは、細胞質基質で行われる「解糖系」です。酸素を必要としない代謝経路です。" },
+        { id: "2023_q42", year: "2023", num: 42, text: "ミトコンドリアのマトリクスで行われ、解糖系から生じたアセチルCoAが結合して回転し、NADHやFADH2を高効率で産生する主要なエネルギー代謝回路はどれか。", options: ["1. グリコーゲン合成経路", "2. カルビン回路", "3. クエン酸回路（TCA回路）", "4. 尿素回路"], answer: 2, explanation: "アセチルCoAがオキサロ酢酸と結合してクエン酸になることから始まるこの回路は、「クエン酸回路（TCA回路）」と呼ばれます。" },
+        { id: "2023_q43", year: "2023", num: 43, text: "ミトコンドリアの内膜に存在する高分子複合体において、NADHなどの電子が移動するエネルギーを利用してプロトン（H+）の濃度勾配を形成し、莫大なATPを産生するシステムはどれか。", options: ["1. 解糖系", "2. 電子伝達系", "3. 糖新生経路", "4. 脂肪酸β酸化"], answer: 1, explanation: "ミトコンドリア内膜で行われる「電子伝達系」は、プロトン濃度勾配による力（ATP合成酵素）を用いて大量のATPを合成します。" },
+        { id: "2023_q44", year: "2023", num: 44, text: "飢餓時や糖質不足時に、肝臓においてピルビン酸や乳酸、アミノ酸（アラニンなど）、グリセロールなどの「糖質以外の物質」からグルコースを新たをつくり出す代謝経路はどれか。", options: ["1. 糖新生", "2. グリコーゲン分解", "3. クエン酸回路", "4. 脂肪酸合成"], answer: 0, explanation: "アミノ酸や乳酸など、糖以外の材料からグルコース（血糖）を逆合成する経路を「糖新生」と呼びます。" },
+        { id: "2023_q45", year: "2023", num: 45, text: "脂質の代謝において、脂肪酸がミトコンドリア内で炭素2個ずつ（アセチルCoAの単位）に次々と切断され、酸化されてエネルギーを生み出すプロセスを何というか。", options: ["1. α酸化", "2. β酸化", "3. ω酸化", "4. 糖新生"], answer: 1, explanation: "脂肪酸のカルボキシ基側から数えて2番目の炭素（β位）が酸化されて切断されていくため、「脂肪酸のβ酸化」と呼びます。" },
+        { id: "2023_q46", year: "2023", num: 46, text: "脂溶性ビタミンのうち、視覚の正常維持（夜盲症の予防）や皮膚・粘膜の上皮細胞の分化に関与するものはどれか。", options: ["1. ビタミンA", "2. ビタミンD", "3. ビタミンE", "4. ビタミンK"], answer: 0, explanation: "ビタミンAは、網膜の光受容体であるロドプシンの構成成分であり、不足すると暗い場所で目が見えなくなる「夜盲症」を引き起こします。" },
+        { id: "2023_q47", year: "2023", num: 47, text: "肝臓や腎臓で代謝されて活性型となり、小腸からのカルシウムの吸収を促進して骨の恒常性を維持する脂溶性ビタミンはどれか。", options: ["1. ビタミンA", "2. ビタミンD", "3. ビタミンE", "4. ビタミンK"], answer: 1, explanation: "ビタミンDは、活性型（1,25-ジヒドロキシ体）となって小腸や腎臓でカルシウムの吸収を高めます。欠乏は骨軟化症やくる病の原因になります。" },
+        { id: "2023_q48", year: "2023", num: 48, text: "水溶性ビタミンのうち、欠乏することでコラーゲン合成が障害され、毛細血管の脆弱化による出血（壊血病）を引き起こすものはどれか。", options: ["1. ビタミンB1", "2. ビタミンB12", "3. ビタミンC", "4. 葉酸"], answer: 2, explanation: "ビタミンCは、コラーゲン合成におけるプロリン・リシン水酸化酵素の補酵素です。欠乏すると出血が頻発する「壊血病」を引き起こします。" },
+        { id: "2023_q49", year: "2023", num: 49, text: "日本の水道水質基準において、水道水の安全性を担保し、かつ病原生物による汚染を防ぐために「蛇口（給水栓）での残留濃度」が規定されている消毒試薬はどれか。", options: ["1. 遊離残留塩素", "2. オゾン", "3. 二酸化塩素", "4. クロラミン"], answer: 0, explanation: "水道法により、蛇口からの給水栓水に「遊離残留塩素として 0.1 mg/L 以上」を保持することが義務付けられています。" },
+        { id: "2023_q50", year: "2023", num: 50, text: "大気汚染物質のうち、化石燃料の燃焼などで発生し、光化学スモッグの原因となるオゾンやパーオキシアシルナイトレートなどの総称を何というか。", options: ["1. 浮遊粒子状物質（SPM）", "2. 窒素酸化物（NOx）", "3. 光化学オキシダント（Ox）", "4. 二酸化硫黄（SO2）"], answer: 2, explanation: "工場や自動車などから排出されたNOxや炭化水素が紫外線と反応して生じる、強酸化性物質を「光化学オキシダント」と呼びます。" },
+        { id: "2023_q51", year: "2023", num: 51, text: "水質汚濁の指標において、有機物が過マンガン酸カリウムなどの酸化剤によって化学的に分解される際に消費される酸素量（主に湖沼や海域の指標）はどれか。", options: ["1. DO（溶存酸素量）", "2. BOD（生物化学的酸素要求量）", "3. COD（化学的酸素要求量）", "4. SS（浮遊物質量）"], answer: 2, explanation: "酸化剤を用いて化学的に酸化したときの酸素消費量は「COD（化学的酸素要求量）」です。微生物が有機物を分解する際の酸素消費量は「BOD」です。" },
+        { id: "2023_q52", year: "2023", num: 52, text: "地球環境問題の原因物質に関する記述のうち、正しいのはどれか。", options: ["1. 酸性雨の主な原因物質は、フロンや二酸化炭素である。", "2. 地球温暖化の主な原因物質は、二酸化硫黄や窒素酸化物である。", "3. オゾン層破壊の主な原因物質は、クロロフルオロカーボン（フロン）である。", "4. 光化学スモッグの主な原因物質は、メタンや一酸化二窒素である。"], answer: 2, explanation: "3：フロン（クロロフルオロカーボン）が紫外線により分解して塩素原子を生じ、オゾン層を破壊します。1：酸性雨はSOxやNOx。2：温暖化の主因はCO2。" },
+        { id: "2023_q53", year: "2023", num: 53, text: "化学物質による急性中毒の救急処置において、一般に催吐（吐かせること）が「禁忌（やってはいけない）」とされる物質はどれか。", options: ["1. 強酸・強アルカリ、または灯油などの石油製品", "2. 有機リン系殺虫剤", "3. アセトアミノフェン（解熱鎮痛薬）", "4. 重金属類（鉛やヒドロキシ水銀など）"], answer: 0, explanation: "強酸・強アルカリを吐かせると往路復路で粘膜腐食が生じます。また石油製品（灯油等）は、吐出時に気管に入りやすく、重篤な化学性肺炎を誘発するため禁忌です。" },
+        { id: "2023_q54", year: "2023", num: 54, text: "医薬品医療機器等法（薬機法）における「医薬品」の定義において、医薬品の分類に該当しないものはどれか。", options: ["1. 日本薬局方に収められている物", "2. 人又は動物の疾病の診断、治療又は予防に使用されることが目的とされている物", "3. 人又は動物の身体の構造又は機能に影響を及ぼすことが目的とされている物", "4. 人の健康 of 保持増進に役立つ、いわゆる「健康食品」や「サプリメント」"], answer: 3, explanation: "いわゆる健康食品やサプリメントは法律上「食品」に分類され、薬機法が規定する「医薬品」には該当しません。" },
+        { id: "2023_q55", year: "2023", num: 55, text: "医薬品の分類のうち、「販売時に薬剤師による購入者への対面での情報提供および指導が法的に義務付けられており、インターネットでの販売が禁止されている」ものはどれか。", options: ["1. 要指導医薬品", "2. 第一類医薬品", "3. 第二類医薬品", "4. 第三類医薬品", "5. 指定第二類医薬品"], answer: 0, explanation: "「要指導医薬品」は医療用からスイッチ直後などの理由からリスクが確定していないため、対面での購入者への指導・情報提供が必要であり、ネット販売は不可です。" },
+        { id: "2023_q56", year: "2023", num: 56, text: "麻薬及び向精神薬取締法において、覚醒剤原料や大麻とは別に管理され、処方箋による調剤や譲渡・廃棄の際に、鍵付きの堅固な金庫での保管など「特に厳重な管理と帳簿の記録」が義務付けられている区分はどれか。", options: ["1. 向精神薬", "2. 覚醒剤", "3. 麻薬", "4. 毒薬"], answer: 2, explanation: "「麻薬」は、他と区別し、鍵をかけた「堅固な設備（金庫など）」に保管する必要があります。その他譲渡時の帳簿記録、廃棄時の届出など厳しい規制があります。" },
+        { id: "2023_q57", year: "2023", num: 57, text: "毒物及び劇物取締法において、厚生労働省令で定める「毒物」を貯蔵・保管する場所の表示（施錠された保管庫の扉など）として、法的に正しい組み合わせはどれか。", options: ["1. 白地に赤枠、黒文字で「毒物」", "2. 赤地に白文字で「毒物」", "3. 赤地に白枠、黒文字で「医薬用外毒物」", "4. 赤地に白文字で「医薬用外毒物」"], answer: 3, explanation: "毒物劇物取締法における毒物の表示は、**「赤地に白文字」**で**「医薬用外毒物」**と記載しなければなりません（劇物は「白地に赤文字」で「医薬用外劇物」）。" },
+        { id: "2023_q58", year: "2023", num: 58, text: "薬剤師法第19条（調剤制限）において、薬剤師は、原則として誰が交付した処方箋によらなければ、販売又は授与の目的で調剤してはならないと定められているか。", options: ["1. 医師、歯科医師又は獣医師", "2. 医師、歯科医師、獣医師又は看護師", "3. 医師、歯科医師、獣医師又は薬剤師（自身）", "4. 医師、歯科医師又は助産師"], answer: 0, explanation: "薬剤師法上、調剤は「医師、歯科医師又は獣医師」の処方箋に基づいて行う必要があります。看護師や助産師には処方権がありません。" },
+        { id: "2023_q59", year: "2023", num: 59, text: "薬剤師法第24条（疑義照会）において、薬剤師は、処方箋中に疑わしい点（不審な点、重複、過量など）があることを発見したとき、調剤に関してどのような行動をとらなければならないか。", options: ["1. 患者に確認し、患者の承諾が得られれば、自己の判断で処方を変更して調剤する。", "2. その処方箋を交付した医師等に問い合わせて、疑わしい点が解消した後でなければ、調剤してはならない。", "3. 速やかに調剤を拒否し、患者を他の医療機関へ案内する。", "4. 疑わしい点をそのまま記録に残した上で、医師の処方通りに調剤する。"], answer: 1, explanation: "処方箋に不審な点、処方重複等がある場合、処方医へ問い合わせて解消した後でなければ「調剤してはならない」と薬剤師法第24条（疑義照会）で厳格に定められています。" },
+        { id: "2023_q60", year: "2023", num: 60, text: "処方箋の有効期間に関する記述のうち、健康保険法などの公定の規則に基づき、処方箋に「特に有効期間の記載がない場合」の原則的な有効期間はどれか。", options: ["1. 交付の日から起算して2日間（当日含む）", "2. 交付の日から起算して4日間（当日含む）", "3. 交付の日から起算して7日間（当日含む）", "4. 交付の日から起算して14日間（当日含む）"], answer: 1, explanation: "処方箋の有効期間は、特に指定が記載されていない場合、**「交付の日を含めて4日間」**です。これには土日祝日も含まれます。" },
+        { id: "2023_q61", year: "2023", num: 61, text: "日本の社会保障制度のうち、病気、負傷、出産、死亡、老齢、障害、失業などのリスクに対して、国や自治体、個人が保険料を出し合い、いざという時に現金や医療サービスを給付する「第一の柱」となる仕組みはどれか。", options: ["1. 社会保険", "2. 公衆衛生", "3. 社会福祉", "4. 公的扶助（生活保護）"], answer: 0, explanation: "社会的なリスクに対し保険給付を行う「社会保険」は日本の社会保障の中心です。医療、年金、雇用、労災、介護の5つの保険から構成されています。" },
+        { id: "2023_q62", year: "2023", num: 62, text: "日本の医療保険制度の特徴に関する記述のうち、正しいのはどれか。", options: ["1. 国民が自由に加入する保険を選べる「自由保険制度」である。", "2. 日本国内に住所を持つすべての国民が何らかの公的医療保険に加入する「国民皆保険制度」である。", "3. 医療費の窓口自己負担割合は、年齢や所得に関わらず一律5割である。", "4. 診療報酬は、各医療機関が自由に価格を設定できる市場競争制である。"], answer: 1, explanation: "日本は1961年に「国民皆保険制度」を確立しました。自己負担は年齢等により1〜3割、診療報酬（医療サービス価格）は厚生労働省が定める全国一律価格です。" },
+        { id: "2023_q63", year: "2023", num: 63, text: "医療保険において、1ヶ月（同一月内）に支払った医療費の窓口負担額が、個人の所得に応じて定められた一定の上限額を超えた場合、その超えた金額が後から払い戻される（または免除される）制度はどれか。", options: ["1. 介護保険給付制度", "2. 療養費支給制度", "3. 高額療養費制度", "4. 医療費控除（確定申告）"], answer: 2, explanation: "過度な医療費負担を防ぐための制度は「高額療養費制度」です。世帯合算や多数回該当などの特例もあり、経済的障壁を和らげます。" },
+        { id: "2023_q64", year: "2023", num: 64, text: "病院と診療所（クリニック）の法的定義において、医療法上、病床（入院ベッド）が「20床以上」ある医療施設を何と定義しているか。", options: ["1. 病院", "2. 診療所（クリニック）", "3. 特定機能病院", "4. 地域医療支援病院"], answer: 0, explanation: "医療法において、病床数が**「20床以上」が病院**、**「19床以下、またはベッドを持たない」ものが診療所（クリニック）**と定義されています。" },
+        { id: "2023_q65", year: "2023", num: 65, text: "医薬品の安全対策において、製造販売後に発生した重篤な副作用などの症例情報を厚生労働大臣へ報告することが、医薬品医療機器等法（薬機法）で義務付けられている職種はどれか。", options: ["1. 病院の事務職や管理栄養士", "2. 医薬品の製造工場の作業員", "3. 病院長、医師、歯科医師、薬剤師などの医療関係者", "4. 医薬品を購入した患者本人"], answer: 2, explanation: "薬機法第68条の10に基づき、医師や歯科医師、薬剤師などの医療関係者は、医薬品による重篤な副作用や感染症の発生を知った際、報告する義務があります。" },
+        { id: "2023_q66", year: "2023", num: 66, text: "神経伝達物質とその受容体に関する記述のうち、アセチルコリンによって刺激され、骨格筋の収縮（イオンチャネル内蔵型受容体）に関与するものはどれか。", options: ["1. ムスカリン受容体（M1受容体）", "2. ニコチン受容体（NM受容体）", "3. アドレナリンα1受容体", "4. ドパミンD2受容体"], answer: 1, explanation: "骨格筋の神経筋接合部（終板）に存在し、アセチルコリンによって開き骨格筋を収縮させるのは、イオンチャネル内蔵型の「ニコチンNM受容体」です。" },
+        { id: "2023_q67", year: "2023", num: 67, text: "交感神経系の受容体のうち、主に心筋に存在し、刺激されることで心拍数増加や心収縮力増強（心機能亢進）を引き起こすものはどれか。", options: ["1. アドレナリンα1受容体", "2. アドレナリンβ1受容体", "3. アドレナリンβ2受容体", "4. ムスカリンM2受容体"], answer: 1, explanation: "心臓に主に分布するのはG_sタンパク質共役型受容体の「アドレナリンβ1受容体」です。刺激によりcAMPが増加し、心機能を亢進させます。" },
+        { id: "2023_q68", year: "2023", num: 68, text: "高血圧症の治療薬である「アムロジピン」の薬理作用（メカニズム）として、正しいのはどれか。", options: ["1. 血管平滑筋のL型Ca2+チャネルを遮断し、血管を拡張させる。", "2. アンジオテンシンⅡ受容体を遮断し、血管を拡張させる。", "3. β1受容体を遮断し、心拍数を減少させる。", "4. ループ利尿薬として、尿量を増加させる。"], answer: 0, explanation: "アムロジピンは、血管平滑筋の細胞膜にあるL型カルシウム（Ca2+）チャネルをブロックし、細胞内へのCa2+流入を抑制して血管を拡張させます。" },
+        { id: "2023_q69", year: "2023", num: 69, text: "脂質異常症の治療薬である「アトルバスタチン」が特異的に阻害する、コレステロール生合成経路の律速酵素はどれか。", options: ["1. シクロオキシゲナーゼ（COX）", "2. HMG-CoA還元酵素", "3. アンジオテンシン変換酵素（ACE）", "4. モノアミン酸化酵素（MAO）"], answer: 1, explanation: "スタチン系薬は、肝臓コレステロール生合成の律速酵素である「HMG-CoA還元酵素」を競争的に阻害し、血中コレステロール（LDL-C）を低下させます。" },
+        { id: "2023_q70", year: "2023", num: 70, text: "解熱鎮痛薬である「アスピリン」や「イブプロフェン」などの非ステロイド性抗炎症薬（NSAIDs）が阻害する、プロスタグランジン合成の鍵となる酵素はどれか。", options: ["1. ホスホリパーゼA2", "2. シクロオキシゲナーゼ（COX）", "3. リポキシゲナーゼ", "4. トロンボキサン合成酵素"], answer: 1, explanation: "NSAIDsは「シクロオキシゲナーゼ（COX）」を阻害することで、アラキドン酸から炎症や痛み、発熱を誘導するプロスタグランジン（PG）の合成を抑制します。" },
+        { id: "2023_q71", year: "2023", num: 71, text: "医薬品が体内に吸収された後、全身循環（血流）に達する前に、肝臓や小腸粘膜などを通過する際に代謝・分解されてしまう現象を何というか。", options: ["1. 初回通過効果（ファーストパス効果）", "2. 腸肝循環", "3. バイオアベイラビリティ", "4. 腎排泄"], answer: 0, explanation: "経口投与された薬物が、門脈を通って全身循環に達する前に肝臓や腸粘膜で一部代謝されてしまうことを「初回通過効果」と呼びます。" },
+        { id: "2023_q72", year: "2023", num: 72, text: "投与された医薬品の全量（100%）のうち、どれだけの割合が分解されずに全身循環（血液中）に到達したかを示す指標を何というか。", options: ["1. クリアランス（CL）", "2. 生物学的利用能（バイオアベイラビリティ）", "3. 分布容積（Vd）", "4. 半減期（t1/2）"], answer: 1, explanation: "「バイオアベイラビリティ（F）」とは、投与された薬物のうち分解・消失を逃れて全身循環（血中）に到達した割合（比率）を指します。" },
+        { id: "2023_q73", year: "2023", num: 73, text: "薬物が血中から組織（筋肉や脂肪など）へどれだけ薄まりやすく、広く行き渡っているかを表す、仮想的な容積の指標はどれか。", options: ["1. 全身クリアランス", "2. 消失半減期", "3. 分布容積", "4. 血中濃度曲線下面積（AUC）"], answer: 2, explanation: "「分布容積（Vd）」は、体内の薬物総量が血液中と等しい濃度で一様に分布したと想定した際の、仮定上の容積です。組織移行性が高いほど大きくなります。" },
+        { id: "2023_q74", year: "2023", num: 74, text: "血液中の薬物が代謝や排泄によって元の濃度の「半分（50%）」に減少するまでにかかる時間を何というか。", options: ["1. 消失半減期（t1/2）", "2. 平均滞留時間（MRT）", "3. 最高血中濃度到達時間（Tmax）", "4. 飽和時間"], answer: 0, explanation: "血中薬物濃度が特定の基準点から「半分（50%）」まで減少するのに必要な時間を「消失半減期（t_1/2）」と定義します。" },
+        { id: "2023_q75", year: "2023", num: 75, text: "医薬品の主な代謝反応のうち、肝細胞の滑面小胞体に多く存在する「チトクロームP450（CYP）」などが関与する、酸化・還元・加水分解などの反応を何反応というか。", options: ["1. 第Ⅰ相反応", "2. 第Ⅱ相反応", "3. 抱合反応", "4. グルクロン酸抱合"], answer: 0, explanation: "薬物の構造を酸化・還元・加水分解によって変化させる非抱合反応を「第Ⅰ相反応」と呼び、チトクロームP450（CYP）が代表的な代謝酵素です。" },
+        { id: "2023_q76", year: "2023", num: 76, text: "日本薬局方における「錠剤」の定義や特徴に関する記述のうち、正しいのはどれか。", options: ["1. 錠剤はすべて、口腔内で速やかに溶解又は崩壊させて服用しなければならない。", "2. 医薬品を一定の形状に成形した固形の製剤であり、最も広く利用されている経口投与の剤形である。", "3. 錠剤にコーティングを施すことは、日本薬局方により禁止されている。", "4. 錠剤はすべて、胃の中では絶対に溶けずに腸に届いてから溶けるように作られている。"], answer: 1, explanation: "2：錠剤は最も広く利用されている固形経口製剤です。1：口腔内崩壊錠など以外は速やかに崩壊させずに飲みます。3：コーティングは許容されます。" },
+        { id: "2023_q77", year: "2023", num: 77, text: "製剤において、薬物を胃液（酸性）では溶解させず、腸液（中性〜弱アルカリ性）に到達してから速やかに放出・吸収させる目的で施される特殊なコーティング錠を何というか。", options: ["1. 口腔内崩壊錠", "2. 腸溶錠（腸溶性製剤）", "3. 徐放錠（徐放性製剤）", "4. 発泡錠"], answer: 1, explanation: "胃液（強酸）で分解されやすい薬物や、胃粘膜障害性の高い薬物は、酸で溶けない「腸溶錠（腸溶性コーティング）」として加工されます。" },
+        { id: "2023_q78", year: "2023", num: 78, text: "製剤において、薬物の放出スピードを意図的に遅くし、体内の血中濃度を長時間一定に保つことで、服薬回数を減らし（1日3回を1回にするなど）効果を持続させる錠剤はどれか。", options: ["1. 咀嚼錠", "2. 舌下錠", "3. 徐放錠（徐放性製剤）", "4. 速放錠"], answer: 2, explanation: "放出速度をコントロールし、血中濃度を維持して持続的な効果と副作用の低下を狙った製剤は「徐放錠（徐放性製剤）」です。" },
+        { id: "2023_q79", year: "2023", num: 79, text: "狭心症の発作時に用いられるニトログリセリンのように、口の粘膜（舌の下など）から薬を吸収させ、初回通過効果を回避して数十秒〜数分で全身に効かせる剤形はどれか。", options: ["1. 舌下錠", "2. トローチ剤", "3. 口腔内崩壊錠（OD錠）", "4. 経口カプセル剤"], answer: 0, explanation: "「舌下錠」は、口腔粘膜から速やかに吸収され、門脈を介さずに全身循環へ移行するため、初回通過効果を回避し極めて速効性を示します。" },
+        { id: "2023_q80", year: "2023", num: 80, text: "錠剤を製造する際、主薬（有効成分）の量が極めて少ない場合に、製剤のボリュームを増やして扱いやすい大きさに調節する目的で配合される、乳糖やデンプンなどの添加剤の総称はどれか。", options: ["1. 賦形剤（ふけいざい）", "2. 崩壊剤（ほうかいざい）", "3. 滑沢剤（かったくざい）", "4. 結合剤"], answer: 0, explanation: "固形製剤の質量や体積を増加させ、取扱いやすい大きさにする添加剤を「賦形剤」と定義します。乳糖やセルロースなどが代表的です。" },
+        { id: "2023_q81", year: "2023", num: 81, text: "調剤業務において、処方箋に記載された医薬品について、規格（mg数など）や剤形、患者の過去の薬歴、重複投与、相互作用などを調剤前に確認する一連の監査作業を何というか。", options: ["1. 処方監査", "2. 調剤監査", "3. 疑義照会", "4. 服薬指導"], answer: 0, explanation: "調剤前に処方箋自体の不備や薬学的適合性を検証する作業は「処方監査」です。調剤完了した成果物を処方箋と適合させる作業は「調剤監査」です。" },
+        { id: "2023_q82", year: "2023", num: 82, text: "複数の医薬品（特に注射剤や輸液）を同じ容器やラインで混合した際に、化学反応や物理的な原因によって、白濁、沈殿、変色、力価の低下などが生じる不都合な現象を何というか。", options: ["1. 相互作用", "2. 配合変化", "3. 溶解度上昇", "4. 加水分解"], answer: 1, explanation: "注射液などを混合した際に、pHの変化や塩形成によって濁り・沈殿（物理的変化）や分解反応（化学的変化）を生じる現象を「配合変化」と呼びます。" },
+        { id: "2023_q83", year: "2023", num: 83, text: "処方箋に「1回2錠、1日3回、毎食後、14日分」と記載されていた場合、この患者に合計で交付する錠剤の総数は何錠か。", options: ["1. 42錠", "2. 56錠", "3. 84錠", "4. 112錠"], answer: 2, explanation: "1回2錠 × 1日3回 = 1日6錠。14日分調剤するため、 6錠 × 14 = 84錠 となります。" },
+        { id: "2023_q84", year: "2023", num: 84, text: "ある散剤（粉薬）の処方において、「1日量として1.5 gを、1日3回に分けて毎食後服用、7日分」と指示された。1回あたりに包む粉薬の重量は何gか。", options: ["1. 0.2 g", "2. 0.5 g", "3. 1.0 g", "4. 1.5 g"], answer: 1, explanation: "「1日量」が1.5 g であり、これを3回に分割して服用するため、 1回量は 1.5 g ÷ 3 = 0.5 g となります。" },
+        { id: "2023_q85", year: "2023", num: 85, text: "薬物動態学や薬理学において、投与した医薬品の効果が強く現れすぎたり、毒性が発現したりするリスクが非常に高くなる、血液中の濃度の境界線を何というか。", options: ["1. 最小有効濃度（MEC）", "2. 最高血中濃度（Cmax）", "3. 中毒域（最小中毒濃度 / MTC）", "4. 定常状態血中濃度"], answer: 2, explanation: "治療上の好ましい作用が得られる最小の濃度がMEC（最小有効濃度）、それを超えると毒性が発現し始める限界ラインをMTC（最小中毒濃度 / 中毒域）と呼びます。" },
+        { id: "2023_q86", year: "2023", num: 86, text: "臨床現場において、有効域と中毒域が極めて狭く、安全管理が難しい薬（ジゴキシンやテオフィリンなど）の血中濃度を測定し、患者ごとに最適な投与量を解析・設計する業務を何というか。", options: ["1. TDM（薬物血中濃度モニタリング）", "2. DI（医薬品情報管理）", "3. 服薬コンプライアンスチェック", "4. 調剤過誤防止対策"], answer: 0, explanation: "血中濃度と薬効・毒性発現の連動に基づき、至適な薬物投与量を個別設計する業務は「TDM（Therapeutic Drug Monitoring：治療薬物モニタリング）」です。" },
+        { id: "2023_q87", year: "2023", num: 87, text: "医薬品の適正使用において、患者が医師や薬剤師から指示された通りに、正確に薬を服用できている度合い（主体的または指示への追従度）を表す用語はどれか。", options: ["1. アドヒアランス（またはコンプライアンス）", "2. インフォームドコンセント", "3. バリアフリー", "4. アカウンタビリティ"], answer: 0, explanation: "受動的な服薬遵守を「コンプライアンス」、患者が自主的に納得・同意して治療計画に参加する態度を「アドヒアランス」と定義し、現代の臨床で重視されています。" },
+        { id: "2023_q88", year: "2023", num: 88, text: "医薬品の臨床試験（治験）の段階において、少数の「健康成人」を対象とし、主に医薬品の安全性や体内での動態（吸収・代謝・排泄など）を調べる最初のフェーズ（段階）はどれか。", options: ["1. 第Ⅰ相試験", "2. 第Ⅱ相試験", "3. 第Ⅲ相試験", "4. 第Ⅳ相試験（製造販売後調査）"], answer: 0, explanation: "治験の第一段階である「第Ⅰ相試験」は、少数の健康成人志願者を対象として忍容性、薬物動態プロフィールなどの安全面を評価します。" },
+        { id: "2023_q89", year: "2023", num: 89, text: "先発医薬品（新薬）の特許が切れた後に発売される、先発医薬品と有効成分、分量、用法・用量が同じであり、同等の治療効果を持ちながら低価格で購入できる医薬品を何というか。", options: ["1. ジェネリック医薬品（後発医薬品）", "2. オルファンペイン薬", "3. スイッチOTC医薬品", "4. バイオ医薬品"], answer: 0, explanation: "先発新薬の独占販売権（特許等）満了後に製造され、有効性・安全性が同等であるとして承認される安価な薬は「ジェネリック医薬品（後発医薬品）」です。" },
+        { id: "2023_q90", year: "2023", num: 90, text: "病院や薬局において、医療事故（薬の間違いや調剤ミスなど）を防ぐため、結果として患者に被害は及ばなかったものの、一歩間違えれば重大な事故に繋がりかねなかった「ヒヤリとした、ハッとした」事例の報告書を何というか。", options: ["1. インシデントレポート（ヒヤリハット報告書）", "2. アクシデントレポート", "3. 副作用報告書", "4. 処方箋監査簿"], answer: 0, explanation: "インシデント（ヒヤリハット）報告を収集し、分析・フィードバックを調剤室の仕組み改善に反映することが、重大な医療事故（アクシデント）防止に不可欠です。" },
 
-        // --- 2023年度 ---
-        {
-            id: "2023_q1",
-            year: "2023",
-            num: 1,
-            text: "【第17改正日本薬局方 通則】に記載されている「常温」の温度範囲として、正しいものはどれか。",
-            options: ["1. 15〜25℃", "2. 15〜30℃", "3. 15〜35℃", "4. 20〜25℃", "5. 20〜30℃"],
-            answer: 0,
-            explanation: "正解は 1。日本薬局方通則における温度定義は以下の通りです：\n・標準温度：20℃\n・常温：15〜25℃\n・室温：1〜30℃\n・微温：30〜40℃"
-        },
-        {
-            id: "2023_q2",
-            year: "2023",
-            num: 2,
-            text: "生薬マオウ（麻黄）の基原植物の学名（Ephedra sinica）において、属名を示す部分はどれか。",
-            options: ["1. Ephedra", "2. sinica", "3. Ephedra sinica", "4. sinica Ephedra"],
-            answer: 0,
-            explanation: "正解は 1。二名法による学名では、最初の単語（大文字で始まる）が「属名」、2番目の単語（小文字で始まる）が「種小名」を表します。"
-        },
+        // ==========================================
+        // 2022年度 必須問題 (問1〜問90)
+        // ==========================================
+        { id: "2022_q1", year: "2022", num: 1, text: "日本薬局方の医薬品名、又は物質名の次に、化学的純物質を意味する分子式又は組成式を付ける際に用いる括弧はどれか。", options: ["1. 「」", "2. [ ]", "3. ( )", "4. 【 】", "5. []"], answer: 2, explanation: "局方通則15の規定により、「（ ）」を付けて化学式や分子式、組成式を示したものは化学的純物質を意味します。" },
+        { id: "2022_q2", year: "2022", num: 2, text: "日本薬局方通則における「標準温度」の定義はどれか。", options: ["1. 20℃", "2. 25℃", "3. 15〜25℃", "4. 1〜30℃", "5. 20〜30℃"], answer: 0, explanation: "局方通則16より、標準温度は20℃です。常温は15〜25℃、室温は1〜30℃です。" },
+        { id: "2022_q3", year: "2022", num: 3, text: "医薬品の試験の操作において、「直ちに」とあるのは、通例、前の操作から何秒（何分）以内に次の操作を開始することを意味するか。", options: ["1. 10秒", "2. 30秒", "3. 60秒", "4. 5分", "5. 30分"], answer: 1, explanation: "局方通則29より、「直ちに」とは、前の操作を終了した後の次の操作を30秒以内に開始することを意味します。" },
+        { id: "2022_q4", year: "2022", num: 4, text: "日本薬局方通則において、「減圧」は、別に規定するもののほか、どのような圧力を指すか。", options: ["1. 2.0 kPa 以上", "2. 2.0 kPa", "3. 2.0 kPa 以下", "4. 2.0 Pa 以上"], answer: 2, explanation: "局方通則16より、「減圧」とは、別に規定がない限り2.0 kPa以下の圧力をいいます。" },
+        { id: "2022_q5", year: "2022", num: 5, text: "定量に供する試料の採取量において、「約」を付けたものは、記載された量の±何%の範囲をいうか。", options: ["1. 2%", "2. 5%", "3. 10%", "4. 15%", "5. 20%"], answer: 2, explanation: "局方通則28より、採取量の「約」は記載された数値の±10%の範囲を表します。" },
+        { id: "2022_q6", year: "2022", num: 6, text: "医薬品各条の定量法で得られる成分含量について、単にある%以上を示し、その上限を示さない場合は、何%を上限とするか。", options: ["1. 110.0%", "2. 105.0%", "3. 101.0%", "4. 100.5%", "5. 100.1%"], answer: 2, explanation: "局方通則33の規定により、定量法で単に「ある％以上」とされ上限の記載がない場合は、101.0%を上限とみなします。" },
+        { id: "2022_q7", year: "2022", num: 7, text: "定められた方法で対象微生物が検出されないことを意味する用語はどれか。", options: ["1. 無菌", "2. 滅菌", "3. 消毒", "4. 無菌操作"], answer: 0, explanation: "「無菌」とは、定められた方法で対象微生物（生菌）が検出されない状態（状態・結果）を指します。一方、微生物を殺滅するプロセスは「滅菌」です。" },
+        { id: "2022_q8", year: "2022", num: 8, text: "局方における「約0.5gを精密に量る」という指示に対して、量り取る操作として適切な表記はどれか。", options: ["1. 0.1539 g", "2. 0.7322 g", "3. 0.4765 g", "4. 0.473 g", "5. 0.45 g"], answer: 2, explanation: "「約0.5g」は±10%（0.45〜0.55g）の範囲を指し、さらに「精密に量る」ため、化学天秤の感度（0.1 mg、小数点第4位）まで正確に記録した「0.4765 g」が最適です。" },
+        { id: "2022_q9", year: "2022", num: 9, text: "日本薬局方において、質量百万分率を表す記号（単位）はどれか。", options: ["1. %", "2. ppm", "3. vol ppm", "4. ppb", "5. w/v%"], answer: 1, explanation: "百万分率（10のマイナス6乗）を表す単位は「ppm（parts per million）」です。十億分率は「ppb」になります。" },
+        { id: "2022_q10", year: "2022", num: 10, text: "溶液の濃度が「(1→10)」で示された場合、定義として正しいものはどれか。", options: ["1. 液状の薬品 1mLを溶媒に溶かして全量を10mL とする", "2. 固形の薬品1gを10mLの溶媒に溶かす。", "3. 固形の薬品1mgを10mLの溶媒に溶かす。", "4. 固形の薬品 1mgを溶媒に溶かして全量を10mL とする。", "5. 液状の薬品1mLを10mLの溶媒に溶かす。"], answer: 0, explanation: "局方通則26より、(1→10)は「液状の薬品 1 mL または固形の薬品 1 g を溶媒に溶かして全量を 10 mL にする割合」を意味します。" },
+        { id: "2022_q11", year: "2022", num: 11, text: "通常の取扱い、運搬又は保存状態において、気体の侵入しない容器はどれか。", options: ["1. 密封容器", "2. 密閉容器", "3. 気密容器"], answer: 0, explanation: "局方通則44より、気体の侵入を防ぐ（最も強固な）容器は「密封容器」です。液・固体の異物の侵入防止は「気密」、固体の落下・混入防止は「密閉」です。" },
+        { id: "2022_q12", year: "2022", num: 12, text: "発熱物質試験法において、試験に用いられる健康なウサギの体重基準として正しいのはどれか。", options: ["1. 1.0 kg 以上", "2. 1.5 kg 以上", "3. 2.0 kg 以上", "4. 2.5 kg 以上"], answer: 1, explanation: "一般試験法「発熱物質試験法」において、試験には「体重1.5 kg以上の健康なウサギ」を用いるよう定められています。" },
+        { id: "2022_q13", year: "2022", num: 13, text: "D値の定義について、共試微生物の何%を死滅させ、生存数を1/10に低下させるのに要する時間、または照射線量をいうか。", options: ["1. 99%", "2. 95%", "3. 90%", "4. 85%"], answer: 2, explanation: "D値は、微生物の生存数を1/10（すなわち90%を死滅させて生存数を10%に低下させる）にするのに必要な加熱時間または照射線量を表します。" },
+        { id: "2022_q14", year: "2022", num: 14, text: "パイロジェン（エンドトキシン）は、一般に何℃で何分以上の加熱処理により完全に不活化されるか。", options: ["1. 250℃、10分以上", "2. 250℃、15分以上", "3. 250℃、20分以上", "4. 250℃、30分以上", "5. 250℃、60分以上"], answer: 3, explanation: "エンドトキシン（耐熱性の発熱物質）は非常に熱に強く、不活化（乾熱滅菌によるガラス器具等の処理）には「250℃、30分以上」の加熱処理が必要です。" },
+        { id: "2022_q15", year: "2022", num: 15, text: "硫酸塩試験において、本品0.40gを溶かして検液50mLとした。比較液に0.005mol/L硫酸0.40mLを用いたとき、本品における硫酸塩（SO4 2-として）の限度（%）はどれか。(H=1, S=32, O=16)", options: ["1. 0.48%以下", "2. 0.048%以下", "3. 0.024%以下", "4. 0.48ppm以下", "5. 0.048ppm以下"], answer: 1, explanation: "0.005 mol/L H2SO4 0.40 mL中のSO4 2-は、0.005 mol/L × 0.40 mL = 2 × 10^-6 mol。SO4 2-の式量は96なので、質量は 2 × 10^-6 × 96 = 1.92 × 10^-4 g (0.192 mg)。試料0.40g(400mg)に対する割合は (0.192 / 400) × 100% = 0.048% 以下となります。" },
+        { id: "2022_q16", year: "2022", num: 16, text: "重金属試験法（第1法）において、検液の呈色を比較する「比較液」の調製に用いられる金属標準液はどれか。", options: ["1. 銅標準液", "2. 銀標準液", "3. 鉛標準液", "4. 亜鉛標準液", "5. 水銀標準液"], answer: 2, explanation: "重金属試験法では、試料中の重金属が硫化物として黒褐色に呈色する度合いを、一定量の「鉛標準液」が呈色する度合いと比較して試験します。" },
+        { id: "2022_q17", year: "2022", num: 17, text: "フラスコから蒸気が発生し、冷却器を経て、受け器（三角フラスコ）に至る「窒素蒸留用アタッチメント等」を用いた図の装置を使う試験法はどれか。", options: ["1. アルコール数測定法", "2. 融点測定法", "3. 蒸留試験法", "4. 窒素定量法"], answer: 3, explanation: "図の装置は、有機窒素をアンモニアに変えて蒸留・回収する「窒素定量法（セミミクロキルダール法）」の蒸留装置です。" },
+        { id: "2022_q18", year: "2022", num: 18, text: "ヒ素試験法において、呈色比較の対象となる限度基準は、何の物質（として）のppmで表されるか。", options: ["1. AsO", "2. ASO", "3. AsH3", "4. As₂O₃", "5. As³"], answer: 3, explanation: "ヒ素試験法において、ヒ素の限度は「三酸化二ヒ素（As2O3）」の質量分率（ppm）として表され、標準色の比較に用いられます。" },
+        { id: "2022_q19", year: "2022", num: 19, text: "鉱油試験法は、注射剤および何の剤形に用いる「非水性溶剤中の鉱油（混入物質）」を検出するための試験法か。", options: ["1. 軟膏剤", "2. 散剤", "3. 坐剤", "4. チンキ剤", "5. 点眼剤"], answer: 4, explanation: "鉱油試験法は、注射剤および「点眼剤」に用いられる非水性溶剤（植物油など）に、不純物として鉱油が混入していないかを調べる試験です。" },
+        { id: "2022_q20", year: "2022", num: 20, text: "アルコール数測定法において、アルコール数とは「15℃において試料いくら（何mL）当たり」から得られるエタノール層の量（mL）を指すか。", options: ["1. 1L", "2. 100 mL", "3. 10 mL", "4. 1 mL", "5. 0.1 mL"], answer: 2, explanation: "アルコール数とは、「15℃における試料10 mL当たり」に含まれる、エタノール（エチルアルコール）の体積（mL）を表した数値です。" },
+        { id: "2022_q21", year: "2022", num: 21, text: "酸素フラスコ燃焼法において、試験の対象とされない（この方法で燃焼・定量しない）元素はどれか。", options: ["1. ハロゲン（Cl, Br, I, F）", "2. ナトリウム", "3. イオウ", "4. セレン"], answer: 1, explanation: "酸素フラスコ燃焼法は、フラスコ内で有機薬物を燃焼させ、構成する「ハロゲン」「イオウ」「セレン」を無機化して定量または確認する試験法です。ナトリウムは対象外です。" },
+        { id: "2022_q22", year: "2022", num: 22, text: "紫外可視吸光度測定法における「ランベルト・ベールの法則」の適用範囲において、紫外部（200〜400 nm）の光源として、最も一般的に用いられるのはどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 2, explanation: "紫外可視吸光度測定法において、紫外部（200〜400 nm）の測定には「重水素放電管」が光源として用いられます。" },
+        { id: "2022_q23", year: "2022", num: 23, text: "原子吸光光度法において、特定元素の基底状態原子を励起するために用いられる光源（中空陰極ランプ等）以外のものとして何が使用されるか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 1, explanation: "原子吸光光度法では、目的元素に固有の輝線スペクトルを得るために「中空陰極ランプ」や「放電ランプ（無電極放電ランプ）」が光源として用いられます。" },
+        { id: "2022_q24", year: "2022", num: 24, text: "蛍光光度法において、試料分子を励起して強力な発光（蛍光）を得るために一般的に用いられる光源はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 4, explanation: "蛍光光度法では、広い波長にわたる強い光エネルギーが必要となるため、高輝度の「キセノンランプ」が光源として多用されます。" },
+        { id: "2022_q25", year: "2022", num: 25, text: "屈折率測定法において、別に規定がない限り測定に用いられる単色光の光源（波長）はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 0, explanation: "屈折率測定法では、基準となる特定の波長（単色光）として「ナトリウムスペクトルのD線（589.3 nm）」を光源に用いる規定となっています。" },
+        { id: "2022_q26", year: "2022", num: 26, text: "旋光度測定法において、光学活性物質の偏光面回転角度（旋光度）を測定するために用いられる単色光の光源はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 0, explanation: "旋光度測定法の基準単色光としても、屈折率と同様に「ナトリウムスペクトルのD線（D1, D2線の平均）」が標準的に使用されます。" },
+        { id: "2022_q27", year: "2022", num: 27, text: "クロマトグラフィーのパラメータにおいて、クロマトグラム上の2つのピーク相互の保持時間の関係（比）を示す値はどれか。", options: ["1. 分離係数 (α)", "2. シンメトリー係数 (S)", "3. 保持容量 (Vr)", "4. 理論段数 (N)", "5. 理論段高さ (H)"], answer: 0, explanation: "2つのピークの「保持時間の関係（ピーク位置の差）」を表すパラメータは「分離係数（α）」です。" },
+        { id: "2022_q28", year: "2022", num: 28, text: "紫外可視吸光度測定法における「ランベルト・ベールの法則」において、吸光度（A）と直接比例関係にあるのはどれか。", options: ["1. 透過度", "2. 透過率", "3. 試料の濃度", "4. 比吸光度の対数", "5. モル吸光係数の対数"], answer: 2, explanation: "ランベルト・ベールの法則「A = ε × c × l」により、吸光度（A）は「試料の濃度（c）」および光路長に比例します。" },
+        { id: "2022_q29", year: "2022", num: 29, text: "次の測定法のうち、最もエネルギーが大きい（波長が短い）電磁波を用いるのはどれか。", options: ["1. 赤外吸収スペクトル法", "2. 核磁気共鳴スペクトル測定法", "3. X線回折測定法", "4. 紫外可視吸光度測定法", "5. 蛍光光度法"], answer: 2, explanation: "電磁波のエネルギーは波長に反比例するため、波長が最も短い「X線」を用いる「X線回折測定法」が最も高エネルギーな電磁波を利用しています。" },
+        { id: "2022_q30", year: "2022", num: 30, text: "分子量 360.45 である医薬品の波長 242 nm におけるモル吸光係数 ε が 1.49 × 10^4 であるとき、比吸光度 E(1%, 1cm) の値はどれか。", options: ["1. 537", "2. 413", "3. 53.7", "4. 41.3", "5. 5.37"], answer: 1, explanation: "比吸光度 E(1%, 1cm) とモル吸光係数 ε の関係式「E = (ε × 10) / 分子量」を適用します。E = (14900) / 360.45 ≈ 413.37。最も近い値は「413」です。" },
+        { id: "2022_q31", year: "2022", num: 31, text: "アスピリンの定量法における、0.5mol/L NaOH液を加えて穏やかに煮沸する操作で起きる反応はどれか。", options: ["1. 酸化反応", "2. 還元反応", "3. 加水分解反応", "4. 付加反応", "5. 置換反応"], answer: 2, explanation: "強塩基（水酸化ナトリウム）の存在下で加熱することによって、アスピリンのエステル結合が切断され、サリチル酸と酢酸になる「加水分解反応（エステルのけん化）」が起こります。" },
+        { id: "2022_q32", year: "2022", num: 32, text: "アスピリン（分子量 180.16）の逆滴定において、0.5 mol/L 水酸化ナトリウム液 1 mL に対するアスピリン（C9H8O4）のミリグラム換算値（A）はどれか。", options: ["1. 22.52 mg", "2. 45.04 mg", "3. 90.08 mg", "4. 180.2 mg", "5. 360.3 mg"], answer: 1, explanation: "アスピリン1分子は、エステルの加水分解とカルボキシ基の中和により、合計「2分子のNaOH」と反応します。よって 0.5 mol/L NaOH 1 mL（0.5 mmol）に対応するアスピリンは 0.25 mmol。0.25 mmol × 180.16 g/mol = 45.04 mg です。" },
+        { id: "2022_q33", year: "2022", num: 33, text: "アスピリン本品 1.500gを量り、上記滴定で 0.25 mol/L 硫酸（f=1.000）を 17.10 mL消費し、空試験で 50.30 mL消費した。本品中のアスピリン含量（%）はいくらか。", options: ["1. 96.30%", "2. 97.50%", "3. 98.90%", "4. 99.70%", "5. 100.30%"], answer: 3, explanation: "H2SO4は2価の酸なので、0.25 mol/L H2SO4 = 0.5 mol/L H+（中和能はNaOHと同等）。体積差（空試験 - 本試験）は 50.30 - 17.10 = 33.20 mL。この差は0.5 mol/L NaOHの消費量に対応し、アスピリン質量は 33.20 mL × 45.04 mg/mL = 1495.3 mg (1.4953g)。含量は (1.4953g / 1.500g) × 100% ≈ 99.70% です。" },
+        { id: "2022_q34", year: "2022", num: 34, text: "アスコルビン酸（分子量 176.13）の定量（ヨウ素滴定）において、0.05 mol/L ヨウ素液 1 mL に対応するアスコルビン酸（C6H8O6）の質量（A）はどれか。", options: ["1. 35.226 mg", "2. 17.613 mg", "3. 8.806 mg", "4. 4.403 mg", "5. 2.202 mg"], answer: 2, explanation: "アスコルビン酸1分子は、ヨウ素（I2）1分子によって2電子酸化されてデヒドロアスコルビン酸になります（1:1反応）。0.05 mol/L ヨウ素液 1 mL（0.05 mmol）は 0.05 mmolのアスコルビン酸と反応するため、0.05 mmol × 176.13 mg/mmol = 8.8065 mg です。" },
+        { id: "2022_q35", year: "2022", num: 35, text: "アスコルビン酸（ビタミンC）のヨウ素滴定定量は、アスコルビン酸が持つどのような化学的性質に基づいているか。", options: ["1. 酸化性", "2. 強酸性", "3. 弱酸性", "4. 還元性", "5. 錯塩形成性"], answer: 3, explanation: "アスコルビン酸は、自身が非常に酸化されやすい（ヨウ素を還元してヨウ化物イオン I- にする）強力な「還元性（抗酸化作用）」を持つため、ヨウ素滴定で定量できます。" },
+        { id: "2022_q36", year: "2022", num: 36, text: "アスコルビン酸のヨウ素滴定反応において、酸化されたアスコルビン酸が最終的に生じる反応生成物はどれか。", options: ["1. ソルボース", "2. シュウ酸", "3. グルクロン酸", "4. グルコン酸", "5. デヒドロアスコルビン酸"], answer: 4, explanation: "アスコルビン酸（還元型ビタミンC）は、ヨウ素による酸化を受けて、エンジオール基から水素が2つ引き抜かれ、「デヒドロアスコルビン酸（酸化型ビタミンC）」に変化します。" },
+        { id: "2022_q37", year: "2022", num: 37, text: "確認試験において、乳酸塩に硫酸酸性下で過マンガン酸カリウム試液を加えて加熱するときに発生する特徴的な臭気（成分）はどれか。", options: ["1. アンモニア", "2. アクロレイン", "3. フェノール", "4. ホルムアルデヒド", "5. アセトアルデヒド", "6. 酢酸エチル"], answer: 4, explanation: "乳酸塩を硫酸酸性下で過マンガン酸カリウム（酸化剤）により加熱分解すると、アセトアルデヒドが生成し、その特有の刺激臭を発生します（局方確認試験）。" },
+        { id: "2022_q38", year: "2022", num: 38, text: "確認試験において、グリセロリン酸（グリセリン誘導体）に等量の硫酸水素カリウム（KHSO4）の粉末を混ぜて加熱するときに発生する特徴的な臭気はどれか。", options: ["1. アンモニア", "2. アクロレイン", "3. フェノール", "4. ホルムアルデヒド", "5. アセトアルデヒド", "6. 酢酸エチル"], answer: 1, explanation: "グリセリン骨格に硫酸水素カリウム（脱水剤）を加えて強熱すると、脱水縮合が起き、激しい刺激臭を持つ不飽和アルデヒドである「アクロレイン」を発生します。" },
+        { id: "2022_q39", year: "2022", num: 39, text: "確認試験において、サリチル酸塩を過量のソーダ石灰（水酸化ナトリウムと水酸化カルシウムの混合物）と混ぜて強熱するときに発生する臭気はどれか。", options: ["1. アンモニア", "2. アクロレイン", "3. フェノール", "4. ホルムアルデヒド", "5. アセトアルデヒド", "6. 酢酸エチル"], answer: 2, explanation: "サリチル酸塩に塩基（ソーダ石灰）を混ぜて加熱すると、脱炭酸反応が起こってサリチル酸が「フェノール」に変化し、特有の臭気を示します。" },
+        { id: "2022_q40", year: "2022", num: 40, text: "炎色反応試験において、硫酸およびメタノールを混ぜて温めて点火するとき、特徴的な「緑色の炎」をあげて燃える無機イオン塩はどれか。", options: ["1. リン酸塩", "2. 第一鉄塩", "3. 過マンガン酸塩", "4. ピリドキシン塩酸塩", "5. ホウ酸塩", "6. フェロシアン化物"], answer: 4, explanation: "ホウ酸塩に硫酸とメタノールを加えて加熱すると、揮発性のホウ酸トリメチルが生成します。これに点火すると、ホウ素由来の鮮やかな「緑色の炎」を示して燃焼します。" },
+        { id: "2022_q41", year: "2022", num: 41, text: "水溶液に硝酸銀試液を加えると「白色沈殿」を生じ、希硝酸を加えても沈殿が溶けないが、アンモニア試液を加えると速やかに溶解する特徴を示す、局方収載の塩酸化合物はどれか。", options: ["1. リン酸塩", "2. 第一鉄塩", "3. 過マンガン酸塩", "4. ピリドキシン塩酸塩", "5. ホウ酸塩", "6. フェロシアン化物"], answer: 3, explanation: "これは「塩化物イオン（Cl-）」の代表的な確認試験です。「ピリドキシン塩酸塩」は塩酸塩であるため、水溶液中で塩化物イオンを放出し、硝酸銀と反応して塩化銀の不溶性白色沈殿を生じます。" },
+        { id: "2022_q42", year: "2022", num: 42, text: "溶液に硫酸銅(II)試液を加えるとき、特徴的な「赤褐色の沈殿」を生じ、希塩酸を追加しても沈殿が溶けない無機化合物はどれか。", options: ["1. リン酸塩", "2. 第一鉄塩", "3. 過マンガン酸塩", "4. ピリドキシン塩酸塩", "5. ホウ酸塩", "6. フェロシアン化物"], answer: 5, explanation: "フェロシアン化カリウムなどの「フェロシアン化物」溶液に銅イオン（Cu2+）を加えると、難溶性のフェロシアン化銅の赤褐色沈殿を生じ、これは強酸（希塩酸）にも溶けません。" },
+        { id: "2022_q43", year: "2022", num: 43, text: "硫酸酸性溶液において、過マンガン酸カリウムに過量のシュウ酸（還元剤）試液を加えて加温するときに観察される変化はどれか。", options: ["1. リン酸塩の沈殿", "2. 第一鉄塩の酸化による黄変", "3. 過マンガン酸塩の脱色（赤紫色から無色）", "4. ホウ酸塩の析出"], answer: 2, explanation: "赤紫色の過マンガン酸イオンは、硫酸酸性下でシュウ酸によって還元されて、ほとんど無色のマンガン(II)イオンに変化するため、溶液が脱色します。" },
+        { id: "2022_q44", year: "2022", num: 44, text: "中性または弱酸性溶液において、1,10-フェナントロリンのエタノール溶液を滴加するときに、安定な錯体を形成して「濃赤色」を呈する無機イオンはどれか。", options: ["1. リン酸塩", "2. 第一鉄塩", "3. 過マンガン酸塩", "4. ピリドキシン塩酸塩", "5. ホウ酸塩", "6. フェロシアン化物"], answer: 1, explanation: "鉄(II)イオン（第一鉄塩：Fe2+）は、1,10-フェナントロリン3分子と速やかに反応して、非常に安定した赤いキレート錯体「フェロイン」を形成し、濃赤色を呈します。" },
+        { id: "2022_q45", year: "2022", num: 45, text: "「蛍光の極大波長は、通常、励起光の極大波長よりも短波長側にある」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 1, explanation: "誤りです。励起された分子は一部のエネルギーを熱として失ってから蛍光を放出するため、放出される光のエネルギーは低くなり、波長は必ず励起光より「長波長側（エネルギーが低い側）」にずれます。" },
+        { id: "2022_q46", year: "2022", num: 46, text: "「蛍光は基底一重項から励起三重項に遷移する際に放射される光である」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 1, explanation: "誤りです。蛍光は「励起一重項から基底一重項」への遷移光です。「励起三重項から基底一重項」への遷移光は「りん光」と呼ばれます。" },
+        { id: "2022_q47", year: "2022", num: 47, text: "「蛍光光度計では、光源に対して蛍光測光部が直角に配置されている」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 0, explanation: "正しい。光源からの強力な直進光（励起光）がそのまま検出器に入るのを避けるため、一般的な蛍光光度計では、検出器を光源に対して「90度（直角）」の方向に配置して迷光を防ぎます。" },
+        { id: "2022_q48", year: "2022", num: 48, text: "「ろ紙クロマトグラフィーは、ろ紙に含まれる水を固定相とする分配クロマトグラフィーである」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 0, explanation: "正しい。ろ紙クロマトグラフィーでは、ろ紙のセルロースに吸着された水が「固定相」として働き、そこを有機溶媒（移動相）が移動することで、分配が起こります。" },
+        { id: "2022_q49", year: "2022", num: 49, text: "「固定相としてオクタデシルシリカ化したシリカゲルを用いる逆相分配クロマトグラフィーでは、極性の高い溶質が先に溶出する」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 0, explanation: "正しい。逆相クロマトグラフィーでは固定相が疎水性（非極性）、移動相が極性（水・メタノールなど）です。そのため、水に溶けやすい極性の高い物質は、固定相に留まらず移動相と一緒に速く溶出してきます。" },
+        { id: "2022_q50", year: "2022", num: 50, text: "「イオン交換クロマトグラフィーでα-アミノ酸を分離・検出するには、ニンヒドリンを用いるプレカラム誘導体化法を適用する」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 1, explanation: "誤りです。局方のアミノ酸分析法では、分離した「後に」ニンヒドリンを混合して呈色させる「ポストカラム誘導体化法」が一般的に適用されます。" },
+        { id: "2022_q51", year: "2022", num: 51, text: "「ピーク面積法のうち、半値幅法は、ピーク高さの中点におけるピーク幅にピーク高さを乗じて求める」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 0, explanation: "正しい。ピーク形状を対称的なガウス分布と近似した際、ピーク高さ（h）の1/2（中点）におけるピーク幅（W 1/2）に高さ（h）を掛けることで、ピーク面積が求まります。" },
+        { id: "2022_q52", year: "2022", num: 52, text: "「同一の分離条件で、二つの物質の保持時間が同じなら、分離度は1である」という記述の正誤を判定せよ。", options: ["1. 正しい (1)", "2. 誤っている (2)"], answer: 1, explanation: "誤りです。保持時間が同じということは、まったく分離されていないことを意味するため、2物質の分離度（Rs）は「0」になります。" },
+        { id: "2022_q53", year: "2022", num: 53, text: "生薬の化学的識別反応において、「ドラーゲンドルフ試液」により検出される物質（スポットを形成するクラス）はどれか。", options: ["1. アルカロイド", "2. トリテルペン", "3. 還元糖", "4. サポニン", "5. タンニン"], answer: 0, explanation: "ドラーゲンドルフ試液は、窒素原子を有する「アルカロイド」と反応して、水に不溶性の橙赤色の錯塩を形成するため、アルカロイドの代表的な呈色試薬です。" },
+        { id: "2022_q54", year: "2022", num: 54, text: "薄層クロマトグラフィーを用いる確認試験で、薄層板にドラーゲンドルフ試液を噴霧してスポットを検出する生薬はどれか。", options: ["1. アロエ", "2. オウレン", "3. キョウニン", "4. ニンジン", "5. ロートコン"], answer: 4, explanation: "「ロートコン（ナス科）」は副交感神経遮断作用を持つアトロピンやスコポラミンなどのアルカロイドを豊富に含むため、ドラーゲンドルフ試薬を噴霧して検出します。" },
+        { id: "2022_q55", year: "2022", num: 55, text: "水溶液を激しく振とうした際、持続性の微細な泡を形成する特徴を示す、生薬に含まれる成分クラスはどれか。", options: ["1. アルカロイド", "2. サポニン", "3. 脂肪酸", "4. タンニン", "5. リグナン"], answer: 1, explanation: "「サポニン」は分子内に親水性の糖と疎水性の配糖体骨格を併せ持つため、強い界面活性作用を示し、水溶液を振ると持続性の高い起泡性を示します。" },
+        { id: "2022_q56", year: "2022", num: 56, text: "確認試験において、持続性の泡を呈することを確認する「起泡試験」を用いる生薬はどれか。", options: ["1. カンゾウ", "2. サンシシ", "3. ショウキョウ", "4. セネガ", "5. ベラドンナコン"], answer: 3, explanation: "「セネガ」は、気道粘膜刺激（去痰）に用いられるトリテルペンサポニンを極めて豊富に含むため、局方確認試験には起泡試験が規定されています。" },
+        { id: "2022_q57", year: "2022", num: 57, text: "抽出物のメタノール溶液にリボン状のマグネシウムと塩酸を加えて起こる呈色反応により検出される、植物中に多い成分はどれか。", options: ["1. アルカロイド", "2. イリドイド", "3. サポニン", "4. フラボノイド", "5. リグナン"], answer: 3, explanation: "「フラボノイド」は、メタノールに溶かし、金属マグネシウムと濃塩酸を加える（酸性還元反応）と、構造変化を起こして特徴的な「赤〜赤紫色」を呈します。" },
+        { id: "2022_q58", year: "2022", num: 58, text: "生薬の確認試験において、前問に記載された呈色反応（マグネシウム-塩酸反応による赤紫色）を用いる生薬はどれか。", options: ["1. ゲンノショウコ", "2. サンヤク", "3. ジュウヤク", "4. ダイオウ", "5. トウヒ"], answer: 4, explanation: "ミカン科の「トウヒ（ビターオレンジの果皮）」はフラボノイドを含むため、その確認試験としてマグネシウム-塩酸反応が適用されます。" },
+        { id: "2022_q59", year: "2022", num: 59, text: "無水酢酸抽出液に濃硫酸を静かに滴加したときに起こる呈色反応を用いる、キキョウ科の生薬はどれか。", options: ["1. キキョウ", "2. コウボク", "3. ゴミシ", "4. サンシシ", "5. センブリ"], answer: 0, explanation: "「キキョウ」は、トリテルペンサポニンを含有するため、無水酢酸に溶かして硫酸を加えるリーベルマン反応によって青緑色を示します。" },
+        { id: "2022_q60", year: "2022", num: 60, text: "薄層クロマトグラフィー（TLC）による確認試験を行う生薬と、スポットを比較する局方規定の「標準品」の組み合わせとして正しいのはどれか。", options: ["1. ウワウルシ / ウワバイン", "2. オウゴン / ベルベリン", "3. コウボク / マグノロール", "4. シャクヤク / ペオノール", "5. センブリ / スウェルチアマリン"], answer: 2, explanation: "「コウボク（厚朴）」の主成分はネオリグナンである「マグノロール」であり、確認試験の対照薬品として規定されています。" },
+        { id: "2022_q61", year: "2022", num: 61, text: "細胞小器官（オルガネラ）とその主要な生理的機能の組み合わせのうち、正しいのはどれか。", options: ["1. ペルオキシソーム ･･･ 脂質の合成", "2. ミトコンドリア ･･･ ATP の合成", "3. リソソーム ･･･ タンパク質の合成", "4. 粗面小胞体 ･･･ 脂質の分解", "5. ゴルジ体 ･･･ タンパク質の分解"], answer: 1, explanation: "「ミトコンドリア」は酸素を用いた内呼吸を行い、生体の主要エネルギー通貨である「ATPの合成」を担います。" },
+        { id: "2022_q62", year: "2022", num: 62, text: "次のうち、n-3（オメガ3）系多価不飽和脂肪酸に分類されるものはどれか。", options: ["1. アラキドン酸", "2. オレイン酸", "3. リノール酸", "4. α-リノレン酸", "5. γ-リノレン酸"], answer: 3, explanation: "メチル末端から3番目の炭素に最初の二重結合をもつ「α-リノレン酸」やEPA、DHAがn-3系に分類されます。リノール酸はn-6系です。" },
+        { id: "2022_q63", year: "2022", num: 63, text: "必須アミノ酸である「フェニルアラニン」が、体内の水酸化酵素によって直接変換されることで生成するアミノ酸はどれか。", options: ["1. アラニン", "2. グルタミン酸", "3. プロリン", "4. ロイシン", "5. チロシン"], answer: 4, explanation: "フェニルアラニンは「フェニルアラニン水酸化酵素」により水酸化されて「チロシン」に代謝されます。この酵素の先天性欠損はフェニルケトン尿症を引き起こします。" },
+        { id: "2022_q64", year: "2022", num: 64, text: "ミカエリス・メンテン型酵素において、基質濃度[S]と反応初速度vの関係、ミカエリス定数（Km）と最大反応速度（Vmax）を示した正しいグラフ形状はどれか。", options: ["1. グラフ1（通常の双曲線。[S]=Kmの時に初速度が1/2 Vmaxに達する）", "2. グラフ2（指数関数的な増加曲線）", "3. グラフ3（アロステリック酵素のようなS字型シグモイド曲線）", "4. グラフ4（逆S字型曲線）"], answer: 0, explanation: "ミカエリス・メンテン式に従う一般的な酵素は「双曲線」を描き、反応速度が「最大速度Vmaxの半分」になる基質濃度をKm（ミカエリス定数）と定義します。" },
+        { id: "2022_q65", year: "2022", num: 65, text: "真核細胞でのmRNAのプロセシングによる成熟過程において、不要な配列であるイントロンの認識・除去（スプライシング）に直接関わるリボ核タンパク質複合体はどれか。", options: ["1. オートファゴソーム", "2. スプライソソーム", "3. ヌクレオソーム", "4. プロテアソーム", "5. リソソーム"], answer: 1, explanation: "「スプライソソーム」は、snRNAとタンパク質からなる複合体で、転写されたmRNA前駆体のイントロンを切り取って繋ぐスプライシングを担います。" },
+        { id: "2022_q66", year: "2022", num: 66, text: "末梢組織から過剰なコレステロールを回収し、代謝のために肝臓へと逆輸送する役割を主として担う血漿リポタンパク質はどれか。", options: ["1. 高密度リポタンパク質 (HDL)", "2. 中間密度リポタンパク質 (IDL)", "3. 超低密度リポタンパク質 (VLDL)", "4. 低密度リポタンパク質 (LDL)", "5. キロミクロン"], answer: 0, explanation: "「HDL（高密度リポタンパク質）」は、末梢組織からコレステロールを引き抜いて肝臓へ戻す「逆輸送」を行うため、善玉コレステロールと呼ばれます。" },
+        { id: "2022_q67", year: "2022", num: 67, text: "体内の有害なアンモニアを安全な尿素へと変換する「尿素回路」が存在する主な臓器はどれか。", options: ["1. 小腸", "2. 大腸", "3. 肝臓", "4. 脾臓", "5. 腎臓"], answer: 2, explanation: "アミノ酸代謝によって生じた有害なアンモニアを無毒な尿素に変換する「尿素回路」の主要酵素群は、主として「肝臓」に局在しています。" },
+        { id: "2022_q68", year: "2022", num: 68, text: "肺炎などを引き起こす「マイコプラズマ」属の構造および特徴に関する記述のうち、正しいのはどれか。", options: ["1. 一般細菌より大型である。", "2. 真核生物である。", "3. 細胞壁をもたない。", "4. 増殖には生細胞への寄生が必要である。", "5. 病原性は知られていない。"], answer: 2, explanation: "マイコプラズマは「細胞壁をもたない（原核生物）」という稀有な細菌です。このため、細胞壁合成を阻害するペニシリンやセフェム系抗生物質がまったく効きません。" },
+        { id: "2022_q69", year: "2022", num: 69, text: "親油性が高いため細胞膜を容易に透過し、細胞内の「核内（または細胞質内）受容体」に直接結合して転写を制御するホルモンはどれか。", options: ["1. アドレナリン", "2. エストロゲン", "3. グルカゴン", "4. 成長ホルモン", "5. 副甲状腺ホルモン"], answer: 1, explanation: "ステロイドホルモン（エストロゲンなど）や甲状腺ホルモンは、脂溶性が高いため細胞膜を通過し、「核受容体」に直接結合してシグナルを伝達します。" },
+        { id: "2022_q70", year: "2022", num: 70, text: "胃潰瘍などの原因となるヘリコバクター・ピロリが、尿素を分解して周囲にアンモニアのアルカリバリアを作って胃酸を中和し、胃内生存に関与する主な酵素はどれか。", options: ["1. アルギナーゼ", "2. グルタミナーゼ", "3. クレアチンキナーゼ", "4. デアミナーゼ", "5. ウレアーゼ"], answer: 4, explanation: "ピロリ菌は「ウレアーゼ」を多量に分泌し、胃液中の尿素をアンモニアと二酸化炭素に分解することで、周囲の酸環境を中性に和らげて生息します。" },
+        { id: "2022_q71", year: "2022", num: 71, text: "筋肉を構成する筋原線維において、細いフィラメントであるアクチンとともにスライド相互作用して、筋肉の収縮を担う主たるフィラメントタンパク質はどれか。", options: ["1. コラーゲン", "2. トロンビン", "3. ヒストン", "4. ヘモグロビン", "5. ミオシン"], answer: 4, explanation: "筋肉の収縮は、ATP分解エネルギーを利用して「ミオシン」フィラメントが「アクチン」フィラメントを手繰り寄せることによって生じます。" },
+        { id: "2022_q72", year: "2022", num: 72, text: "ヌクレオチドを構成するペントース（五炭糖）において、リン酸基が結合する炭素の位置はどれか。", options: ["1. C1' 位", "2. C2' 位", "3. C3' 位", "4. C4' 位", "5. C5' 位"], answer: 4, explanation: "ヌクレオチドでは、糖の1'位炭素に「塩基」が結合し、5'位炭素に「リン酸基」がエステル結合しています。" },
+        { id: "2022_q73", year: "2022", num: 73, text: "ハース投影式で示される「α-D-グルコピラノース」の構造はどれか。（1位下、2位下、3位上、4位下、5位CH2OH上）", options: ["1. 構造式1 (α-D-グルコピラノース)", "2. 構造式2 (D-ガラクトース)", "3. 構造式3 (D-フルクトース)", "4. 構造式4 (D-リボース)", "5. 構造式5"], answer: 0, explanation: "構造式1が「α-D-グルコース（α-D-グルコピラノース）」の正しいハース投影式です。4位のOH基が下を向いているのがグルコースの特徴です。" },
+        { id: "2022_q74", year: "2022", num: 74, text: "真核細胞のエネルギー代謝において、1分子のグルコースからピルビン酸を嫌気的に生成する「解糖系」の酵素群が存在する、細胞内の部位はどこか。", options: ["1. 細胞質", "2. 小胞体", "3. リソソーム", "4. ペルオキシソーム", "5. ミトコンドリア"], answer: 0, explanation: "解糖系のすべての反応ステップは、特定の細胞小器官の中ではなく、細胞内の大部分を占める可溶性領域である「細胞質（細胞質ゾル）」で行われます。" },
+        { id: "2022_q75", year: "2022", num: 75, text: "コレステロールを共通の出発材料（前駆体）として生合成される、副腎皮質などから分泌されるステロイドホルモンはどれか。", options: ["1. インスリン", "2. グルココルチコイド", "3. アドレナリン", "4. グルカゴン", "5. チロキシン"], answer: 1, explanation: "コレステロールはすべてのステロイドの共通祖先であり、副腎皮質から分泌される「グルココルチコイド」やアルドステロン、性ホルモンがここから合成されます。" },
+        { id: "2022_q76", year: "2022", num: 76, text: "体細胞分裂のライフサイクルにおいて、DNAの複製を行ってゲノムを倍加させておく準備期間（間期）に起こる最大のイベントはどれか。", options: ["1. DNAの複製", "2. 核膜の消失", "3. クロマチンの凝縮", "4. 姉妹染色分体の分離", "5. 細胞質分裂"], answer: 0, explanation: "間期のうち「S期（合成期）」において、全ゲノム情報である「DNAの複製」が極めて精密に行われます。" },
+        { id: "2022_q77", year: "2022", num: 77, text: "胚の発生（三胚葉形成）において、消化管（胃・大腸など）や肺・気道の上皮、肝臓、膵臓などを形成する「内胚葉」を主な起源とする器官はどれか。", options: ["1. 骨", "2. 心臓", "3. 表皮", "4. 大腸", "5. 脊髄"], answer: 3, explanation: "「大腸」などの消化管の内壁上皮や消化腺は「内胚葉」から発生します。心臓や骨は中胚葉、皮膚の表皮や神経系（脊髄など）は外胚葉から発生します。" },
+        { id: "2022_q78", year: "2022", num: 78, text: "ヒトの心臓の断面と血管図において、肺で酸素を取り入れた血液が、左心房へと流れ込む血管である「肺静脈」を示す番号はどれか。(1=上大静脈、2=下大静脈、3=肺静脈、4=肺動脈、5=大動脈)", options: ["1. 1 (上大静脈)", "2. 2 (下大静脈)", "3. 3 (肺静脈)", "4. 4 (肺動脈)"], answer: 2, explanation: "肺から酸素を受け取って心臓（左心房）に戻る血管は「肺静脈（図中の3）」です。ここには動脈血が流れています。" },
+        { id: "2022_q79", year: "2022", num: 79, text: "炎症やアレルギーのメディエーターであるプロスタグランジンやロイコトリエンなどの総称「エイコサノイド」の生合成前駆体（直接の脂肪酸）となるのはどれか。", options: ["1. アラキドン酸", "2. L-チロシン", "3. コリン", "4. L-トリプトファン", "5. L-ヒスチジン"], answer: 0, explanation: "細胞膜のリン脂質からホスホリパーゼA2によって切り出される、炭素数20の多価不飽和脂肪酸である「アラキドン酸」が、各種エイコサノイドの前駆体です。" },
+        { id: "2022_q80", year: "2022", num: 80, text: "カビや酵母、キノコなどの「真菌」類の構造および生化学的特徴に関する記述のうち、正しいのはどれか。", options: ["1. ミトコンドリアをもつ。", "2. コレステロールを含む細胞膜をもつ。", "3. 葉緑体をもつ。", "4. 細胞壁をもたない。", "5. 70S リボソームをもつ。"], answer: 0, explanation: "真菌は「真核生物」であるため、核やミトコンドリア、80Sリボソームを保有します。細胞膜には「エルゴステロール」を保有します。" },
+        { id: "2022_q81", year: "2022", num: 81, text: "女性の月経周期において、成熟した卵胞が破裂して排卵が起こる前に、下垂体前葉から分泌量が急激に上昇してピーク（サージ）に達し、排卵の開始を直接誘発するホルモンはどれか。", options: ["1. 黄体形成ホルモン(LH)", "2. オキシトシン", "3. プロラクチン", "4. ヒト絨毛性性腺刺激ホルモン(hCG)", "5. プロゲステロン"], answer: 0, explanation: "排卵の直接の引き金となるのは、エストロゲンの正のフィードバックによって生じる「LHサージ（黄体形成ホルモンの急激な大量一過性放出）」です。" },
+        { id: "2022_q82", year: "2022", num: 82, text: "尿素回路の代謝中間体（アミノ酸）であり、アルギニンから尿素が離脱した後に再生され、再びカルバモイルリン酸と結合してシトルリンへと巡る「オルニチン」の構造式はどれか。", options: ["1. 構造式1 (L-アルギニン：側鎖にグアニジノ基をもつ)", "2. 構造式2 (L-シトルリン：側鎖にウレイド基をもつ)", "3. 構造式3 (L-オルニチン：側鎖末端にアミノ基をもつ塩基性アミノ酸)", "4. 構造式4", "5. 構造式5"], answer: 2, explanation: "構造式3が「L-オルニチン」です。アルギナーゼによってアルギニン（構造式1）から尿素が切り離されると、このオルニチンが再生してサイクルが回転します。" },
+        { id: "2022_q83", year: "2022", num: 83, text: "真核生物における転写において、DNA上の遺伝子から転写されたRNA前駆体から、不要な部分（イントロン）を切断・除去して成熟mRNAにするステップ「ア」はどれか。", options: ["1. 転写", "2. 逆転写", "3. スプライシング", "4. RNA干渉", "5. 翻訳"], answer: 2, explanation: "イントロン部分をループ（投げ縄）構造にして切り出し、タンパク質コード領域であるエキソン同士をつなぎ合わせる一連の編集・修飾作業を「スプライシング」と呼びます。" },
+        { id: "2022_q84", year: "2022", num: 84, text: "体細胞分裂の後期において、細胞の両極に存在する中心体から伸びた紡錘糸（微小管）が、染色体のくびれ部分に直接結合して引っ張り合う、図中Aで示された染色体上の構造体はどれか。", options: ["1. 紡錘体", "2. 中心体", "3. 核小体", "4. 動原体", "5. 収縮環"], answer: 3, explanation: "染色体のセントロメア領域に形成される、微小管（紡錘糸）が結合するための特殊なタンパク質複合体構造を「動原体（キネトコア）」と呼びます。" },
+        { id: "2022_q85", year: "2022", num: 85, text: "核酸（DNA/RNA）のピリミジン塩基（ウラシル、シトシン、チミン）を体内で一から組み立てる「de novo（デノボ）合成」において、窒素源または炭素骨格として直接利用されるアミノ酸はどれか。", options: ["1. L-メチオニン", "2. グリシン", "3. L-トリプトファン", "4. L-バリン", "5. L-グルタミン"], answer: 4, explanation: "ピリミジン環は、アスパラギン酸と、炭酸水素塩（CO2）、および「L-グルタミン」のアミド窒素を利用して生合成されます。" },
+        { id: "2022_q86", year: "2022", num: 86, text: "リボソームで翻訳された後のタンパク質修飾（翻訳後修飾）において、糖鎖の還元末端が、タンパク質中のセリンまたは何のアミノ酸のヒドロキシ基に結合する「O-結合型糖鎖（O-グリコシル化）」を形成するか。", options: ["1. L-メチオニン", "2. L-トレオニン", "3. L-アスパラギン", "4. L-グルタミン", "5. L-チロシン"], answer: 1, explanation: "O-結合型糖鎖は、タンパク質中のセリンまたは「L-トレオニン」の側鎖にあるヒドロキシ基に糖が結合します。L-アスパラギンのアミド窒素に結合するものは「N-結合型糖鎖」です。" },
+        { id: "2022_q87", year: "2022", num: 87, text: "遺伝子組換え技術において、ベクター（運搬体）や目的遺伝子の特定の塩基配列を認識し、リン酸ジエステル結合を精密に切断するために用いられるハサミの役割をする酵素はどれか。", options: ["1. DNA リガーゼ", "2. 逆転写酵素", "3. DNA ポリメラーゼ", "4. 制限酵素", "5. プライマーゼ"], answer: 3, explanation: "特定の塩基配列を特異的に認識し、DNAの結合を切断する酵素を「制限酵素」と呼びます。切断したDNAを繋ぎ合わせるのは「DNAリガーゼ」です。" },
+        { id: "2022_q88", year: "2022", num: 88, text: "回腸末端におけるビタミンB12の選択的吸収に不可欠であり、欠乏すると悪性貧血を引き起こす糖タンパク質「内因子」を胃粘膜において分泌する細胞はどれか。", options: ["1. 主細胞", "2. G細胞", "3. 副細胞", "4. 杯細胞", "5. 壁細胞"], answer: 4, explanation: "胃底腺の「壁細胞」は、強い胃酸（塩酸）の分泌に加えて、ビタミンB12の吸収に必要な「内因子」を分泌します。" },
+        { id: "2022_q89", year: "2022", num: 89, text: "ヒトの脂質代謝において、糖質などから過剰に得られた「アセチルCoA」を出発材料として、最初の飽和脂肪酸である「パルミチン酸（C16:0）」が主に生合成される、細胞内の反応部位はどこか。", options: ["1. 細胞質ゾル(細胞質基質)", "2. 核", "3. 小胞体", "4. ミトコンドリア", "5. ゴルジ体"], answer: 0, explanation: "脂肪酸の de novo 生合成系は、ミトコンドリア内ではなく、細胞質である「細胞質ゾル」に存在し作動します。" },
+        { id: "2022_q90", year: "2022", num: 90, text: "真核細胞に対して、プラスミドや外来遺伝子を細胞内に人工的に導入する手法（トランスフェクション）として、原理的・目的的に不適切な（トランスフェクションに関係のない）技術はどれか。", options: ["1. リポフェクション法", "2. リン酸カルシウム法", "3. ジデオキシ法(サンガー法)", "4. エレクトロポレーション法", "5. マイクロインジェクション法"], answer: 2, explanation: "「ジデオキシ法（サンガー法）」は、DNAポリメラーゼとジデオキシヌクレオチドを用いて「DNAの塩基配列を決定する（シーケンス）技術」であり、遺伝子を導入する手法ではありません。" },
 
-        // --- 2022年度 ---
-        {
-            id: "2022_q1",
-            year: "2022",
-            num: 1,
-            text: "生薬シャクヤク（芍薬）の主要な有効成分として知られるモノテルペン配糖体はどれか。",
-            options: ["1. グリチルリチン", "2. ペオニフロリン", "3. ゲンチオピクシド", "4. センノシド"],
-            answer: 1,
-            explanation: "正解は 2。シャクヤク（芍薬）の根に含まれる主要成分は「ペオニフロリン (Paeoniflorin)」であり、鎮痛・鎮痙作用を持ちます。グリチルリチンはカンゾウ、センノシドはセンナの成分です。"
-        },
-
-        // --- 2021年度 ---
-        {
-            id: "2021_q1",
-            year: "2021",
-            num: 1,
-            text: "真核細胞の細胞内小器官のうち、独自のDNAを持ち、独自の電子伝達系を駆動してATPを産生する器官はどれか。",
-            options: ["1. リソソーム", "2. ゴルジ体", "3. ミトコンドリア", "4. 小胞体"],
-            answer: 2,
-            explanation: "正解は 3。ミトコンドリアは細胞内のエネルギー産生の中心であり、独自のミトコンドリアDNA（mtDNA）を保有しています。"
-        }
+        // ==========================================
+        // 2021年度 必須問題 (問1〜問90)
+        // ==========================================
+        { id: "2021_q1", year: "2021", num: 1, text: "日本薬局方の医薬品は、その医薬品名の前後にどのような括弧を付けて示すか。", options: ["1. 「 」", "2. ( )", "3. [ ]", "4. { }"], answer: 0, explanation: "日本薬局方に規定された医薬品であることを明示する場合、医薬品名や物質名の前後に「 」（かぎかっこ）を付けます。" },
+        { id: "2021_q2", year: "2021", num: 2, text: "日本薬局方通則における「標準温度」の定義はどれか。", options: ["1. 20℃", "2. 25℃", "3. 15〜25℃", "4. 1〜30℃", "5. 20〜30℃"], answer: 0, explanation: "局方通則16より、標準温度は20℃です。常温は15〜25℃、室温は1〜30℃です。" },
+        { id: "2021_q3", year: "2021", num: 3, text: "日本薬局方通則において、「減圧」は、別に規定するもののほか、どのような圧力を指すか。", options: ["1. 2.0 kPa 以上", "2. 2.0 kPa", "3. 2.0 kPa 以下", "4. 2.0 Pa 以上"], answer: 2, explanation: "局方通則16より、「減圧」とは、別に規定がない限り2.0 kPa以下の圧力をいいます。" },
+        { id: "2021_q4", year: "2021", num: 4, text: "医薬品等の試験に用いる水は、別に規定がない限りどのような水とするか。", options: ["1. 蒸留水", "2. イオン交換水", "3. 常水", "4. 試験を妨害する物質を含まないなど、試験を行うのに適した水", "5. 新たに煮沸冷却した水"], answer: 3, explanation: "局方通則より、試験に用いる水は「試験を妨害する物質を含まないなど、試験を行うのに適した水」を指します。" },
+        { id: "2021_q5", year: "2021", num: 5, text: "定量に供する試料の採取量において、「約」を付けたものは、記載された量の±何%の範囲をいうか。", options: ["1. 2%", "2. 5%", "3. 10%", "4. 15%", "5. 20%"], answer: 2, explanation: "局方通則28より、採取量の「約」は記載された数値の±10%の範囲を表します。" },
+        { id: "2021_q6", year: "2021", num: 6, text: "医薬品各条の定量法で得られる成分含量について、単にある%以上を示し、その上限を示さない場合は、何%を上限とするか。", options: ["1. 110.0%", "2. 105.0%", "3. 101.0%", "4. 100.5%", "5. 100.1%"], answer: 2, explanation: "局方通則33の規定により、定量法で単に「ある％以上」とされ上限の記載がない場合は、101.0%を上限とみなします。" },
+        { id: "2021_q7", year: "2021", num: 7, text: "被滅菌物質の中のすべての微生物（生存する生菌）を殺滅又は除去することを意味する用語はどれか。", options: ["1. 無菌", "2. 滅菌", "3. 消毒", "4. 無菌操作"], answer: 1, explanation: "「滅菌」とは、被滅菌物質の中の全ての微生物を殺滅又は除去するプロセスを意味します。一方、対象微生物が検出されない結果を「無菌」と呼びます。" },
+        { id: "2021_q8", year: "2021", num: 8, text: "局方における「約1.5gを精密に量る」という指示に対して、量り取る操作として適切な表記はどれか。", options: ["1. 1.1539 g", "2. 1.8322 g", "3. 1.4765 g", "4. 1.463 g", "5. 1.45 g"], answer: 2, explanation: "「約1.5g」は±10%（1.35〜1.65g）の範囲を指し、さらに「精密に量る」ため、化学天秤の感度（0.1 mg、小数点第4位）まで正確に記録した「1.4765 g」が最適です。" },
+        { id: "2021_q9", year: "2021", num: 9, text: "日本薬局方において、体積百万分率を表す記号（単位）はどれか。", options: ["1. %", "2. ppm", "3. vol ppm", "4. ppb", "5. w/v%"], answer: 2, explanation: "体積基準の百万分率（10のマイナス6乗）を表す単位は「vol ppm」です。質量基準は「ppm」になります。" },
+        { id: "2021_q10", year: "2021", num: 10, text: "溶液の濃度が「(1→10)」で示された場合、定義として正しいものはどれか。", options: ["1. 固形の薬品1gを10mLの溶媒に溶かす。", "2. 固形の薬品1mgを10mLの溶媒に溶かす。", "3. 固形の薬品 1mgを溶媒に溶かして全量を10mL とする。", "4. 液状の薬品1mLを10mLの溶媒に溶かす。", "5. 液状の薬品 1mLを溶媒に溶かして全量を 10 mL とする。"], answer: 4, explanation: "局方通則より、(1→10)は液状の薬品 1 mL または固形の薬品 1 g を溶媒に溶かして全量を 10 mL にする割合を意味します。5が適切です。" },
+        { id: "2021_q11", year: "2021", num: 11, text: "日本薬局方医薬品各条において、品質の適否の判定基準とはならない項目はどれか。", options: ["1. 確認試験", "2. 性状", "3. 定量法", "4. 純度試験", "5. 乾燥減量"], answer: 1, explanation: "「性状」は色やにおい、溶解性などの目安であり、原則として適否（合格・不合格）の判定基準にはされません。" },
+        { id: "2021_q12", year: "2021", num: 12, text: "エンドトキシンは、一般に何℃で何分以上の加熱処理により完全に不活化されるか。", options: ["1. 250℃、30分以上", "2. 200℃、30分以上", "3. 150℃、30分以上", "4. 121℃、30分以上", "5. 75℃、30分以上"], answer: 0, explanation: "エンドトキシン（発熱物質）は非常に熱に強く、ガラス器具等の処理において完全に不活化するには「250℃、30分以上」の加熱処理が必要です。" },
+        { id: "2021_q13", year: "2021", num: 13, text: "発熱物質試験法において、試験に用いられる健康なウサギの体重基準として正しいのはどれか。", options: ["1. 1.0 kg 以上", "2. 1.5 kg 以上", "3. 2.0 kg 以上", "4. 2.5 kg 以上"], answer: 1, explanation: "一般試験法「発熱物質試験法」において、試験には「体重1.5 kg以上の健康なウサギ」を用いるよう定められています。" },
+        { id: "2021_q14", year: "2021", num: 14, text: "D値の定義について、共試微生物の何%を死滅させ、生存数を1/10に低下させるのに要する時間、または照射線量をいうか。", options: ["1. 85%", "2. 90%", "3. 95%", "4. 99%"], answer: 1, explanation: "D値は、微生物の生存数を1/10（すなわち90%を死滅させて生存数を10%に低下させる）にするのに必要な加熱時間または照射線量を表します。" },
+        { id: "2021_q15", year: "2021", num: 15, text: "「アンモニウム 本品0.05gをとり、試験を行う。比較液にはアンモニウム標準液5.0mLを用いる。」とあるとき、アンモニウム（NH4+として）の限度はどれか。ただし、アンモニウム標準液1mLはアンモニウム0.01mgを含む。", options: ["1. 0.01%以下", "2. 0.02%以下", "3. 0.05%以下", "4. 0.10%以下", "5. 0.20%以下"], answer: 3, explanation: "標準液 5.0 mL中に含まれるアンモニウムは 5.0 × 0.01 mg = 0.05 mg。これが本品 0.05 g (50 mg) に対する限度となるため、 0.05 mg / 50 mg × 100% = 0.10% 以下となります。" },
+        { id: "2021_q16", year: "2021", num: 16, text: "重金属試験法（第1法）において、検液の呈色を比較する「比較液」の調製に用いられる金属標準液はどれか。", options: ["1. 銅標準液", "2. 銀標準液", "3. 鉛標準液", "4. 亜鉛標準液", "5. 水銀標準液"], answer: 2, explanation: "重金属試験法では、試料中の重金属が硫化物として黒褐色に呈色する度合いを、一定量の「鉛標準液」が呈色する度合いと比較して試験します。" },
+        { id: "2021_q17", year: "2021", num: 17, text: "「塩化物 本品0.6gをとり試験を行う。比較液には0.01 mol/L 塩酸0.25mLを加える。」とあるとき、塩化物（Clとして）の限度はどれか。(Clの原子量：35.5)", options: ["1. 0.0015%以下", "2. 0.015%以下", "3. 0.15%以下", "4. 1.5%以下", "5. 15%以下"], answer: 1, explanation: "0.01 mol/L HCl 0.25 mL中のCl-は 0.01 mol/L × 0.25 mL = 2.5 × 10^-6 mol。Cl-の質量は 2.5 × 10^-6 mol × 35.5 g/mol = 8.875 × 10^-5 g (0.08875 mg)。試料0.6g(600mg)に対する割合は (0.08875 / 600) × 100% ≈ 0.015% 以下となります。" },
+        { id: "2021_q18", year: "2021", num: 18, text: "油脂類の特性評価に用いられる、酸価、エステル価、けん化価の正しい関係式はどれか。", options: ["1. エステル価 = けん化価 + 酸価", "2. エステル価 = 酸価 × けん化価", "3. エステル価 = けん化価 - 酸価"], answer: 2, explanation: "「けん化価」は酸価とエステル価の和に等しいため、関係式は「エステル価 = けん化価 - 酸価」となります。" },
+        { id: "2021_q19", year: "2021", num: 19, text: "ヒ素試験法において、呈色比較の対象となる限度基準は、何の物質としてのppmで表されるか。", options: ["1. AsO4", "2. ASO", "3. AsH3", "4. As₂O₃", "5. As³"], answer: 3, explanation: "ヒ素試験法において、ヒ素の限度は「三酸化二ヒ素（As2O3）」の質量分率（ppm）として表され、標準色の比較に用いられます。" },
+        { id: "2021_q20", year: "2021", num: 20, text: "鉱油試験法は、注射剤および何の剤形に用いる「非水性溶剤中の鉱油（混入物質）」を検出するための試験法か。", options: ["1. 軟膏剤", "2. 散剤", "3. 坐剤", "4. チンキ剤", "5. 点眼剤"], answer: 4, explanation: "鉱油試験法は、注射剤および「点眼剤」に用いられる非水性溶剤に、不純物として鉱油が混入していないかを調べる試験です。" },
+        { id: "2021_q21", year: "2021", num: 21, text: "アルコール数測定法において、アルコール数とは「15℃において試料いくら（何mL）当たり」から得られるエタノール層の量（mL）を指すか。", options: ["1. 1L", "2. 100 mL", "3. 10 mL", "4. 1 mL", "5. 0.1 mL"], answer: 2, explanation: "アルコール数とは、「15℃における試料10 mL当たり」に含まれる、エタノールの体積（mL）を表した数値です。" },
+        { id: "2021_q22", year: "2021", num: 22, text: "酸素フラスコ燃焼法において、試験の対象とされない（この方法で燃焼・定量しない）元素はどれか。", options: ["1. マグネシウム", "2. ナトリウム", "3. イオウ", "4. カリウム", "5. カルシウム"], answer: 2, explanation: "酸素フラスコ燃焼法は、フラスコ内で有機薬物を燃焼させ、構成する「ハロゲン」「イオウ」「セレン」を無機化して定量または確認する試験法です。イオウは対象ですが、ナトリウムやカリウム等の金属は対象外です。" },
+        { id: "2021_q23", year: "2021", num: 23, text: "紫外可視吸光度測定法における紫外部（200〜400 nm）の測定に用いられる光源として正しいのはどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 2, explanation: "紫外可視吸光度測定法において、紫外部（200〜400 nm）の測定には「重水素放電管」が光源として用いられます。" },
+        { id: "2021_q24", year: "2021", num: 24, text: "原子吸光光度法において、特定元素の基底状態原子を励起するために用いられる光源（中空陰極ランプ等）以外のものとして何が使用されるか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 1, explanation: "原子吸光光度法では、目的元素に固有の輝線スペクトルを得るために「中空陰極ランプ」や「放電ランプ（無電極放電ランプ）」が光源として用いられます。" },
+        { id: "2021_q25", year: "2021", num: 25, text: "蛍光光度法において、試料分子を励起して強力な発光（蛍光）を得るために一般的に用いられる光源はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 4, explanation: "蛍光光度法では、広い波長にわたる強い光エネルギーが必要となるため、高輝度の「キセノンランプ」やレーザーが光源として多用されます。" },
+        { id: "2021_q26", year: "2021", num: 26, text: "屈折率測定法において、別に規定がない限り測定に用いられる単色光の光源（波長）はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 0, explanation: "屈折率測定法では、基準となる特定の波長として「ナトリウムスペクトルのD線（589.3 nm）」を光源に用いる規定となっています。" },
+        { id: "2021_q27", year: "2021", num: 27, text: "旋光度測定法において、光学活性物質の偏光面回転角度（旋光度）を測定するために用いられる単色光の光源はどれか。", options: ["1. ナトリウムスペクトルのD線", "2. 放電ランプ", "3. 重水素放電管", "4. タングステンランプ", "5. キセノンランプ", "6. 発光ダイオード (LED)"], answer: 0, explanation: "旋光度測定法の基準単色光としても、屈折率と同様に「ナトリウムスペクトルのD線（D1, D2線の平均）」が標準的に使用されます。" },
+        { id: "2021_q28", year: "2021", num: 28, text: "クロマトグラフィーのパラメータにおいて、クロマトグラム上の2つのピーク相互の保持時間の関係（比）を示す値はどれか。", options: ["1. 分離係数 (α)", "2. シンメトリー係数 (S)", "3. 保持容量 (Vr)", "4. 理論段数 (N)", "5. 理論段高さ (H)"], answer: 0, explanation: "2つのピークの「保持時間の関係（ピーク位置の差）」を表すパラメータは「分離係数（α）」です。" },
+        { id: "2021_q29", year: "2021", num: 29, text: "紫外可視吸光度測定法における「ランベルト・ベールの法則」において、吸光度（A）と直接比例関係にあるのはどれか。", options: ["1. 透過度", "2. 透過率", "3. 試料の濃度", "4. 比吸光度の対数", "5. モル吸光係数の対数"], answer: 2, explanation: "ランベルト・ベールの法則「A = ε × c × l」により、吸光度（A）は「試料の濃度（c）」に直接比例します。" },
+        { id: "2021_q30", year: "2021", num: 30, text: "次の測定法のうち、最もエネルギーが低い（波長が長い）電磁波を用いるのはどれか。", options: ["1. 赤外吸収スペクトル法", "2. 核磁気共鳴スペクトル測定法", "3. X線回折測定法", "4. 紫外可視吸光度測定法", "5. 蛍光光度法"], answer: 1, explanation: "電磁波のエネルギーは波長に反比例（周波数・波数に比例）します。核磁気共鳴（NMR）で用いられるラジオ波は最も波長が長く、エネルギーが一番低いです。" },
+        { id: "2021_q31", year: "2021", num: 31, text: "赤外吸収スペクトル法において、波数400 cm^-1の電磁波の波長はどれか。", options: ["1. 4 μm", "2. 2.5 mm", "3. 25 μm", "4. 250 μm", "5. 400 nm"], answer: 2, explanation: "波長（λ）と波数（ν）は逆数の関係にあります。λ = 1 / 400 cm^-1 = 0.0025 cm = 25 μm。したがって「25 μm」が適切です。" },
+        { id: "2021_q32", year: "2021", num: 32, text: "分子量500の医薬品Xの10.0 mgをメタノールに溶かして50 mLとし、その10 mLにメタノールを加えて100 mLとした溶液の吸光度（ア）およびモル吸光係数（イ）の正しい組み合わせはどれか。ただし、Xの360 nmにおける比吸光度E(1%, 1cm)は250、層長は1cmとする。", options: ["1. ア: 0.050, イ: 1250", "2. ア: 0.050, イ: 12500", "3. ア: 0.250, イ: 1250", "4. ア: 0.250, イ: 12500", "5. ア: 0.500, イ: 1250", "6. ア: 0.500, イ: 12500"], answer: 5, explanation: "希釈後の濃度 c = (10mg / 50mL) × (10/100) = 0.02 mg/mL = 0.0020% (w/v)。吸光度 A = E × c × l = 250 × 0.0020 × 1 = 0.500。モル吸光係数 ε = E × M / 10 = 250 × 500 / 10 = 12500。よってア: 0.500, イ: 12500。選択肢「6」が正解です。" },
+        { id: "2021_q33", year: "2021", num: 33, text: "アスコルビン酸（分子量 176.13）の定量（ヨウ素滴定）において、0.05 mol/L ヨウ素液 1 mL に対応するアスコルビン酸（C6H8O6）の質量（A）はどれか。", options: ["1. 35.226 mg", "2. 17.613 mg", "3. 8.806 mg", "4. 4.403 mg", "5. 2.202 mg"], answer: 2, explanation: "アスコルビン酸1分子は、ヨウ素1分子によって2電子酸化されてデヒドロアスコルビン酸になります（1:1反応）。0.05 mol/L ヨウ素液 1 mL（0.05 mmol）は 0.05 mmolのアスコルビン酸と反応するため、0.05 mmol × 176.13 mg/mmol = 8.8065 mg です。" },
+        { id: "2021_q34", year: "2021", num: 34, text: "アスコルビン酸（ビタミンC）のヨウ素滴定定量は、アスコルビン酸が持つどのような化学的性質に基づいているか。", options: ["1. 弱酸性", "2. 強酸性", "3. 酸化性", "4. 還元性", "5. 錯塩形成性"], answer: 3, explanation: "アスコルビン酸は、自身が非常に酸化されやすい（ヨウ素を還元してヨウ化物イオン I- にする）強力な「還元性（抗酸化作用）」を持つため、ヨウ素滴定で定量できます。" },
+        { id: "2021_q35", year: "2021", num: 35, text: "アスコルビン酸のヨウ素滴定反応において、酸化されたアスコルビン酸が最終的に生じる反応生成物はどれか。", options: ["1. デヒドロアスコルビン酸", "2. シュウ酸", "3. グルクロン酸", "4. グルコン酸", "5. L-ソルボース"], answer: 0, explanation: "アスコルビン酸（還元型ビタミンC）は、ヨウ素による酸化を受けて、エンジオール基から水素が2つ引き抜かれ、「デヒドロアスコルビン酸（酸化型ビタミンC）」に変化します。" },
+        { id: "2021_q36", year: "2021", num: 36, text: "水酸化ナトリウム（NaOH: 40.00）本品 1.5000gを水40mLに溶かし、フェノールフタレイン(PP)を指示薬として0.5 mol/L 硫酸（f=1.000）で滴定したところ、36.88 mLで終点となった。さらにメチルオレンジ(MO)を追加し再び0.5 mol/L 硫酸で滴定すると0.28 mLで終点となった。本品中の水酸化ナトリウムの含量（%）はいくらか。", options: ["1. 99.6%", "2. 97.6%", "3. 95.6%", "4. 0.40%", "5. 2.40%", "6. 4.40%"], answer: 1, explanation: "本滴定は炭酸塩不純物を含むNaOHのダブル指示薬滴定（ワード・スミス法）です。PP終点までにNaOHの全量と炭酸ナトリウム（Na2CO3）の半分（NaHCO3まで）が中和されます。MO終点（MO滴定量 V2 = 0.28 mL）はNaHCO3の中和に相当。したがって、NaOHの中和に消費された0.5 mol/L 硫酸は V1 - V2 = 36.88 - 0.28 = 36.60 mL。NaOH質量 = 36.60 mL × 2(価数) × 0.5 mol/L × 1.000(f) × 40.00 mg/mmol = 1464.0 mg (1.4640g)。含量 = (1.4640 / 1.5000) × 100% = 97.6% となります。" },
+        { id: "2021_q37", year: "2021", num: 37, text: "前問の滴定結果において、本品に不純物として含まれる「炭酸ナトリウム（Na2CO3: 105.99）」の含量（%）はいくらか。", options: ["1. 98.02%", "2. 96.42%", "3. 94.46%", "4. 3.90%", "5. 1.98%", "6. 0.99%"], answer: 4, explanation: "Na2CO3の中和（2価の中和反応）に要した 0.5 mol/L 硫酸の総量は 2 × V2 = 2 × 0.28 = 0.56 mL です。硫酸は2価、Na2CO3も2価の物質であるため、Na2CO3の物質量は 0.56 mL × 0.5 mol/L = 0.28 mmol となります。Na2CO3の質量 = 0.28 mmol × 105.99 mg/mmol = 29.677 mg (0.02968g)。含量 = (0.02968 / 1.5000) × 100% ≈ 1.98% となります。" },
+        { id: "2021_q38", year: "2021", num: 38, text: "確認試験において、銅イオンと反応して特徴的な「赤褐色の沈殿」を生じる無機塩類はどれか。", options: ["1. フェリシアン化物", "2. フェロシアン化物"], answer: 1, explanation: "「フェロシアン化物（ヘキサシアニド鉄(II)酸塩）」溶液に銅イオン（Cu2+）を加えると、難溶性のフェロシアン化銅の赤褐色沈殿を生じます（フェリシアン化物は黄褐色沈殿）。" },
+        { id: "2021_q39", year: "2021", num: 39, text: "冷水溶液にフェノールフタレイン試液を加えた際、速やかに「赤色（強アルカリ性）」を呈する塩類はどれか。", options: ["1. 炭酸水素塩", "2. 炭酸塩"], answer: 1, explanation: "炭酸水素ナトリウム（NaHCO3）溶液は弱塩基性のため冷溶液ではPPで赤色を呈しにくいですが、炭酸ナトリウム（Na2CO3）などの「炭酸塩」溶液は加水分解により強塩基性を示し、冷液でも赤色を示します。" },
+        { id: "2021_q40", year: "2021", num: 40, text: "溶液に等容量の希塩酸を加えるとき、刺激性のSO2（二酸化硫黄）のガスを発生するが、溶液自体は白濁（混濁）しないものはどれか。", options: ["1. 亜硫酸塩", "2. チオ硫酸塩"], answer: 0, explanation: "「亜硫酸塩」は希塩酸を加えるとSO2ガスを発生して無色透明なままですが、チオ硫酸塩はイオウが析出して液が速やかに白濁し、SO2臭を発生します。" },
+        { id: "2021_q41", year: "2021", num: 41, text: "硝酸銀試液を加えると白色沈殿を生じ、希硝酸に不溶だが、アンモニア試液を加えると速やかに溶解する特徴を示すイオンはどれか。", options: ["1. 塩化物", "2. 臭化物", "3. ヨウ化物"], answer: 0, explanation: "塩化物イオン（Cl-）は銀イオンと白色沈殿（AgCl）を作り、アンモニア水に錯体を作って溶解します。臭化物は淡黄色（難溶）、ヨウ化物は黄色（不溶）です。" },
+        { id: "2021_q42", year: "2021", num: 42, text: "炎色反応試験において、白金線に試料を浸し、無色炎に入れると、特徴的な「紫色」の炎を示す元素はどれか。", options: ["1. カリウム", "2. カルシウム", "3. ナトリウム"], answer: 0, explanation: "「カリウム」は炎色反応で紫色（赤紫色）を示します。ナトリウムは黄色、カルシウムは橙赤色です。" },
+        { id: "2021_q43", year: "2021", num: 43, text: "バルビタールなどのバルビツール酸系薬に水酸化ナトリウム試液を加えて加熱沸騰するときに発生する特徴的な臭気（成分）はどれか。", options: ["1. アンモニア臭", "2. ホルムアルデヒド臭", "3. アセトアルデヒド臭", "4. アクロレインの刺激臭", "5. 酢酸エチル臭", "6. フェノール臭"], answer: 0, explanation: "バルビタールを強塩基（水酸化ナトリウム）下で加熱すると、ウレイド結合が分解されて「アンモニア臭」を発生します（局方確認試験）。" },
+        { id: "2021_q44", year: "2021", num: 44, text: "サリチル酸塩を過量のソーダ石灰と混ぜて強熱するときに発生する特徴的な臭気はどれか。", options: ["1. アンモニア臭", "2. ホルムアルデヒド臭", "3. アセトアルデヒド臭", "4. アクロレインの刺激臭", "5. 酢酸エチル臭", "6. フェノール臭"], answer: 5, explanation: "サリチル酸塩に塩基（ソーダ石灰）を混ぜて加熱すると、脱炭酸反応が起こってフェノールに変化し、「フェノール臭（石炭酸臭）」を示します。" },
+        { id: "2021_q45", year: "2021", num: 45, text: "グリセロリン酸に等量の硫酸水素カリウムの粉末を混ぜて加熱するときに発生する特徴的な臭気はどれか。", options: ["1. アンモニア臭", "2. ホルムアルデヒド臭", "3. アセトアルデヒド臭", "4. アクロレインの刺激臭", "5. 酢酸エチル臭", "6. フェノール臭"], answer: 3, explanation: "グリセリン骨格に脱水剤である硫酸水素カリウムを加えて強熱すると、脱水が起き、激しい刺激臭を持つ不飽和アルデヒドである「アクロレイン」を発生します。" },
+        { id: "2021_q46", year: "2021", num: 46, text: "乳酸塩に硫酸および過マンガン酸カリウム試液を加えて加熱するときに発生する特徴的な臭気はどれか。", options: ["1. アンモニア臭", "2. ホルムアルデヒド臭", "3. アセトアルデヒド臭", "4. アクロレインの刺激臭", "5. 酢酸エチル臭", "6. フェノール臭"], answer: 2, explanation: "乳酸塩を過マンガン酸カリウム（酸化剤）により硫酸酸性下で加熱分解すると、揮発性の「アセトアルデヒド」が生成し、特有の刺激臭を発生します。" },
+        { id: "2021_q47", year: "2021", num: 47, text: "酢酸塩に硫酸および少量のエタノールを加えて加熱するときに発生する、果実のような心地よい臭気はどれか。", options: ["1. アンモニア臭", "2. ホルムアルデヒド臭", "3. アセトアルデヒド臭", "4. アクロレインの刺激臭", "5. 酢酸エチル臭", "6. フェノール臭"], answer: 4, explanation: "酢酸イオンにエタノールと硫酸を作用させて加熱すると、エステル化反応が起きてエステル特有のフルーティーな「酢酸エチル臭」を発生します。" },
+        { id: "2021_q48", year: "2021", num: 48, text: "ブロモバレリル尿素をどの試薬とともに煮沸すると、尿素と2-ブロモイソ吉草酸ナトリウムへと分解されるか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 3, explanation: "ブロモバレリル尿素は強塩基（水酸化ナトリウム試液など）を加えて煮沸することにより、エステル・アミド様結合が分解されて尿素を生成します（局方確認試験）。" },
+        { id: "2021_q49", year: "2021", num: 49, text: "去痰作用をもつ生薬カイニンの主成分カイニン酸の水溶液にニンヒドリン試液を加えて加温するときに観察される液の呈色はどれか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 1, explanation: "カイニン酸はイミノ酸（二次アミン型アミノ酸）であるため、ニンヒドリンと反応して一般的な一級アミノ酸（赤紫色）とは異なり、特徴的な「黄色」を呈します。" },
+        { id: "2021_q50", year: "2021", num: 50, text: "サルファ剤であるスルファメチゾールを酸性下で亜硝酸ナトリウムと反応（ジアゾ化）させ、アミド硫酸アンモニウム処理をした後、赤紫色の色素を形成するために加える試薬はどれか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 2, explanation: "これは芳香族第一級アミン（サルファ剤等）のジアゾカップリングによる確認試験です。「津田試薬（N-(1-ナフチル)エチレンジアミン二塩酸塩）」を加えることで、赤紫色に呈色します。" },
+        { id: "2021_q51", year: "2021", num: 51, text: "プロゲステロンの確認試験において、どの試薬および無水酢酸をエタノールに溶かした溶液とともに煮沸すると、再結晶の融点が235〜240℃の誘導体沈殿が得られるか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 4, explanation: "ケトステロイドであるプロゲステロンは、「塩酸ヒドロキシルアミン（ヒドロキシルアミン）」を無水酢酸と作用させることでオキシム誘導体を形成し、沈殿を作ります。" },
+        { id: "2021_q52", year: "2021", num: 52, text: "ソルビトールを十分量の過ヨウ素酸カリウム（酸化開裂試薬）と反応させた際、ホルムアルデヒドとともに生成するカルボン酸成分はどれか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 5, explanation: "糖アルコールであるソルビトールは、隣接するジオールが過ヨウ素酸により開裂され、末端からホルムアルデヒドと、中央の炭素から「ギ酸」が生成します。" },
+        { id: "2021_q53", year: "2021", num: 53, text: "パーキンソン病治療薬レボドパの水溶液に、ニンヒドリン試液を加えて加温するときに観察される特徴的な液の呈色はどれか。", options: ["1. 紫色", "2. 黄色", "3. 津田試薬", "4. 水酸化ナトリウム", "5. ヒドロキシルアミン", "6. ギ酸"], answer: 0, explanation: "レボドパはα-アミノ酸構造を有するため、ニンヒドリン試液と反応してアミノ酸の代表的な呈色である「紫色（ルーマン紫）」を呈します。" },
+        { id: "2021_q54", year: "2021", num: 54, text: "生薬抽出物のメタノール溶液にリボン状マグネシウムと濃塩酸を作用させて加熱する際、フラボノイド（ベンゾピロン骨格）の存在により生じる呈色反応を何というか。", options: ["1. リグナン", "2. フラボノイド", "3. サポニン", "4. アルカロイド", "5. ポリサッカリド"], answer: 1, explanation: "金属マグネシウムと塩酸による還元により、フラボノイド類は赤〜赤紫色を呈するため、「フラボノイド」の検出反応として極めて有名です。" },
+        { id: "2021_q55", year: "2021", num: 55, text: "生薬の確認試験において、前問の呈色反応（マグネシウム-塩酸反応による赤〜赤紫色）の実施が規定されている、ヘスペリジンを含むミカン科の生薬はどれか。", options: ["1. コウボク", "2. ショウキョウ", "3. タイソウ", "4. チンピ", "5. レンギョウ"], answer: 3, explanation: "ミカン科の「チンピ（陳皮）」はフラボノイドの一種であるヘスペリジンを含有するため、その確認試験としてマグネシウム-塩酸反応が用いられます。" },
+        { id: "2021_q56", year: "2021", num: 56, text: "ニンヒドリン試薬を加えて加熱した際、特徴的な赤紫色（または黄色）の呈色を示す生薬成分クラスはどれか。", options: ["1. サポニン", "2. 還元糖", "3. タンニン", "4. アミノ酸", "5. トリテルペン"], answer: 3, explanation: "ニンヒドリンは、アミノ基を有する「アミノ酸」やタンパク質、ペプチドと反応して紫色系の呈色を示します。" },
+        { id: "2021_q57", year: "2021", num: 57, text: "日本薬局方における確認試験項目として、「液体クロマトグラフィー（HPLC）」を用いた比較測定が規定されている、ベルベリン等のアルカロイドを含むキンポウゲ科の生薬はどれか。", options: ["1. オウレン", "2. コウカ", "3. シゴカ", "4. チョウトウコウ", "5. ボタンピ"], answer: 0, explanation: "キンポウゲ科の「オウレン（黄連）」は、ベルベリンなどのアルカロイドを含み、局方の確認試験では液体クロマトグラフィーが規定されています。" },
+        { id: "2021_q58", year: "2021", num: 58, text: "確認試験において、トリテルペンやステロイド骨格の検出に用いられる「リーベルマン・バッハガード反応（Liebermann-Burchard反応）」が規定されている、ウコギ科の生薬はどれか。", options: ["1. アマチャ", "2. コウカ", "3. サンヤク", "4. ニンジン", "5. ホミカ"], answer: 3, explanation: "「ニンジン（人参）」はトリテルペンサポニン（ジンセノシド）を含有するため、無水酢酸と濃硫酸を用いるリーベルマン反応が確認試験に規定されています。" },
+        { id: "2021_q59", year: "2021", num: 59, text: "生薬レンニク（蓮肉）の確認試験において、1-ナフトールと硫酸を加えた際に呈色（モリッシュ反応：Molisch反応）を示す成分クラスはどれか。", options: ["1. 糖類", "2. 脂質", "3. 蛋白質", "4. アルカロイド", "5. サポニン"], answer: 0, explanation: "1-ナフトールと硫酸を用いるモリッシュ反応は「糖類（炭水化物）」の代表的な検出反応です。レンニクに含まれるデンプン等の糖類を検出します。" },
+        { id: "2021_q60", year: "2021", num: 60, text: "薄層クロマトグラフィー（TLC）による確認試験を行う生薬と、比較に用いる規定の「標準品」の組み合わせとして正しいのはどれか。", options: ["1. アロエ / アロエエモジン", "2. オウバク / ベルベリン", "3. コウボク / マグノクラリン", "4. ボタンピ / ペオニフロリン", "5. ダイオウ / センノシドA"], answer: 1, explanation: "ミカン科の「オウバク（黄柏）」は、ベルベリンなどのアルカロイドを含む生薬であり、確認試験では「ベルベリン塩化物（ベルベリン）標準品」が対照に用いられます（アロエはバーバロイン、ボタンピはペオノール）。" },
+        { id: "2021_q61", year: "2021", num: 61, text: "ヒトの脂質代謝において、パルミチン酸（炭素数16の飽和脂肪酸）が「β酸化」を受けてエネルギー（アセチルCoA）を産生する、細胞内の主要な小器官はどこか。", options: ["1. 核", "2. ゴルジ体", "3. 細胞質", "4. 小胞体", "5. ミトコンドリア"], answer: 4, explanation: "脂肪酸のβ酸化を担う酵素群群は、主として「ミトコンドリア」のマトリクス内に存在し、ここで脂肪酸が効率よくエネルギーへと変換されます。" },
+        { id: "2021_q62", year: "2021", num: 62, text: "次の多価不飽和脂肪酸のうち、n-3（オメガ3）系多価不飽和脂肪酸に分類されるものはどれか。", options: ["1. アラキドン酸", "2. オレイン酸", "3. リノール酸", "4. α-リノレン酸", "5. γ-リノレン酸"], answer: 3, explanation: "メチル末端から3番目の炭素に最初の二重結合をもつ「α-リノレン酸（n-3）」やEPA、DHAがn-3系に分類されます。リノール酸、γ-リノレン酸、アラキドン酸はn-6系です。" },
+        { id: "2021_q63", year: "2021", num: 63, text: "ヒトの染色体において、複製の限界を決める末端の保護構造であり、特徴的な反復塩基配列を有する、図の矢印（両端）に示される構造の名称はどれか。", options: ["1. 動原体", "2. セントロメア", "3. 紡錘糸", "4. 核小体", "5. テロメア"], answer: 4, explanation: "染色体の両末端に存在する、DNA保護のための特殊な構造領域を「テロメア」と呼びます。細胞分裂に伴い短縮し、老化や細胞寿命に関与します。" },
+        { id: "2021_q64", year: "2021", num: 64, text: "リボソームでのタンパク質翻訳過程において、mRNA上のコドンに対応した「特定のアミノ酸」と結合し、それをリボソームへと運搬するRNAはどれか。", options: ["1. mRNA", "2. miRNA", "3. rRNA", "4. tRNA", "5. siRNA"], answer: 3, explanation: "アミノ酸をリボソームへ運ぶクレーンの役割を担うのは「tRNA（転移RNA / トランスファーRNA）」です。" },
+        { id: "2021_q65", year: "2021", num: 65, text: "腎臓において、原尿の濾過を行う重要な濾過装置（腎小体）を、血管の塊である「糸球体」とともに構成している、糸球体を包む嚢状の構造はどれか。", options: ["1. ボーマン嚢", "2. 集合管", "3. 近位尿細管", "4. ヘンレのループ", "5. 遠位尿細管"], answer: 0, explanation: "糸球体と、それを包む「ボーマン嚢」を合わせた構造体を「腎小体（毛細血管の塊＋尿の受け皿）」と呼び、ここで血漿の濾過が行われます。" },
+        { id: "2021_q66", year: "2021", num: 66, text: "血管内皮細胞などにおいて、一酸化窒素合成酵素（NOS）の直接の基質（材料）となり、強力な血管拡張作用をもつ一酸化窒素（NO）を生成するアミノ酸はどれか。", options: ["1. L-トリプトファン", "2. L-グルタミン酸", "3. L-アルギニン", "4. L-リシン", "5. L-アスパラギン"], answer: 2, explanation: "「L-アルギニン」は一酸化窒素合成酵素（NOS）の基質であり、酸化されることでL-シトルリンと一酸化窒素（NO）を生成し、血管拡張に関与します。" },
+        { id: "2021_q67", year: "2021", num: 67, text: "ヒトの母乳や唾液、腸管分泌液などの分泌液中に、J鎖を介した「二量体（ダイマー）」として存在し、乳児や粘膜の感染防御（局所免疫）を担う免疫グロブリンはどれか。", options: ["1. IgG", "2. IgA", "3. IgM", "4. IgD", "5. IgE"], answer: 1, explanation: "「IgA」は、分泌液中で主に二量体として存在し、病原体の侵入を防ぐ粘膜免疫の主役です。母乳（特に初乳）を通じて乳児へ移行し、感染から守ります。" },
+        { id: "2021_q68", year: "2021", num: 68, text: "生物化学的な分析手法のうち、抗原と抗体による特異的な「抗原抗体反応（免疫反応）」をまったく利用しない、DNA検出手法はどれか。", options: ["1. ラジオイムノアッセイ (RIA)", "2. 酵素免疫測定法 (ELISA)", "3. ポリメラーゼ連鎖反応 (PCR) 法", "4. ウエスタンブロット法", "5. 赤血球凝集反応"], answer: 2, explanation: "「PCR法」は、DNAの相補的な結合と耐熱性DNAポリメラーゼによる酵素増幅反応であり、抗原抗体反応は用いません。その他は抗原抗体反応を利用した免疫測定・判定法です。" },
+        { id: "2021_q69", year: "2021", num: 69, text: "ウイルスのゲノム分類において、ゲノムの構成成分（核酸の種類）として「DNA（デオキシリボ核酸）」を保有するものはどれか。", options: ["1. インフルエンザウイルス", "2. ポリオウイルス", "3. C型肝炎ウイルス", "4. ヒト免疫不全ウイルス(HIV)", "5. ヒトパピローマウイルス (HPV)"], answer: 4, explanation: "「ヒトパピローマウイルス（HPV）」は環状二本鎖の「DNAウイルス」です。他の選択肢（インフルエンザ、ポリオ、C型肝炎、HIV）はすべてゲノム核酸がRNAの「RNAウイルス」です。" },
+        { id: "2021_q70", year: "2021", num: 70, text: "胃粘膜に生息するヘリコバクター・ピロリが、尿素をアンモニアへと分解して強酸性の胃内環境を中和し、自己の生存領域を確保するために用いる最も特徴的な酵素はどれか。", options: ["1. アルギナーゼ", "2. グルタミナーゼ", "3. クレアチンキナーゼ", "4. デアミナーゼ", "5. ウレアーゼ"], answer: 4, explanation: "ピロリ菌は「ウレアーゼ」を多量に発現しており、胃液中の尿素をアンモニアとCO2に分解して周囲の酸を中和（塩基性化）します。" },
+        { id: "2021_q71", year: "2021", num: 71, text: "次の多糖類のうち、D-マンノース分子がβ-1,4-結合により重合した、こんにゃくや酵母細胞壁の主要多糖として知られる「マンナン」の正しい重合構造式はどれか。", options: ["1. 構造式1", "2. 構造式2", "3. 構造式3", "4. 構造式4", "5. 構造式5"], answer: 4, explanation: "マンノースのピラノース環が直鎖状に結合した「構造式5」がD-マンナンの正しい構造式です。マンノースは2位のOH基が上を向いています。" },
+        { id: "2021_q72", year: "2021", num: 72, text: "翻訳された直後のタンパク質の成熟プロセス（翻訳後修飾）において、糖の還元末端がアミノ酸の側鎖ヒドロキシ基に共有結合する「O-結合型糖鎖修飾（グリコシル化）」を受けるアミノ酸残基はどれか。", options: ["1. L-アラニン", "2. L-グルタミン酸", "3. L-システイン", "4. L-トリプトファン", "5. L-トレオニン"], answer: 4, explanation: "O-結合型糖鎖修飾は、セリン（Ser）または「L-トレオニン（Thr）」の側鎖にあるヒドロキシ基（-OH）に対して糖鎖が結合します。L-アスパラギンのアミド窒素に結合するものは「N-結合型」です。" },
+        { id: "2021_q73", year: "2021", num: 73, text: "DNA（デオキシリボ核酸）の構造、特徴に関する記述のうち、正しいのはどれか。", options: ["1. 構成する塩基は、アデニン、グアニン、シトシン及びウラシルである。", "2. アデニンと水素結合による相補的な対を形成する相手方の塩基はチミンである。", "3. ヌクレオチドを構成する五炭糖（ペントース）としてD-リボースを含む。", "4. 真核細胞がもつ、ヒトの染色体DNAは末端のない巨大な環状構造をとる。", "5. 生理的（水溶液中）条件下において、DNAは主に左巻きのらせん構造（Z型）をとる。"], answer: 1, explanation: "2：DNAではアデニン(A)とチミン(T)、グアニン(G)とシトシン(C)が対を形成するため正しいです。1：ウラシルはRNA。3：構成糖はデオキシリボース。4：真核生物ゲノムは線状DNA。5：主に右巻き（B型）です。" },
+        { id: "2021_q74", year: "2021", num: 74, text: "ヒトの皮膚の角質層、爪、毛髪（髪の毛）などの主要な組織構成材料であり、ジスルフィド結合（S-S結合）を豊富に含む硬質の線維性タンパク質はどれか。", options: ["1. アクチン", "2. ケラチン", "3. コラーゲン", "4. チューブリン", "5. ヒストン"], answer: 1, explanation: "毛や爪、角質層の主成分は「ケラチン」と呼ばれる線維性タンパク質です。システイン残基に富み、強固なS-S架橋によって構造が保たれます。" },
+        { id: "2021_q75", year: "2021", num: 75, text: "三胚葉の発生過程において、消化管（胃、小腸、大腸など）の内壁上皮や、そこから派生する肺・気道の上皮、肝臓、膵臓などの内臓上皮組織の起源となる胚葉はどれか。", options: ["1. 骨", "2. 心臓", "3. 表皮", "4. 大腸", "5. 脊髄"], answer: 3, explanation: "「大腸」などの消化管の内壁や、消化器・呼吸器関連の主要上皮組織は「内胚葉」を起源とします。骨や心臓は中胚葉、皮膚の表皮や脊髄は外胚葉から発生します。" },
+        { id: "2021_q76", year: "2021", num: 76, text: "ヒトの消化器系の全体図において、胃の幽門部に直接繋がり、胆管や膵管が合流するファーター乳頭が位置する「十二指腸」を示す番号はどれか。(1=胃、2=十二指腸、3=小腸、4=大腸、5=直腸)", options: ["1. 1 (胃)", "2. 2 (十二指腸：C字型の屈曲部)", "3. 3 (小腸)", "4. 4 (大腸)", "5. 5 (直腸)"], answer: 1, explanation: "胃から続くC字型の小腸起始部である「十二指腸（図中の2）」を示します。胆汁や膵液を導入して本格的な化学消化をスタートします。" },
+        { id: "2021_q77", year: "2021", num: 77, text: "ホルモンとその生理作用、分泌の関係に関する組み合わせのうち、生理的に「誤っている」ものはどれか。", options: ["1. ガストリン ･･･ 胃壁からの胃酸（塩酸）分泌の促進", "2. セクレチン ･･･ 重炭酸イオン（HCO3-）を豊富に含むアルカリ性膵液の分泌促進", "3. カルシトニン ･･･ 骨の破壊を抑制し、血液中のCa2+濃度を増加させる作用", "4. インスリン ･･･ 骨格筋や脂肪組織への糖の取り込みを高め、血中グルコースを減少させる作用", "5. アルドステロン ･･･ 腎臓の遠位尿細管・集合管において、Na+およびCl-の再吸収を促進する作用"], answer: 2, explanation: "3が誤り（正解）です。甲状腺から分泌される「カルシトニン」は、骨吸収を抑制して血液中のCa2+濃度を「低下」させる働きをします（血中Ca2+濃度を増加させるのは副甲状腺ホルモンのパラトルモンです）。" },
+        { id: "2021_q78", year: "2021", num: 78, text: "主に活性化されたT細胞などから分泌され、細胞障害性T細胞（キラーT細胞）の増殖・活性化を直接誘発し、生体の抗ウイルス・抗腫瘍活性を強力に高めるサイトカインはどれか。", options: ["1. インターフェロン (IFN-α)", "2. インターロイキン2 (IL-2)", "3. エリスロポエチン (EPO)", "4. 腫瘍壊死因子 (TNF-α)", "5. 顆粒球コロニー刺激因子 (G-CSF)"], answer: 1, explanation: "「インターロイキン2 (IL-2)」は、T細胞（キラーT細胞、ヘルパーT細胞）やNK細胞の増殖・活性化を強力に誘導する中心的なサイトカインです。" },
+        { id: "2021_q79", year: "2021", num: 79, text: "アレルギー反応のクームス分類（Ⅰ〜Ⅳ型）において、標的細胞に結合した自己抗体に対して補体やマクロファージが作用し、細胞が直接傷害される「Ⅱ型（組織障害型・細胞障害型）アレルギー」に分類される臨床疾患はどれか。", options: ["1. スギ花粉症", "2. アトピー性皮膚炎", "3. 薬剤性溶血性貧血", "4. 接触性皮膚炎", "5. 糸球体腎炎"], answer: 2, explanation: "「薬剤性溶血性貧血」や自己免疫性溶血性貧血、不適合輸血などは「Ⅱ型アレルギー」に分類されます。赤血球などの細胞表面に抗体が結合して破壊が起こります。花粉症・アトピーはⅠ型、接触性皮膚炎はⅣ型、糸球体腎炎はⅢ型です。" },
+        { id: "2021_q80", year: "2021", num: 80, text: "肺炎などを引き起こす病原微生物「マイコプラズマ」に関する構造および生化学的特徴に関する記述のうち、正しいのはどれか。", options: ["1. 核膜を有する真核生物である。", "2. 一般細菌よりもかなり大型の構造をもつ。", "3. ペプチドグリカンからなる硬い細胞壁をもつ。", "4. 人工の培地（寒天培地など）では増殖（自己複製）させることができない。", "5. ヒトや動物に対する病原性は知られていない。"], answer: 0, explanation: "1（原核生物である。選択肢画像で「1. 原核生物である」に対応）が正しいです。マイコプラズマは「細胞壁をもたない原核生物」であり、一般の細菌より非常に小さく、ウイルスとは違って栄養を含む「人工培地で自己増殖可能」です。病原性として肺炎マイコプラズマが有名です。" },
+        { id: "2021_q81", year: "2021", num: 81, text: "ヒトの胃とその周辺の接続を示した模式図において、食道から胃が始まる接合部である「噴門（ふんもん）」と対をなし、十二指腸へと繋がる胃の出口のゲートである「幽門（ゆうもん）」を示す番号はどれか。(1=食道側・噴門、2=胃底、3=胃体、4=十二指腸側・幽門、5=十二指腸)", options: ["1. 1 (噴門)", "2. 2 (胃底)", "3. 3 (胃体)", "4. 4 (幽門)", "5. 5 (十二指腸)"], answer: 3, explanation: "胃の末端に位置し、十二指腸への移行部の括約筋ゲートを「幽門（図中の4）」と呼びます。ここが緩んだり締まったりすることで、消化された内容物が十二指腸へ少しずつ送られます。" },
+        { id: "2021_q82", year: "2021", num: 82, text: "ヒトの副腎（腎臓の上部）において、外側の「副腎皮質（皮質）」の中間層である「束状層（そくじょうそう）」から刺激に応じて主に分泌される糖質コルチコイドはどれか。", options: ["1. コルチゾール", "2. アルドステロン", "3. テストステロン", "4. ノルアドレナリン", "5. アドレナリン"], answer: 0, explanation: "副腎皮質の「束状層」からは、抗炎症や血糖上昇作用をもつ糖質コルチコイドの「コルチゾール」が分泌されます（球状層からはアルドステロン、網状層からはアンドロゲン、髄質からはアドレナリン）。" },
+        { id: "2021_q83", text: "上皮細胞において、細胞の構造を維持する線維状の細胞骨格のうち、細胞の中心付近（中心体）から放射状に細胞全体へと張り巡らされ、細胞内の物質輸送ルートとなる「微小管（マイクロチューブル）」を正しく描写した図はどれか。(※図中の灰色の丸は細胞核)", options: ["1. 図1 (微絨毛の内部：アクチン)", "2. 図2 (デスモソーム：中間径フィラメント / ケラチン)", "3. 図3 (中心体から放射状：微小管ネットワーク)", "4. 図4 (細胞接着：インテグリン)", "5. 図5 (ギャップ結合など)"], answer: 2, explanation: "微小管は中心体（核の近傍）を起点として、細胞質全体に放射状に広がるダイナミックなネットワーク「図3」を形成します（微絨毛の軸はアクチン、デスモソーム架橋はケラチン中間径フィラメントです）。" },
+        { id: "2021_q84", year: "2021", num: 84, text: "ミカエリス・メンテン型の酵素反応において、基質濃度[S]と反応速度の関係を表す「通常の双曲線（S字型ではない）」が正確に描写され、[S] = Kmのときに反応初速度が1/2 Vmaxに達することを示した正しいグラフ形状はどれか。", options: ["1. グラフ1 (正解：通常の双曲線。[S]=Kmの時に速度が1/2 Vmaxに達する)", "2. グラフ2 (変形シグモイド)", "3. グラフ3 (指数関数増加型)", "4. グラフ4 (アロステリック酵素：S字シグモイド)", "5. グラフ5 (逆双曲線)"], answer: 0, explanation: "ミカエリス・メンテン式に従う標準的な単量体酵素は、単純な「双曲線（グラフ1）」を描き、反応速度が最大（Vmax）のちょうど半分に達するときの基質濃度[S]がKmとなります。" },
+        { id: "2021_q85", year: "2021", num: 85, text: "カビや酵母などの「真菌（Fungi）」類の細胞構造および生物学的特徴に関する記述のうち、正しいのはどれか。", options: ["1. 細胞核や小器官をもたない原核生物である。", "2. 胞子とは別に、細菌（ウエルシュ菌等）のように熱に非常に強い「芽胞」を直接形成する。", "3. 細胞壁の主成分は、植物と同じセルロース（多糖）である。", "4. 動物細胞と同様に、細胞膜成分としてコレステロールを豊富に自己合成・蓄積する。", "5. 真核生物特有の「80S リボソーム（細胞質）」を有する。"], answer: 4, explanation: "5：真菌は真核生物であるため、原核生物（70Sリボソーム）とは異なり「80Sリボソーム」を保有するため正しいです。1：真核生物です。2：芽胞は細菌のもの。3：壁成分はキチンやグルカン。4：膜成分はエルゴステロールです。" },
+        { id: "2021_q86", year: "2021", num: 86, text: "胃底腺に存在する「主細胞」から直接不活性な前駆体として分泌され、胃酸の酸性環境下で活性化されて強力な消化酵素（プロテアーゼ）となる物質はどれか。", options: ["1. ペプシノーゲン", "2. 内因子", "3. 胃酸", "4. ガストリン", "5. 胃粘液"], answer: 0, explanation: "胃底腺の「主細胞」からは、タンパク質分解酵素の前駆体である「ペプシノーゲン」が分泌されます（酸を分泌するのは壁細胞、ペプシノーゲンが酸で切断されて活性型ペプシンになります）。" },
+        { id: "2021_q87", year: "2021", num: 87, text: "必須アミノ酸である「L-トリプトファン」を出発材料（前駆体）とし、脳内の神経伝達物質や松果体のメラトニンの前駆体として非常に重要な役割を担うインドールアミン系物質はどれか。", options: ["1. セロトニン", "2. ドパミン", "3. アドレナリン", "4. ノルアドレナリン", "5. チロシン"], answer: 0, explanation: "「L-トリプトファン」は、水酸化および脱炭酸されるプロセスを経て、脳内の重要な神経伝達物質（かつ気分に関与する）「セロトニン（5-HT）」へと変換されます。" },
+        { id: "2021_q88", year: "2021", num: 88, text: "必須アミノ酸である「フェニルアラニン」が、水酸化酵素（フェニルアラニン水酸化酵素）の働きによって直接水酸化されて生合成されるアミノ酸（チロシンの化学構造式）はどれか。", options: ["1. 構造式1", "2. 構造式2", "3. 構造式3 (フェニルアラニンの芳香環にOH基が1つついたチロシンの構造式)", "4. 構造式4", "5. 構造式5"], answer: 2, explanation: "「構造式3」がフェニルアラニンのパラ位が水酸化されたアミノ酸である「L-チロシン」の正しい化学構造式です。これが不足するとフェニルケトン尿症に直結します。" },
+        { id: "2021_q89", year: "2021", num: 89, text: "真核細胞において、核の中に存在する各種ヒストンタンパク質や転写制御因子（核内タンパク質）が「実際に合成（アミノ酸の重合・翻訳）される場所」はどこか。", options: ["1. 核小体", "2. ミトコンドリア", "3. リボソーム", "4. リソソーム", "5. ゴルジ体"], answer: 2, explanation: "核内で働くタンパク質であっても、すべてのタンパク質は核の外部の「リボソーム（細胞質）」で合成（翻訳）された後、核移行シグナル（NLS）を介して核膜孔から核内へと選択的にインポートされます。" },
+        { id: "2021_q90", year: "2021", num: 90, text: "分子生物学の実験室において、抽出したmRNA（一本鎖）を鋳型として、その塩基配列に相補的な二本鎖DNA（cDNA）を人工的に合成する際に必須となる酵素はどれか。", options: ["1. DNA リガーゼ", "2. 逆転写酵素", "3. DNA ポリメラーゼ", "4. プライマーゼ", "5. トポイソメラーゼ"], answer: 1, explanation: "RNAを鋳型として相補的なDNA（cDNA）を逆方向に合成するユニークな酵素は「逆転写酵素（リバース・トランスクリプターゼ）」です。RT-PCRなどに多用されます。" }
     ];
 
-    // ==========================================
-    // アプリケーション制御ロジック
-    // ==========================================
-    const STORAGE_KEY = 'yakugaku_quiz_progress_v6';
+    let playMode = 'normal'; // 'normal', 'random', 'weak', 'short_random'
+    let yearFilter = '2023';  // デフォルト年度
     let activeQuestions = [];
     let currentIdx = 0;
-    let playMode = 'normal'; // normal, random, quick, weak
-    let isAnswered = false;
+    let hasAnswered = false;
 
-    // タブ切り替えシステム
-    function switchTab(tabId) {
-        document.querySelectorAll('.panel').forEach(p => p.classList.add('hidden'));
-        document.getElementById(`${tabId}-panel`).classList.remove('hidden');
+    // ローカルストレージキーの定義
+    const STORAGE_KEY = 'yakugaku_quiz_records_v15';
 
-        document.querySelectorAll('nav button').forEach(b => {
-            b.classList.remove('text-indigo-600', 'border-t-2', 'border-indigo-600', 'bg-slate-50/50');
-            b.classList.add('text-slate-400');
-        });
+    function getStorage() {
+        try {
+            const data = localStorage.getItem(STORAGE_KEY);
+            const parsed = data ? JSON.parse(data) : {};
+            
+            // 互換性補完
+            for (let id in parsed) {
+                if (parsed[id].lastIncorrect === undefined) {
+                    parsed[id].lastIncorrect = (parsed[id].correct < parsed[id].attempts);
+                }
+            }
+            return parsed;
+        } catch (e) {
+            return {};
+        }
+    }
 
-        const activeNav = document.getElementById(`nav-${tabId}`);
-        if (activeNav) {
-            activeNav.classList.remove('text-slate-400');
-            activeNav.classList.add('text-indigo-600', 'border-t-2', 'border-indigo-600', 'bg-slate-50/50');
+    function saveRecord(qId, isCorrect) {
+        let records = getStorage();
+        if (!records[qId]) {
+            records[qId] = { attempts: 0, correct: 0, lastIncorrect: false };
+        }
+        records[qId].attempts += 1;
+        
+        if (isCorrect) {
+            records[qId].correct += 1;
+            records[qId].lastIncorrect = false; // 弱点から解除
+        } else {
+            records[qId].lastIncorrect = true;  // 弱点に登録
         }
 
-        if (tabId === 'stats') {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+        } catch (e) {}
+        updateStatsPanel();
+    }
+
+    function switchTab(tabName) {
+        document.getElementById('quiz-panel').classList.add('hidden');
+        document.getElementById('stats-panel').classList.add('hidden');
+        document.getElementById('settings-panel').classList.add('hidden');
+        
+        document.getElementById('t-quiz').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
+        document.getElementById('t-stats').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
+        document.getElementById('t-settings').className = "flex-1 py-3 text-sm font-bold rounded-lg text-slate-500 transition-all duration-200";
+
+        document.getElementById(tabName + '-panel').classList.remove('hidden');
+        document.getElementById('t-' + tabName).className = "flex-1 py-3 text-sm font-bold rounded-lg text-indigo-600 bg-white shadow-sm border border-slate-100 transition-all duration-200";
+        
+        if (tabName === 'stats') {
             updateStatsPanel();
         }
     }
 
-    // 選択された年度の取得
-    function getSelectedYears() {
-        const checkboxes = document.querySelectorAll('input[name="setting-year"]:checked');
-        return Array.from(checkboxes).map(cb => cb.value);
-    }
-
-    // クイズフローの初期化
     function initQuizFlow() {
-        const selectedYears = getSelectedYears();
-        
-        if (playMode === 'weak') {
-            const stats = getStats();
-            activeQuestions = quizData.filter(q => stats.weakList && stats.weakList[q.id]);
+        const records = getStorage();
+        const yearSelect = document.getElementById('year-filter');
+        const yearNote = document.getElementById('year-filter-note');
+
+        // モードに応じた年度選択の有効・無効化制御
+        if (playMode === 'weak' || playMode === 'short_random') {
+            yearSelect.disabled = true;
+            yearNote.innerText = "※このモードは自動的に全年度（270問）から出題されます。";
+            yearNote.className = "text-xs text-indigo-600 font-bold mt-2";
         } else {
-            activeQuestions = quizData.filter(q => selectedYears.includes(q.year));
+            yearSelect.disabled = false;
+            yearNote.innerText = "※選択した年度の90問が出題されます。";
+            yearNote.className = "text-xs text-slate-500 font-normal mt-2";
         }
 
-        if (playMode === 'random') {
-            shuffleArray(activeQuestions);
-        } else if (playMode === 'quick') {
-            shuffleArray(activeQuestions);
-            activeQuestions = activeQuestions.slice(0, 15);
-        } else if (playMode === 'normal') {
-            // 年度順 → 問題番号順にソート
-            activeQuestions.sort((a, b) => {
-                if (a.year !== b.year) return a.year.localeCompare(b.year);
-                return a.num - b.num;
+        // 1. 基本問題の抽出 (弱点と15問クイックは全年度270問プール、それ以外は年度フィルター適用)
+        let filtered = quizData;
+        if (playMode !== 'weak' && playMode !== 'short_random') {
+            filtered = quizData.filter(q => q.year === yearFilter);
+        }
+
+        // 2. モードによるシャッフル・抽出ロジック
+        if (playMode === 'weak') {
+            activeQuestions = filtered.filter(q => {
+                const r = records[q.id];
+                return r && r.lastIncorrect;
             });
+            // 弱点補強はごちゃまぜランダム
+            activeQuestions.sort(() => Math.random() - 0.5);
+            document.getElementById('mode-badge').classList.remove('hidden');
+            document.getElementById('mode-badge').innerText = "弱点補強モード";
+        } else if (playMode === 'short_random') {
+            // 全270問から15問ランダム抽出
+            activeQuestions = [...filtered].sort(() => Math.random() - 0.5).slice(0, 15);
+            document.getElementById('mode-badge').classList.remove('hidden');
+            document.getElementById('mode-badge').innerText = "15問クイック";
+        } else if (playMode === 'random') {
+            // 選択された年度の90問をランダムシャッフル
+            activeQuestions = [...filtered].sort(() => Math.random() - 0.5);
+            document.getElementById('mode-badge').classList.add('hidden');
+        } else {
+            // 通常・番号順（選択された年度の90問）
+            activeQuestions = [...filtered].sort((a, b) => a.num - b.num);
+            document.getElementById('mode-badge').classList.add('hidden');
         }
 
         currentIdx = 0;
         loadQuestion();
     }
 
-    // モード変更
-    function changePlayMode(mode) {
-        playMode = mode;
-        document.querySelectorAll('[id^="mode-btn-"]').forEach(btn => {
-            btn.classList.remove('border-indigo-600', 'bg-indigo-50/30', 'text-indigo-900');
-            btn.classList.add('border-slate-200', 'bg-white', 'text-slate-700');
-        });
-
-        const activeBtn = document.getElementById(`mode-btn-${mode}`);
-        if (activeBtn) {
-            activeBtn.classList.remove('border-slate-200', 'bg-white', 'text-slate-700');
-            activeBtn.classList.add('border-indigo-600', 'bg-indigo-50/30', 'text-indigo-900');
-        }
-
-        initQuizFlow();
-    }
-
-    // 配列のシャッフル
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-    }
-
-    // 問題の描画
     function loadQuestion() {
-        isAnswered = false;
-        document.getElementById('explanation-container').classList.add('hidden');
-
-        const total = activeQuestions.length;
-        const progressText = document.getElementById('question-progress');
-        const metaText = document.getElementById('question-meta');
-        const qTextEl = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-
-        if (total === 0) {
-            progressText.innerText = "0 / 0";
-            metaText.innerText = "NO DATA";
+        hasAnswered = false;
+        document.getElementById('explanation').classList.add('hidden');
+        
+        if (activeQuestions.length === 0) {
+            document.getElementById('question-meta').innerText = "対象なし";
+            document.getElementById('question-counter').innerText = "0 / 0問";
+            document.getElementById('question-record').innerText = "戦績: -";
+            
             if (playMode === 'weak') {
-                qTextEl.innerText = "現在、要復習リスト（弱点）に登録されている問題はありません！設定画面から他のモードを選んで学習を進めましょう。";
+                document.getElementById('question-text').innerHTML = `
+                    <div class="text-center py-8">
+                        <p class="text-emerald-600 text-lg font-black mb-2">🎉 素晴らしい！弱点問題はありません</p>
+                        <p class="text-slate-400 text-xs font-normal leading-relaxed">
+                            通常モードや15問クイックで間違えた問題が出ると、ここに自動で蓄積されます。
+                        </p>
+                        <button class="mt-5 px-6 py-2.5 bg-slate-800 text-white rounded-xl text-xs font-bold" onclick="switchTab('settings')">
+                            出題設定を変更する
+                        </button>
+                    </div>`;
             } else {
-                qTextEl.innerText = "選択された年度の問題データがありません。設定画面で年度を選択してください。";
+                document.getElementById('question-text').innerText = "該当する問題が存在しません。設定を確認してください。";
             }
-            optionsContainer.innerHTML = '';
+            document.getElementById('options-container').innerHTML = "";
+            document.getElementById('prev-btn').disabled = true;
+            document.getElementById('next-btn').disabled = true;
             return;
         }
 
-        progressText.innerText = `${currentIdx + 1} / ${total}`;
-        const q = activeQuestions[currentIdx];
-
-        metaText.innerText = `${q.year}年度 - 問${q.num}`;
-        qTextEl.innerText = q.text;
-        optionsContainer.innerHTML = '';
-
-        q.options.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 font-medium transition duration-150 text-sm md:text-base flex items-center justify-between group";
-            btn.innerHTML = `<span>${opt}</span><span class="opacity-0 group-hover:opacity-100 transition text-xs font-bold text-indigo-500 tracking-wider">選択する &rarr;</span>`;
-            btn.onclick = () => checkAnswer(idx);
-            optionsContainer.appendChild(btn);
-        });
-    }
-
-    // 解答判定
-    function checkAnswer(selectedIdx) {
-        if (isAnswered) return;
-        isAnswered = true;
+        document.getElementById('prev-btn').disabled = (currentIdx === 0);
+        document.getElementById('next-btn').disabled = false;
 
         const q = activeQuestions[currentIdx];
-        const isCorrect = (selectedIdx === q.answer);
-
-        // ローカルストレージに保存
-        saveAttempt(q.id, isCorrect);
-
-        // UI表示の更新
-        const optionsContainer = document.getElementById('options-container');
-        Array.from(optionsContainer.children).forEach((btn, idx) => {
-            btn.onclick = null; // クリック無効化
-            if (idx === q.answer) {
-                btn.className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 font-bold text-emerald-900 text-sm md:text-base flex justify-between items-center";
-                btn.innerHTML += `<span class="text-emerald-600 font-extrabold text-sm">正解</span>`;
-            } else if (idx === selectedIdx && !isCorrect) {
-                btn.className = "w-full text-left p-4 rounded-xl border-2 border-rose-400 bg-rose-50 font-bold text-rose-900 text-sm md:text-base flex justify-between items-center";
-                btn.innerHTML += `<span class="text-rose-500 font-extrabold text-sm">あなたの解答</span>`;
-            } else {
-                btn.className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50/50 text-slate-400 text-sm md:text-base cursor-not-allowed";
-            }
-        });
-
-        const badge = document.getElementById('result-badge');
-        const correctDisplay = document.getElementById('correct-answer-display');
-        const expText = document.getElementById('explanation-text');
-
-        if (isCorrect) {
-            badge.className = "font-black px-4 py-1.5 rounded-xl text-sm tracking-wide bg-emerald-100 text-emerald-700";
-            badge.innerText = "正解";
-            correctDisplay.innerText = "";
+        
+        // メタデータ & カウンター
+        document.getElementById('question-meta').innerText = `${q.year}年 問${q.num}`;
+        
+        if (playMode === 'weak') {
+            document.getElementById('question-counter').innerText = `残り弱点: ${activeQuestions.length - currentIdx}問`;
         } else {
-            badge.className = "font-black px-4 py-1.5 rounded-xl text-sm tracking-wide bg-rose-100 text-rose-700";
-            badge.innerText = "不正解";
-            correctDisplay.innerText = `正解は: ${q.options[q.answer]}`;
+            document.getElementById('question-counter').innerText = `${currentIdx + 1} / ${activeQuestions.length}問目`;
+        }
+        
+        // 過去の戦績
+        const records = getStorage();
+        if (records[q.id]) {
+            const r = records[q.id];
+            const rate = r.attempts > 0 ? Math.round((r.correct / r.attempts) * 100) : 0;
+            document.getElementById('question-record').innerText = `過去の戦績: ${r.correct}勝 / ${r.attempts}回 (${rate}%)`;
+        } else {
+            document.getElementById('question-record').innerText = "過去の戦績: 未解答";
         }
 
-        expText.innerText = q.explanation || "解説はまだありません。";
-        document.getElementById('explanation-container').classList.remove('hidden');
+        // 本文
+        document.getElementById('question-text').innerText = q.text;
 
-        // 自動スクロール
-        setTimeout(() => {
-            document.getElementById('explanation-container').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 100);
+        // 選択肢
+        const container = document.getElementById('options-container');
+        container.innerHTML = "";
+        
+        q.options.forEach((opt, idx) => {
+            const btn = document.createElement('button');
+            btn.className = "w-full text-left p-4 rounded-xl border border-slate-200 hover:border-indigo-200 hover:bg-indigo-50/20 active:scale-[0.99] font-semibold text-slate-700 text-sm transition-all duration-150";
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(idx);
+            container.appendChild(btn);
+        });
     }
 
-    // 次の問題へ
+    function checkAnswer(selectedIdx) {
+        if (hasAnswered) return;
+        hasAnswered = true;
+        
+        const q = activeQuestions[currentIdx];
+        const isCorrect = (selectedIdx === q.answer);
+        
+        // 記録を保存
+        saveRecord(q.id, isCorrect);
+
+        const buttons = document.getElementById('options-container').getElementsByTagName('button');
+        
+        for (let idx = 0; idx < buttons.length; idx++) {
+            buttons[idx].disabled = true;
+            if (idx === q.answer) {
+                // 正解のボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border-2 border-emerald-500 bg-emerald-50 text-emerald-800 font-bold text-sm shadow-sm";
+            } else if (idx === selectedIdx) {
+                // 自分が選択して間違えたボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border-2 border-rose-400 bg-rose-50 text-rose-800 font-bold text-sm shadow-sm";
+            } else {
+                // その他のボタン
+                buttons[idx].className = "w-full text-left p-4 rounded-xl border border-slate-100 bg-slate-50 text-slate-400 text-sm opacity-60";
+            }
+        }
+
+        // 解説の展開
+        document.getElementById('explanation-text').innerText = q.explanation;
+        document.getElementById('explanation').classList.remove('hidden');
+    }
+
     function nextQuestion() {
-        currentIdx++;
-        if (currentIdx >= activeQuestions.length) {
-            alert("全ての出題が終了しました！最初の問題に戻ります。");
-            currentIdx = 0;
-            if (playMode === 'random' || playMode === 'quick') {
-                initQuizFlow(); // シャッフル再実行
+        if (activeQuestions.length === 0) return;
+        
+        if (playMode === 'weak' && hasAnswered) {
+            // 弱点補強モードにおいて正解した場合は、その場で問題プールから除去して詰め直す
+            const q = activeQuestions[currentIdx];
+            const records = getStorage();
+            if (records[q.id] && !records[q.id].lastIncorrect) {
+                activeQuestions.splice(currentIdx, 1);
+                if (currentIdx >= activeQuestions.length) {
+                    currentIdx = 0;
+                }
+                loadQuestion();
                 return;
             }
+        }
+
+        if (currentIdx < activeQuestions.length - 1) {
+            currentIdx++;
+        } else {
+            currentIdx = 0; // 最初に戻るループ
         }
         loadQuestion();
     }
 
-    // ==========================================
-    // データ永続化システム (localStorage)
-    // ==========================================
-    function getStats() {
-        try {
-            const raw = localStorage.getItem(STORAGE_KEY);
-            return raw ? JSON.parse(raw) : { totalAttempts: 0, totalCorrect: 0, history: {}, weakList: {} };
-        } catch (e) {
-            return { totalAttempts: 0, totalCorrect: 0, history: {}, weakList: {} };
+    function prevQuestion() {
+        if (currentIdx > 0) {
+            currentIdx--;
+            loadQuestion();
         }
     }
 
-    function saveAttempt(qId, isCorrect) {
-        const stats = getStats();
-        stats.totalAttempts++;
-        if (isCorrect) stats.totalCorrect++;
-
-        if (!stats.history[qId]) {
-            stats.history[qId] = { attempts: 0, correct: 0 };
+    function changePlayMode(mode) {
+        playMode = mode;
+        
+        // ボタンのアクティブ表現をリセット
+        ['normal', 'random', 'short', 'weak'].forEach(id => {
+            const el = document.getElementById('mode-' + id);
+            if(el) {
+                el.className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-slate-200 hover:border-indigo-200";
+            }
+        });
+        
+        // 選択されたボタンを強調
+        const activeId = mode === 'short_random' ? 'mode-short' : ('mode-' + mode);
+        const activeEl = document.getElementById(activeId);
+        if (activeEl) {
+            activeEl.className = "p-4 border-2 rounded-xl text-left transition-all duration-200 border-indigo-600 bg-indigo-50/10 ring-1 ring-indigo-600";
         }
-        stats.history[qId].attempts++;
-        if (isCorrect) {
-            stats.history[qId].correct++;
-            delete stats.weakList[qId]; // 正解したら弱点リストから除外
-        } else {
-            stats.weakList[qId] = true; // 間違えたら弱点リストに強制追加
-        }
+        
+        initQuizFlow();
+    }
 
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
-        } catch (e) {}
+    function changeYearFilter(year) {
+        yearFilter = year;
+        initQuizFlow();
     }
 
     function updateStatsPanel() {
-        const stats = getStats();
-        const totalAttempts = stats.totalAttempts || 0;
-        const totalCorrect = stats.totalCorrect || 0;
-
-        document.getElementById('stat-total-attempts').innerText = totalAttempts;
-        const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
-        document.getElementById('stat-overall-accuracy').innerText = accuracy + "%";
-
+        const records = getStorage();
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+        
         const list = document.getElementById('weak-questions-list');
-        list.innerHTML = '';
-
+        list.innerHTML = "";
         let hasWeak = false;
 
         quizData.forEach(q => {
-            if (stats.weakList && stats.weakList[q.id]) {
-                hasWeak = true;
-                const item = document.createElement('div');
-                item.className = "flex justify-between items-center bg-slate-50 p-3.5 rounded-xl border border-slate-200 gap-4";
-                item.innerHTML = `
-                    <div class="min-w-0">
-                        <span class="text-[10px] font-black tracking-wider text-rose-500 bg-rose-50 px-2 py-0.5 rounded-md border border-rose-100">${q.year}年 問${q.num}</span>
-                        <p class="text-xs font-bold text-slate-700 mt-1.5 truncate">${q.text}</p>
-                    </div>
-                    <button onclick="window.startSpecificQuestion('${q.id}')" class="flex-shrink-0 bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold py-1.5 px-3 rounded-lg text-xs transition shadow-sm">
-                        特訓 &rarr;
-                    </button>
-                `;
-                list.appendChild(item);
+            if (records[q.id]) {
+                const r = records[q.id];
+                totalAttempts += r.attempts;
+                totalCorrect += r.correct;
+                
+                // 直近で不正解のものを抽出
+                if (r.lastIncorrect) {
+                    hasWeak = true;
+                    const item = document.createElement('div');
+                    item.className = "py-4 flex items-start justify-between gap-4 text-xs md:text-sm";
+                    item.innerHTML = `
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-1.5 mb-1">
+                                <span class="bg-indigo-50 text-indigo-700 font-bold px-2 py-0.5 rounded text-[10px]">${q.year}年 問${q.num}</span>
+                                <span class="text-slate-400 font-bold">${r.correct}勝 / ${r.attempts}回解答</span>
+                            </div>
+                            <p class="text-slate-600 font-semibold line-clamp-2">${q.text}</p>
+                        </div>
+                        <button class="flex-shrink-0 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold px-3 py-1.5 rounded-lg transition-all text-[11px]" onclick="startSpecificQuestion('${q.id}')">
+                            解く
+                        </button>
+                    `;
+                    list.appendChild(item);
+                }
             }
         });
 
@@ -631,6 +777,10 @@
                 loadQuestion();
             }
         };
+
+        document.getElementById('stat-total-attempts').innerText = totalAttempts;
+        const accuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+        document.getElementById('stat-overall-accuracy').innerText = accuracy + "%";
 
         if (!hasWeak) {
             list.innerHTML = `
@@ -654,7 +804,7 @@
 
     window.onload = function() {
         changePlayMode('normal'); // 初期モード
-        switchTab('quiz');        // デフォルト表示
+        switchTab('quiz');        // デフォルト表示タブ
     }
 </script>
 </body>
