@@ -19,6 +19,7 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col pb-16">
 
+    <!-- ヘッダー -->
     <header class="bg-indigo-900 text-white shadow-md sticky top-0 z-50">
         <div class="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-2">
@@ -31,19 +32,23 @@
         </div>
     </header>
 
+    <!-- メインコンテンツ領域 -->
     <main class="flex-1 max-w-3xl w-full mx-auto p-4">
         
+        <!-- 初期ローディング画面 -->
         <div id="view-loading" class="bg-white rounded-2xl shadow-sm p-8 border border-slate-100 text-center space-y-3">
             <div class="animate-spin inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full"></div>
             <p class="text-sm font-medium text-slate-600">GitHubからシステムデータを読み込んでいます...</p>
         </div>
 
+        <!-- ① モード選択画面 (セッティングビュー) -->
         <div id="view-setup" class="hidden space-y-6">
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
                 <h2 class="text-base font-bold text-slate-900 mb-4 flex items-center">
                     <span class="mr-2 text-indigo-600">🎯</span> 演習の条件を設定する
                 </h2>
                 
+                <!-- 年度選択 -->
                 <div class="mb-5">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">対象とする年度</label>
                     <div class="grid grid-cols-4 gap-2">
@@ -54,6 +59,7 @@
                     </div>
                 </div>
 
+                <!-- 演習モード選択 -->
                 <div class="mb-6">
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">演習モード</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -76,22 +82,27 @@
                     </div>
                 </div>
 
+                <!-- スタートボタン -->
                 <button onclick="startExercise()" class="w-full bg-indigo-600 text-white font-bold text-center py-3.5 rounded-xl shadow-md hover:bg-indigo-700 active:scale-[0.99] transition flex items-center justify-center space-x-2">
                     <span>🚀 演習を開始する</span>
                     <span id="selected-target-count" class="text-xs bg-indigo-500 px-2 py-0.5 rounded-full text-indigo-100 font-normal">0問</span>
                 </button>
             </div>
 
+            <!-- 分析・状況パネル -->
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100">
                 <h3 class="text-sm font-bold text-slate-900 mb-3 flex items-center">
                     <span class="mr-2 text-emerald-500">📊</span> 現在の進捗度・年度別正答率
                 </h3>
                 <div class="space-y-3" id="stats-bars-container">
-                    </div>
+                    <!-- JSで動的に構築 -->
+                </div>
             </div>
         </div>
 
+        <!-- ② 演習実行画面 (クイズビュー) -->
         <div id="view-exercise" class="hidden space-y-4">
+            <!-- 進捗バーと上部操作 -->
             <div class="flex items-center justify-between bg-white px-4 py-2.5 rounded-xl shadow-sm border border-slate-100">
                 <button onclick="exitExercise()" class="text-xs text-slate-500 hover:text-slate-800 flex items-center font-medium">
                     👈 中断して戻る
@@ -104,6 +115,7 @@
                 </button>
             </div>
 
+            <!-- 問題カード -->
             <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-4">
                 <div class="flex items-center justify-between">
                     <div class="flex items-center space-x-2">
@@ -115,19 +127,24 @@
                     </div>
                 </div>
 
+                <!-- 問題文 -->
                 <p id="question-text" class="text-base font-medium leading-relaxed text-slate-900 pt-1">
                     問題文がここに表示されます。
                 </p>
 
+                <!-- 画像表示領域 -->
                 <div id="question-image-box" class="hidden bg-slate-50 border border-slate-100 rounded-xl p-2 text-center max-w-full overflow-hidden">
                     <img id="question-image" src="" alt="問題画像" class="max-h-64 mx-auto rounded object-contain"/>
                     <p class="text-[10px] text-slate-400 mt-1 font-mono" id="question-image-filename"></p>
                 </div>
 
+                <!-- 選択肢群 -->
                 <div id="options-container" class="space-y-2 pt-2">
-                    </div>
+                    <!-- JSでボタンを生成 -->
+                </div>
             </div>
 
+            <!-- 解説・判定カード -->
             <div id="explanation-box" class="hidden bg-white rounded-2xl shadow-sm p-5 border-2 space-y-3 transition-all">
                 <div class="flex items-center space-x-2">
                     <span id="judgement-icon" class="text-2xl"></span>
@@ -149,6 +166,7 @@
             </div>
         </div>
 
+        <!-- ③ 検索・一覧・閲覧ビュー -->
         <div id="view-browse" class="hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm p-4 border border-slate-100 space-y-3">
                 <div class="flex flex-col sm:flex-row gap-2">
@@ -167,10 +185,13 @@
                 </div>
             </div>
 
+            <!-- 一覧表示リスト -->
             <div id="browse-list-container" class="space-y-2">
-                </div>
+                <!-- 動的に挿入 -->
+            </div>
         </div>
 
+        <!-- ④ 設定・お問い合わせビュー -->
         <div id="view-settings" class="hidden space-y-4">
             <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-4">
                 <h3 class="text-base font-bold text-slate-900 flex items-center">
@@ -197,6 +218,7 @@
                 </button>
             </div>
 
+            <!-- 🔑 開発者専用 お知らせ管理システム -->
             <div class="bg-slate-100 rounded-2xl p-5 border border-slate-200 space-y-3">
                 <h4 class="text-sm font-bold text-slate-800 flex items-center">🔑 開発者専用 お知らせ管理システム</h4>
                 <div id="admin-login-area" class="space-y-2">
@@ -204,6 +226,7 @@
                     <button onclick="checkAdminPassword()" class="bg-indigo-600 text-white font-bold text-xs px-3 py-2 rounded-xl hover:bg-indigo-700 transition">ログイン</button>
                 </div>
                 
+                <!-- 認証成功後に開く投稿フォーム -->
                 <div id="admin-panel-area" class="hidden space-y-3 pt-2 border-t border-slate-200">
                     <div class="bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 text-[11px] text-emerald-800 font-semibold">
                         🔓 管理者認証に成功しました。
@@ -225,6 +248,7 @@
                 </div>
             </div>
 
+            <!-- データリセット -->
             <div class="bg-rose-50 rounded-2xl p-5 border border-rose-100 space-y-2">
                 <h4 class="text-sm font-bold text-rose-800">⚠️ データの初期化</h4>
                 <p class="text-[11px] text-rose-600 leading-relaxed">
@@ -236,8 +260,10 @@
             </div>
         </div>
 
+        <!-- ⑤ アプリの使い方・お知らせビュー -->
         <div id="view-guide" class="hidden space-y-4">
             
+            <!-- 📢 動的お知らせ掲示板エリア -->
             <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3 shadow-sm">
                 <h3 class="text-base font-bold text-amber-900 flex items-center">
                     <span class="mr-2">📢</span> 開発者からのお知らせ掲示板
@@ -247,6 +273,7 @@
                 </div>
             </div>
 
+            <!-- 🎯 演習モードについて -->
             <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
                 <h3 class="text-base font-bold text-indigo-900 flex items-center">
                     <span class="mr-2">🎯</span> 4つの演習モードの特徴
@@ -271,6 +298,7 @@
                 </div>
             </div>
 
+            <!-- 💡 効率的な復習システム -->
             <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 space-y-3">
                 <h3 class="text-base font-bold text-indigo-900 flex items-center">
                     <span class="mr-2">💡</span> 効率的な復習のしかた
@@ -292,6 +320,7 @@
         </div>
     </main>
 
+    <!-- フッターナビゲーション -->
     <nav class="bg-white border-t border-slate-200 fixed bottom-0 left-0 right-0 z-50 shadow-lg">
         <div class="max-w-3xl mx-auto flex items-center justify-around no-select">
             <button onclick="switchTab('setup')" id="nav-setup" class="flex-1 py-2 text-center text-indigo-600 font-bold flex flex-col items-center space-y-0.5">
@@ -313,6 +342,7 @@
         </div>
     </nav>
 
+    <!-- JavaScript 処理層 -->
     <script>
         const GITHUB_CONFIG = {
             username: 'arusuty', 
@@ -320,7 +350,8 @@
             branch: 'main'                         
         };
 
-        const ADMIN_HASH = "8c6976e5b5410415b00c313a17e082f4d6d7ee76551b9b1d5fbc646271a25be1";
+        // 🔒 正しいハッシュ値に完全差し替えしました！
+        const ADMIN_HASH = "6814b77f1b74d41fa752174313f89bf9cb4daef7515b81a0709ee09977826315";
 
         let masterQuestions = [];
         let masterNews = [];
@@ -813,7 +844,7 @@
                             '</button>' +
                             '<button onclick="toggleIncorrectBrowse(\'' + q.id + '\', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50">' +
                                 (isInc ? '❌ 解除' : '⚠️ マーク') +
-                            '</button>' +
+                            </button>' +
                         '</div>' +
                     '</div>';
                 
