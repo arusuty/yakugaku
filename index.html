@@ -234,7 +234,6 @@
             branch: 'main'                         
         };
 
-        // マスターデータ保持用
         let masterQuestions = [];
 
         // アプリケーション状態変数
@@ -248,11 +247,10 @@
         let incorrectIds = JSON.parse(localStorage.getItem('qb_incorrect_ids')) || [];
         let historyLog = JSON.parse(localStorage.getItem('qb_history_log')) || {};
 
-        // パス定義（GitHub Pages環境なら相対、それ以外ならRawフォールバック）
         const jsonUrl = "./questions.json"; 
         const baseImageUrl = "./"; 
 
-        // 起動時に非同期で読み込み
+        // 起動時に同期処理
         window.addEventListener('DOMContentLoaded', () => {
             loadQuestionsData();
         });
@@ -261,10 +259,9 @@
             try {
                 const response = await fetch(jsonUrl);
                 if (!response.ok) throw new Error("Fetch Error");
-                masterQuestions = await response.ok ? await response.json() : [];
+                masterQuestions = await response.json();
                 initApp();
             } catch (err) {
-                // セキュリティ制限回避用のRawURLフォールバック
                 const fallbackUrl = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/questions.json";
                 try {
                     const response = await fetch(fallbackUrl);
@@ -455,7 +452,6 @@
             imgBox.classList.remove('hidden');
             
             imgElem.onerror = () => {
-                // 安全なフォールバック
                 imgElem.src = "https://raw.githubusercontent.com/" + GITHUB_CONFIG.username + "/" + GITHUB_CONFIG.repository + "/" + GITHUB_CONFIG.branch + "/" + encodeURIComponent(targetImageName);
                 imgElem.onerror = () => { imgBox.classList.add('hidden'); };
             };
@@ -547,6 +543,7 @@
             }
         }
 
+        // ブックマークトグル
         function toggleBookmarkCurrent() {
             if (currentQuestions.length === 0 || !currentQuestions[currentIdx]) return;
             const qId = currentQuestions[currentIdx].id;
@@ -574,7 +571,7 @@
             renderCurrentQuestion();
         }
 
-        // ③ 折りたたみ式（アコーディオン）問題一覧
+        // ③ 新アコーディオン対応問題一覧（100%文字化けしない安全結合処理）
         function filterBrowseList() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const filterType = document.getElementById('search-filter-type').value;
@@ -601,17 +598,19 @@
 
             filtered.sort((a,b) => (a.year !== b.year) ? b.year - a.year : a.num - b.num);
 
-            filtered.forEach((q, idx) => {
+            filtered.forEach((q) => {
                 const isBmk = bookmarks.includes(q.id);
                 const isInc = incorrectIds.includes(q.id);
                 
                 const details = document.createElement('details');
                 details.className = "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden group transition-all duration-200";
                 
+                // バッジ文字列の結合
                 let badgeHtml = '<span class="bg-indigo-50 text-indigo-700 text-[11px] font-bold px-2 py-0.5 rounded-md font-mono">' + q.year + '年 問' + q.num + '</span>';
                 if (isBmk) badgeHtml += '<span class="text-xs text-amber-500 ml-1">⭐</span>';
                 if (isInc) badgeHtml += '<span class="bg-rose-50 text-rose-600 text-[10px] font-bold px-1 rounded border border-rose-100 ml-1">⚠️</span>';
                 
+                // 選択肢HTMLの安全結合
                 let optionsHtml = '<div class="space-y-1.5 mt-2">';
                 q.options.forEach((opt, oIdx) => {
                     const isAnswer = (oIdx === q.answer);
@@ -623,44 +622,45 @@
                 optionsHtml += '</div>';
 
                 const targetImageName = q.image ? q.image : (q.year + " Q" + q.num + ".png");
+                const explanationContent = q.explanation ? q.explanation : '解説はありません。';
 
-                details.innerHTML = `
-                    <summary class="list-none flex items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50/80 transition select-none">
-                        <div class="flex items-center space-x-3">
-                            \${badgeHtml}
-                            <span class="text-xs font-medium text-slate-700 truncate max-w-[160px] sm:max-w-md">\${q.text}</span>
-                        </div>
-                        <span class="text-xs text-slate-400 font-bold transition-transform group-open:rotate-180 ml-2">▼</span>
-                    </summary>
-                    <div class="p-4 border-t border-slate-100 bg-slate-50/30 space-y-3">
-                        <div class="text-xs font-semibold text-slate-900 bg-white border border-slate-100 rounded-xl p-3 shadow-inner">
-                            \${q.text}
-                        </div>
+                // メインアコーディオン構造のレンダリング
+                details.innerHTML = 
+                    '<summary class="list-none flex items-center justify-between p-3.5 cursor-pointer hover:bg-slate-50/80 transition select-none">' +
+                        '<div class="flex items-center space-x-3">' +
+                            badgeHtml +
+                            '<span class="text-xs font-medium text-slate-700 truncate max-w-[160px] sm:max-w-md">' + q.text + '</span>' +
+                        '</div>' +
+                        '<span class="text-xs text-slate-400 font-bold transition-transform group-open:rotate-180 ml-2">▼</span>' +
+                    '</summary>' +
+                    '<div class="p-4 border-t border-slate-100 bg-slate-50/30 space-y-3">' +
+                        '<div class="text-xs font-semibold text-slate-900 bg-white border border-slate-100 rounded-xl p-3 shadow-inner">' +
+                            q.text +
+                        '</div>' +
                         
-                        <div class="my-3 browse-img-box bg-slate-100 p-1.5 rounded-lg border border-slate-200 max-w-xs text-center mx-auto hidden">
-                            <img src="\${baseImageUrl + encodeURIComponent(targetImageName)}" class="max-h-32 mx-auto object-contain rounded browse-actual-img" />
-                            <span class="text-[9px] text-slate-400 block mt-1 font-mono">\${targetImageName}</span>
-                        </div>
+                        '<div class="my-3 browse-img-box bg-slate-100 p-1.5 rounded-lg border border-slate-200 max-w-xs text-center mx-auto hidden">' +
+                            '<img src="' + baseImageUrl + encodeURIComponent(targetImageName) + '" class="max-h-32 mx-auto object-contain rounded browse-actual-img" />' +
+                            '<span class="text-[9px] text-slate-400 block mt-1 font-mono">' + targetImageName + '</span>' +
+                        '</div>' +
 
-                        \${optionsHtml}
+                        optionsHtml +
 
-                        <div class="mt-3 bg-white rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 shadow-sm">
-                            <div class="font-bold text-emerald-600 flex items-center">✅ 正解: 選択肢 \${q.answer + 1}</div>
-                            <div class="text-slate-500 pt-1.5 border-t border-slate-50">\${q.explanation ? q.explanation : '解説はありません。'}</div>
-                        </div>
+                        '<div class="mt-3 bg-white rounded-xl p-3 border border-slate-100 text-xs space-y-1.5 shadow-sm">' +
+                            '<div class="font-bold text-emerald-600 flex items-center">✅ 正解: 選択肢 ' + (q.answer + 1) + '</div>' +
+                            '<div class="text-slate-500 pt-1.5 border-t border-slate-50">' + explanationContent + '</div>' +
+                        '</div>' +
 
-                        <div class="flex items-center space-x-2 pt-1">
-                            <button onclick="toggleBookmarkBrowse('\${q.id}', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50">
-                                \${isBmk ? '★ 解除' : '⭐ 気になる'}
-                            </button>
-                            <button onclick="toggleIncorrectBrowse('\${q.id}', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50">
-                                \${isInc ? '❌ 解除' : '⚠️ マーク'}
-                            </button>
-                        </div>
-                    </div>
-                `;
+                        '<div class="flex items-center space-x-2 pt-1">' +
+                            '<button onclick="toggleBookmarkBrowse(\'' + q.id + '\', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50">' +
+                                (isBmk ? '★ 解除' : '⭐ 気になる') +
+                            '</button>' +
+                            '<button onclick="toggleIncorrectBrowse(\'' + q.id + '\', event)" class="flex-1 bg-white border border-slate-200 rounded-lg py-1.5 text-[11px] font-medium text-slate-600 hover:bg-slate-50">' +
+                                (isInc ? '❌ 解除' : '⚠️ マーク') +
+                            '</button>' +
+                        '</div>' +
+                    '</div>';
                 
-                // 一覧用画像のフォールバック処理を安全に実装
+                // 画像フォールバックバインド
                 const imgBox = details.querySelector('.browse-img-box');
                 const actualImg = details.querySelector('.browse-actual-img');
                 if(actualImg) {
